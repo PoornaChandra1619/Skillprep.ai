@@ -1,4 +1,4 @@
-const API_BASE = "http://localhost:5000/api";
+export const API_URL = "https://skillprep-ai.onrender.com/api";
 
 export const registerUser = async (formData) => {
   const res = await fetch(`${API_BASE}/auth/register`, {
