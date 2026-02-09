@@ -112,11 +112,17 @@ export default router;
 /* ================= INTERVIEW CHAT (REAL-TIME) ================= */
 import OpenAI from "openai";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
 router.post("/interview-chat", async (req, res) => {
+  // Check for API key at runtime to prevent startup crash
+  if (!process.env.OPENAI_API_KEY) {
+    console.error("Missing OPENAI_API_KEY");
+    return res.status(500).json({ message: "OpenAI API Key is missing on server" });
+  }
+
+  const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+  });
+
   const { role, history } = req.body;
 
   if (!role || !history) {
