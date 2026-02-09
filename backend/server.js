@@ -1,33 +1,52 @@
 import dotenv from "dotenv";
-dotenv.config();   // ⭐ MUST BE FIRST
+dotenv.config(); // ⭐ MUST BE FIRST
 
 import express from "express";
 import cors from "cors";
 import connectDB from "./config/db.js";
-import authRoutes from "./routes/authRoutes.js";
-import aiRoutes from "./routes/aiRoutes.js";
-import interviewRoutes from "./routes/interviewRoutes.js";
 
-
-console.log("OPENAI KEY =>", process.env.OPENAI_API_KEY);
-
-connectDB();
+// ✅ Use ONE naming style consistently
+import authRoutes from "./Routes/authRoutes.js";
+import aiRoutes from "./Routes/aiRoutes.js";
+import interviewRoutes from "./Routes/interviewRoutes.js";
 
 const app = express();
+const PORT = process.env.PORT || 5000;
 
-app.use(cors());
+/* ================= MIDDLEWARE ================= */
+
+// 🔐 CORS – allow frontend only
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
+
 app.use(express.json());
 
-app.use("/api/auth", authRoutes);
-app.use("/api/ai", aiRoutes);
-app.use("/api/interview", interviewRoutes);
-
+/* ================= ROUTES ================= */
 
 app.get("/", (req, res) => {
   res.send("SkillPrep API running");
 });
 
-app.listen(5000, () => {
-  console.log("Backend running on http://localhost:5000");
-});
+app.use("/api/auth", authRoutes);
+app.use("/api/ai", aiRoutes);
+app.use("/api/interview", interviewRoutes);
 
+/* ================= START SERVER ================= */
+
+const startServer = async () => {
+  try {
+    await connectDB(); // ✅ wait for DB
+    app.listen(PORT, () => {
+      console.log(`🚀 Backend running on http://localhost:${PORT}`);
+    });
+  } catch (err) {
+    console.error("❌ Failed to start server:", err.message);
+    process.exit(1);
+  }
+};
+
+startServer();

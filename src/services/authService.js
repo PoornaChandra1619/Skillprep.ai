@@ -1,4 +1,5 @@
-const API_URL = "http://127.0.0.1:5000/api/auth";
+// ⚠️ Always use SAME origin as backend CORS
+const API_URL = "http://localhost:5000/api/auth";
 
 /* ================= REGISTER ================= */
 export const registerUser = async (data) => {
@@ -13,14 +14,19 @@ export const registerUser = async (data) => {
 
     const result = await res.json();
 
+    // ❌ backend error
     if (!res.ok) {
-      throw new Error(result.message || result.msg || "Register failed");
+      throw new Error(result.msg || result.message || "Register failed");
     }
 
-    return result; // { token, user }
+    // ✅ success
+    return result; // { token, user } (or msg if token not yet implemented)
+
   } catch (err) {
     console.error("REGISTER ERROR:", err);
-    throw new Error("Server not reachable / Register failed");
+
+    // 🔥 IMPORTANT: propagate real error
+    throw new Error(err.message || "Server not reachable");
   }
 };
 
@@ -37,18 +43,23 @@ export const loginUser = async (data) => {
 
     const result = await res.json();
 
+    // ❌ backend error
     if (!res.ok) {
-      throw new Error(result.message || result.msg || "Login failed");
+      throw new Error(result.msg || result.message || "Login failed");
     }
 
-    // 🔐 Extra safety
+    // 🔐 token must be present
     if (!result.token) {
       throw new Error("Token not received from server");
     }
 
+    // ✅ success
     return result; // { token, user }
+
   } catch (err) {
     console.error("LOGIN ERROR:", err);
-    throw new Error("Server not reachable / Login failed");
+
+    // 🔥 propagate actual backend error
+    throw new Error(err.message || "Server not reachable");
   }
 };

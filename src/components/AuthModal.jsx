@@ -20,6 +20,15 @@ export default function AuthModal({ close }) {
 
   const handleSubmit = async () => {
     setError("");
+
+    // ✅ basic validation
+    if (!isLogin && !form.name) {
+      return setError("Name is required");
+    }
+    if (!form.email || !form.password) {
+      return setError("Email & Password are required");
+    }
+
     setLoading(true);
 
     try {
@@ -34,21 +43,24 @@ export default function AuthModal({ close }) {
         data = await registerUser(form);
       }
 
-      if (!data || !data.token) {
-        throw new Error("No token received from server");
+      if (!data?.token) {
+        throw new Error(data?.msg || "Authentication failed");
       }
 
-      // Save login data
+      // ✅ save auth
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
 
       alert(isLogin ? "Login successful 🎉" : "Registered successfully 🎉");
 
       close();
-      window.location.href = "/";
-    } catch (error) {   // 🔥 FIX: error variable defined
-      console.error(error);
-      setError(error.message || "Authentication failed");
+
+      // ⚠️ later replace with react-router navigate
+      window.location.reload();
+
+    } catch (err) {
+      console.error(err);
+      setError(err.message || "Server not reachable");
     } finally {
       setLoading(false);
     }
