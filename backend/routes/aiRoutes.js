@@ -109,7 +109,54 @@ router.get("/profile", authMiddleware, async (req, res) => {
 });
 
 export default router;
-/* ================= INTERVIEW QUESTIONS ================= */
+/* ================= INTERVIEW CHAT (REAL-TIME) ================= */
+import OpenAI from "openai";
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
+router.post("/interview-chat", async (req, res) => {
+  const { role, history } = req.body;
+
+  if (!role || !history) {
+    return res.status(400).json({ message: "Role and history required" });
+  }
+
+  try {
+    const systemPrompt = `You are a strict and professional technical interviewer for a ${role} position. 
+    Your goal is to assess the candidate's skills.
+    
+    - Ask ONE question at a time.
+    - Keep responses concise (under 2 sentences) so they can be spoken easily by TTS.
+    - If the user answers correctly, ask a follow-up or move to the next topic.
+    - If the user is wrong, gently correct them and move on.
+    - Do not give long explanations unless asked.
+    - Act like a human interviewer, not a robot.`;
+
+    const messages = [
+      { role: "system", content: systemPrompt },
+      ...history.map((msg) => ({
+        role: msg.sender === "user" ? "user" : "assistant",
+        content: msg.text,
+      })),
+    ];
+
+    const completion = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo",
+      messages,
+    });
+
+    const reply = completion.choices[0].message.content;
+    res.json({ reply });
+
+  } catch (err) {
+    console.error("OpenAI Error:", err);
+    res.status(500).json({ message: "Failed to generate response" });
+  }
+});
+
+/* ================= INTERVIEW QUESTIONS (STATIC - LEGACY) ================= */
 router.post("/interview-questions", (req, res) => {
   const { role } = req.body;
 
@@ -149,3 +196,4 @@ router.post("/interview-questions", (req, res) => {
 
   res.json(questions);
 });
+

@@ -2,12 +2,13 @@
 .auth-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.55);
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(5px);
   display: flex;
   align-items: center;
   justify-content: center;
   animation: fadeIn 0.3s ease;
-  z-index: 999;
+  z-index: 9999;
 }
 
 @keyframes fadeIn {
@@ -18,109 +19,184 @@
 /* ===== CARD POP ===== */
 .auth-card {
   background: #ffffff;
-  padding: 30px;
-  border-radius: 18px;
-  width: 360px;
-  animation: pop 0.25s ease;
-  box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+  padding: 40px;
+  border-radius: 20px;
+  width: 400px;
+  animation: pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   position: relative;
+  text-align: center;
 }
 
 @keyframes pop {
   from {
-    transform: scale(0.92) translateY(25px);
+    transform: scale(0.9) translateY(20px);
     opacity: 0;
   }
   to {
-    transform: scale(1);
+    transform: scale(1) translateY(0);
     opacity: 1;
   }
 }
 
-/* ===== INPUT ===== */
-.auth-card input {
-  width: 100%;
-  margin-top: 14px;
-  padding: 12px;
-  border-radius: 10px;
-  border: 1px solid #ddd;
-  transition: 0.2s;
+.auth-card h2 {
+  margin-bottom: 8px;
+  font-size: 1.8rem;
+  color: #1e293b;
 }
 
-.auth-card input:focus {
-  border-color: #6366f1;
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
-}
-
-/* ===== BUTTON ===== */
-.register {
-  width: 100%;
-  margin-top: 18px;
-  padding: 12px;
-  border-radius: 10px;
-  border: none;
-  background: linear-gradient(135deg,#6366f1,#8b5cf6);
-  color: white;
-  cursor: pointer;
-  transition: 0.25s;
-}
-
-.register:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(99,102,241,0.4);
-}
-
-/* ===== SECOND BUTTON ===== */
-.google {
-  width: 100%;
-  margin-top: 12px;
-  padding: 12px;
-  border-radius: 10px;
-  border: none;
-  background: #f1f5f9;
-  cursor: pointer;
-  transition: 0.25s;
-}
-
-.google:hover {
-  background: #e2e8f0;
+.auth-subtitle {
+  color: #64748b;
+  margin-bottom: 24px;
+  font-size: 0.95rem;
 }
 
 /* ===== CLOSE BTN ===== */
 .close-btn {
   position: absolute;
-  right: 14px;
-  top: 10px;
+  right: 20px;
+  top: 20px;
   border: none;
-  background: #6366f1;
-  color: white;
-  border-radius: 8px;
-  padding: 2px 8px;
+  background: #f1f5f9;
+  color: #64748b;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
   cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
 }
 
-/* ===== ERROR SHAKE ===== */
-.shake {
-  animation: shake 0.3s;
+.close-btn:hover {
+  background: #e2e8f0;
+  color: #ef4444;
+  transform: rotate(90deg);
 }
 
-@keyframes shake {
-  0% { transform: translateX(0); }
-  25% { transform: translateX(-6px); }
-  50% { transform: translateX(6px); }
-  75% { transform: translateX(-4px); }
-  100% { transform: translateX(0); }
+/* ===== INPUTS ===== */
+.input-group {
+  margin-bottom: 16px;
+  text-align: left;
 }
 
-.auth-error {
-  color: red;
+.auth-card input {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s;
+  font-size: 1rem;
+  background: #f8fafc;
+}
+
+.auth-card input:focus {
+  border-color: #6366f1;
+  outline: none;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+/* ===== PRIMARY BUTTON ===== */
+.submit-btn {
+  width: 100%;
   margin-top: 8px;
-  text-align: center;
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-weight: 600;
+  font-size: 1rem;
+  letter-spacing: 0.5px;
 }
 
-.or {
-  text-align: center;
-  margin-top: 10px;
-  color: #666;
+.submit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.4);
+}
+
+.submit-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ===== GOOGLE BUTTON ===== */
+.social-login {
+  margin-bottom: 24px;
+}
+
+.google-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  color: #334155;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.google-btn:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+/* ===== DIVIDER ===== */
+.divider {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24px;
+  color: #94a3b8;
+  font-size: 0.85rem;
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.divider span {
+  padding: 0 10px;
+}
+
+/* ===== TOGGLE LINK ===== */
+.toggle-auth {
+  margin-top: 20px;
+  font-size: 0.9rem;
+  color: #64748b;
+}
+
+.toggle-auth span {
+  color: #6366f1;
+  font-weight: 600;
+  cursor: pointer;
+  margin-left: 5px;
+}
+
+.toggle-auth span:hover {
+  text-decoration: underline;
+}
+
+/* ===== ERROR ===== */
+.auth-error {
+  background: #fef2f2;
+  color: #ef4444;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  margin-bottom: 20px;
+  border: 1px solid #fee2e2;
 }

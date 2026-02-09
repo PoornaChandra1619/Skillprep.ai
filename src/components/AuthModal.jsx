@@ -18,15 +18,27 @@ export default function AuthModal({ close }) {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  const validate = () => {
+    if (!form.email.includes("@") || !form.email.includes(".")) {
+      return "Please enter a valid email address";
+    }
+    if (form.password.length < 6) {
+      return "Password must be at least 6 characters";
+    }
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(form.password)) {
+      return "Password must contain at least one special character";
+    }
+    if (!isLogin && !form.name) {
+      return "Name is required";
+    }
+    return null;
+  };
+
   const handleSubmit = async () => {
     setError("");
-
-    // ✅ basic validation
-    if (!isLogin && !form.name) {
-      return setError("Name is required");
-    }
-    if (!form.email || !form.password) {
-      return setError("Email & Password are required");
+    const validationError = validate();
+    if (validationError) {
+      return setError(validationError);
     }
 
     setLoading(true);
@@ -47,15 +59,11 @@ export default function AuthModal({ close }) {
         throw new Error(data?.msg || "Authentication failed");
       }
 
-      // ✅ save auth
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
 
       alert(isLogin ? "Login successful 🎉" : "Registered successfully 🎉");
-
       close();
-
-      // ⚠️ later replace with react-router navigate
       window.location.reload();
 
     } catch (err) {
@@ -71,61 +79,68 @@ export default function AuthModal({ close }) {
       <div className="auth-card" onClick={(e) => e.stopPropagation()}>
         <button className="close-btn" onClick={close}>✕</button>
 
-        <h2>{isLogin ? "Welcome back" : "Get started in seconds"}</h2>
+        <h2>{isLogin ? "Welcome Back" : "Create Account"}</h2>
+        <p className="auth-subtitle">
+          {isLogin ? "Enter your details to login" : "Get started with your free account"}
+        </p>
 
-        {error && <p className="auth-error">{error}</p>}
+        {error && <div className="auth-error">{error}</div>}
+
+        <div className="social-login">
+          <button className="google-btn" onClick={() => alert("Google Login needs Cloud Console setup!")}>
+            <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google" width="20" />
+            Continue with Google
+          </button>
+        </div>
+
+        <div className="divider">
+          <span>OR</span>
+        </div>
 
         {!isLogin && (
-          <input
-            name="name"
-            placeholder="Name"
-            value={form.name}
-            onChange={handleChange}
-          />
+          <div className="input-group">
+            <input
+              name="name"
+              placeholder="Name"
+              value={form.name}
+              onChange={handleChange}
+            />
+          </div>
         )}
 
-        <input
-          name="email"
-          placeholder="Email"
-          value={form.email}
-          onChange={handleChange}
-        />
+        <div className="input-group">
+          <input
+            name="email"
+            placeholder="Email Address"
+            value={form.email}
+            onChange={handleChange}
+          />
+        </div>
 
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          value={form.password}
-          onChange={handleChange}
-        />
-
-        <button
-          className="register"
-          onClick={handleSubmit}
-          disabled={loading}
-        >
-          {loading
-            ? isLogin
-              ? "Logging in..."
-              : "Registering..."
-            : isLogin
-            ? "Login"
-            : "Register"}
-        </button>
-
-        <div className="or">
-          {isLogin ? "Don't have an account?" : "Already have an account?"}
+        <div className="input-group">
+          <input
+            type="password"
+            name="password"
+            placeholder="Password (6+ chars, special char)"
+            value={form.password}
+            onChange={handleChange}
+          />
         </div>
 
         <button
-          className="google"
-          onClick={() => {
-            setError("");
-            setIsLogin(!isLogin);
-          }}
+          className="submit-btn"
+          onClick={handleSubmit}
+          disabled={loading}
         >
-          {isLogin ? "Create new account" : "Login"}
+          {loading ? "Processing..." : isLogin ? "Login" : "Sign Up"}
         </button>
+
+        <p className="toggle-auth">
+          {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
+          <span onClick={() => { setError(""); setIsLogin(!isLogin); }}>
+            {isLogin ? "Sign Up" : "Login"}
+          </span>
+        </p>
       </div>
     </div>
   );
