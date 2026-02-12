@@ -5,6 +5,11 @@ import "./intro.css";
 
 export default function Interview() {
   const navigate = useNavigate();
+  const [role, setRole] = useState("");
+  const [started, setStarted] = useState(false);
+  const [messages, setMessages] = useState([]);
+  const [isListening, setIsListening] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [inputText, setInputText] = useState("");
   const [review, setReview] = useState(null);
   const [isGeneratingReview, setIsGeneratingReview] = useState(false);
