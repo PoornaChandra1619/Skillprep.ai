@@ -65,8 +65,12 @@ export default function Intro() {
                     : "No attempts"}
                 </div>
 
-                <div className="dropdown-item">
-                  🧠 Total Attempts: {user?.scores?.length || 0}
+                <div
+                  className="dropdown-item"
+                  onClick={() => navigate("/profile")}
+                  style={{ color: "#6366f1", fontWeight: "bold" }}
+                >
+                  📄 View Full Profile
                 </div>
 
                 <div

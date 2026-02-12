@@ -45,7 +45,7 @@ export default function Quiz() {
     try {
       const token = localStorage.getItem("token");
 
-      await fetch("http://localhost:5000/api/ai/save-score", {
+      await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/ai/save-score`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

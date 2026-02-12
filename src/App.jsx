@@ -5,6 +5,7 @@ import Notes from "./pages/Notes";
 import Quiz from "./pages/Quiz.jsx";
 import QuizResult from "./pages/QuizResult";
 import Interview from "./pages/Interview";
+import Profile from "./pages/Profile";
 
 export default function App() {
   return (
@@ -23,6 +24,9 @@ export default function App() {
 
         {/* Interview */}
         <Route path="/interview" element={<Interview />} />
+
+        {/* User Profile */}
+        <Route path="/profile" element={<Profile />} />
 
       </Routes>
     </BrowserRouter>
