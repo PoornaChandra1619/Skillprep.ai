@@ -5,15 +5,25 @@ import "./intro.css";
 
 export default function Interview() {
   const navigate = useNavigate();
-  const [role, setRole] = useState("");
-  const [started, setStarted] = useState(false);
-  const [messages, setMessages] = useState([]);
-  const [isListening, setIsListening] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [inputText, setInputText] = useState("");
   const [review, setReview] = useState(null);
   const [isGeneratingReview, setIsGeneratingReview] = useState(false);
+  const [resumeFile, setResumeFile] = useState(null);
+  const [resumeText, setResumeText] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
   const messagesEndRef = useRef(null);
+  const fileInputRef = useRef(null);
+
+  const roles = [
+    "Frontend Developer",
+    "Backend Developer",
+    "Full Stack Developer",
+    "Data Scientist",
+    "DevOps Engineer",
+    "Product Manager",
+    "UI/UX Designer",
+    "Mobile App Developer"
+  ];
 
   // Scroll to bottom on new message
   useEffect(() => {
@@ -51,12 +61,45 @@ export default function Interview() {
     window.speechSynthesis.speak(utterance);
   };
 
+  const handleResumeUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.type !== "application/pdf") {
+      alert("Please upload a PDF file.");
+      return;
+    }
+
+    setResumeFile(file);
+    setIsUploading(true);
+
+    const formData = new FormData();
+    formData.append("resume", file);
+
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/ai/upload-resume`, {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
+
+      setResumeText(data.text);
+      // alert("Resume uploaded and parsed successfully!");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to parse resume. You can still start the interview manually.");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   const startInterview = async () => {
-    if (!role) return alert("Enter role");
+    if (!role) return alert("Select or enter a role");
     setStarted(true);
 
     // Initial AI greeting
-    const greeting = `Hello! I am your AI interviewer for the ${role} position. Tell me about yourself.`;
+    const greeting = `Hello! I am your AI interviewer for the ${role} position. ${resumeText ? "I've reviewed your resume and would like to learn more about your experience. " : ""}Let's begin. Tell me about yourself.`;
     setMessages([{ sender: "ai", text: greeting }]);
     speak(greeting);
   };
@@ -74,7 +117,7 @@ export default function Interview() {
       const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/ai/interview-chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ role, history: newMessages }),
+        body: JSON.stringify({ role, history: newMessages, resumeText }),
       });
 
       const data = await res.json();
@@ -183,28 +226,49 @@ export default function Interview() {
             animate={{ opacity: 1, y: 0 }}
           >
             <h1>AI Interviewer 🎤</h1>
-            <p>Enter your target role to begin a voice or text interview.</p>
+            <p>Select your role and upload your resume for a personalized interview.</p>
 
-            <input
-              placeholder="e.g. Frontend Developer"
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              style={{
-                padding: "16px",
-                width: "100%",
-                borderRadius: "12px",
-                border: "1px solid #ddd",
-                marginTop: "20px",
-                fontSize: "1.1rem"
-              }}
-            />
+            <div className="interview-setup-grid">
+              <div className="role-selector">
+                <input
+                  placeholder="e.g. Frontend Developer"
+                  value={role}
+                  onChange={(e) => setRole(e.target.value)}
+                  className="role-input"
+                  list="roles-list"
+                />
+                <datalist id="roles-list">
+                  {roles.map((r, i) => (
+                    <option key={i} value={r} />
+                  ))}
+                </datalist>
+              </div>
+
+              <div className="resume-upload-section">
+                <input
+                  type="file"
+                  accept=".pdf"
+                  onChange={handleResumeUpload}
+                  style={{ display: 'none' }}
+                  ref={fileInputRef}
+                />
+                <button
+                  className={`upload-resume-btn ${resumeText ? 'success' : ''}`}
+                  onClick={() => fileInputRef.current.click()}
+                  disabled={isUploading}
+                >
+                  {isUploading ? "📤 Parsing..." : resumeText ? "✅ Resume Added" : "📄 Upload Resume"}
+                </button>
+              </div>
+            </div>
 
             <button
               className="get-started"
               style={{ marginTop: "24px", width: "100%" }}
               onClick={startInterview}
+              disabled={isUploading}
             >
-              Start Interview
+              {isUploading ? "Wait for Resume..." : "Start Interview"}
             </button>
           </motion.div>
         ) : (
