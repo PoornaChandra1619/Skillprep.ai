@@ -130,15 +130,10 @@ router.post("/interview-chat", async (req, res) => {
   }
 
   try {
-    const systemPrompt = `You are a strict and professional technical interviewer for a ${role} position. 
-    Your goal is to assess the candidate's skills.
-    
-    - Ask ONE question at a time.
-    - Keep responses concise (under 2 sentences) so they can be spoken easily by TTS.
-    - If the user answers correctly, ask a follow-up or move to the next topic.
-    - If the user is wrong, gently correct them and move on.
-    - Do not give long explanations unless asked.
-    - Act like a human interviewer, not a robot.`;
+    const systemPrompt = `You are a professional technical interviewer for a ${role} position. 
+    Assess the candidate's skills by asking one question at a time.
+    Keep your questions and feedback extremely concise (under 30 words) for rapid response.
+    Be encouraging but professional.`;
 
     const messages = [
       { role: "system", content: systemPrompt },

@@ -383,6 +383,27 @@ body {
   border-bottom: 1px solid #e2e8f0;
 }
 
+.end-btn {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.end-btn:hover:not(:disabled) {
+  background: #dc2626;
+  transform: scale(1.02);
+}
+
+.end-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .chat-header h3 {
   margin: 0;
   color: #1e293b;

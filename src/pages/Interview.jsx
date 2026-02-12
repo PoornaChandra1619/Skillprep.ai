@@ -211,8 +211,7 @@ export default function Interview() {
             <div className="chat-header">
               <h3>{role} Interview</h3>
               <button
-                className="close-btn"
-                style={{ position: 'static', background: '#ef4444' }}
+                className="end-btn"
                 onClick={endInterview}
                 disabled={isGeneratingReview}
               >
