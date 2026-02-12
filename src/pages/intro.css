@@ -601,3 +601,60 @@ body {
   color: #475569;
   margin-bottom: 24px;
 }
+
+/* ================= FOOTER SECTION ================= */
+.footer-section {
+  background: #0f172a;
+  color: white;
+  padding: 80px 8% 40px;
+  text-align: center;
+}
+
+.footer-content {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.footer-logo {
+  font-size: 40px;
+  font-weight: 800;
+  margin-bottom: 30px;
+}
+
+.footer-logo span {
+  color: #22d3ee;
+}
+
+.footer-info h3 {
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+  color: #22d3ee;
+}
+
+.footer-info p {
+  color: #94a3b8;
+  margin-bottom: 24px;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.contact-details {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 60px;
+}
+
+.contact-details p {
+  color: white;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.footer-bottom {
+  padding-top: 40px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  color: #64748b;
+  font-size: 0.9rem;
+}
