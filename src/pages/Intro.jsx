@@ -36,12 +36,8 @@ export default function Intro() {
         <ul className="nav-links">
           <li onClick={() => scrollToSection("about")}>About</li>
           <li onClick={() => scrollToSection("features")}>Features</li>
-          <li className="contact-item" onClick={() => scrollToSection("contact")}>
+          <li className="nav-item" onClick={() => scrollToSection("contact")}>
             Contact
-            <div className="contact-tooltip">
-              <p><strong>Poorna Chandra</strong></p>
-              <p>purnachandra1619@gmail.com</p>
-            </div>
           </li>
         </ul>
 
@@ -232,8 +228,16 @@ export default function Intro() {
             <h3>Get in Touch</h3>
             <p>Ready to sharpen your skills? Contact us for any queries or feedback.</p>
             <div className="contact-details">
-              <p>📧 purnachandra1619@gmail.com</p>
-              <p>📍 Hyderabad, India</p>
+              <a href="mailto:purnachandra1619@gmail.com" className="contact-link">📧 purnachandra1619@gmail.com</a>
+              <a
+                href="https://github.com/purna1619"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="github-link"
+              >
+                <img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg" alt="GitHub" width="20" />
+                GitHub Profile
+              </a>
             </div>
           </div>
 
