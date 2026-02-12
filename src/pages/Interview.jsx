@@ -236,7 +236,7 @@ export default function Interview() {
 
             <div className="chat-input-area hybrid">
               <button
-                className={`mic-btn ${isListening ? "listening" : ""}`}
+                className={`mic-btn hybrid ${isListening ? "listening" : ""}`}
                 onClick={startListening}
                 title="Voice Input"
               >
