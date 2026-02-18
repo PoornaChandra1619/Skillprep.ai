@@ -40,6 +40,19 @@ const userSchema = new mongoose.Schema(
       type: [scoreSchema],
       default: [],
     },
+
+    // 🎤 Interview performance history
+    interviews: {
+      type: [
+        {
+          role: String,
+          score: Number,
+          summary: String,
+          date: { type: Date, default: Date.now },
+        },
+      ],
+      default: [],
+    },
   },
   { timestamps: true }
 );

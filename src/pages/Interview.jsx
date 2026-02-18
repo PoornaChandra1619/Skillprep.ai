@@ -214,9 +214,13 @@ export default function Interview() {
     window.speechSynthesis.cancel();
 
     try {
+      const token = localStorage.getItem("token");
       const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/ai/get-interview-review`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
         body: JSON.stringify({ role, history: messages }),
       });
 

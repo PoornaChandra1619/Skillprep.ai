@@ -62,6 +62,9 @@ export default function Profile() {
     ? Math.round((user.scores.reduce((acc, s) => acc + (s.score / s.total), 0) / totalQuizzes) * 100)
     : 0;
 
+  const totalQuestions = user.scores?.reduce((acc, s) => acc + s.total, 0) || 0;
+  const memberSince = new Date(user.createdAt).toLocaleDateString("en-US", { month: "long", year: "numeric" });
+
   // Determine Achievements
   const achievements = [];
   if (totalQuizzes >= 1) achievements.push({ icon: "🎯", label: "First Step" });
@@ -86,11 +89,16 @@ export default function Profile() {
             </div>
             <h2>{user.name}</h2>
             <p style={{ opacity: 0.7 }}>{user.email}</p>
+            <p style={{ fontSize: "14px", opacity: 0.5, marginTop: "5px" }}>Member since {memberSince}</p>
 
             <div className="stats-grid">
               <div className="stat-item">
                 <span className="stat-value">{totalQuizzes}</span>
                 <span className="stat-label">Quizzes</span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-value">{totalQuestions}</span>
+                <span className="stat-label">Questions</span>
               </div>
               <div className="stat-item">
                 <span className="stat-value">{avgScore}%</span>
@@ -111,8 +119,17 @@ export default function Profile() {
             </div>
           </div>
 
+          {/* QUICK ACTIONS */}
+          <div className="glass-card achievements-section" style={{ marginTop: "20px" }}>
+            <h3>Quick Actions</h3>
+            <div style={{ display: "flex", gap: "10px", marginTop: "15px", flexWrap: "wrap" }}>
+              <button className="nav-btn" onClick={() => navigate("/notes")} style={{ padding: "8px 15px", fontSize: "14px" }}>Start Quiz</button>
+              <button className="nav-btn" onClick={() => navigate("/interview")} style={{ padding: "8px 15px", fontSize: "14px" }}>Interview Prep</button>
+            </div>
+          </div>
+
           {/* ACHIEVEMENTS */}
-          <div className="glass-card achievements-section">
+          <div className="glass-card achievements-section" style={{ marginTop: "20px" }}>
             <h3>Achievements</h3>
             {achievements.length > 0 ? (
               <div className="badge-grid">
@@ -153,8 +170,8 @@ export default function Profile() {
                       <div className="history-score">
                         {s.score} / {s.total}
                       </div>
-                      <div className="history-date">
-                        {new Date(s.date).toLocaleDateString()}
+                      <div className="history-date" style={{ fontSize: "12px", opacity: 0.6 }}>
+                        {new Date(s.date).toLocaleString()}
                       </div>
                     </div>
                     <div className="score-percentage" style={{
@@ -162,6 +179,41 @@ export default function Profile() {
                       fontWeight: 700
                     }}>
                       {Math.round((s.score / s.total) * 100)}%
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="glass-card history-section" style={{ marginTop: "20px" }}>
+            <h3>Interview History</h3>
+
+            {user.interviews?.length === 0 ? (
+              <p>No interviews completed yet. Get started!</p>
+            ) : (
+              <div className="history-list">
+                {[...user.interviews].reverse().map((int, i) => (
+                  <motion.div
+                    key={i}
+                    className="history-item"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.1 }}
+                  >
+                    <div>
+                      <div className="history-score">
+                        {int.role}
+                      </div>
+                      <div className="history-date" style={{ fontSize: "12px", opacity: 0.6 }}>
+                        {new Date(int.date).toLocaleString()}
+                      </div>
+                    </div>
+                    <div className="score-percentage" style={{
+                      color: (int.score / 100) >= 0.8 ? "#22d3ee" : (int.score / 100) >= 0.5 ? "#fbbf24" : "#ef4444",
+                      fontWeight: 700
+                    }}>
+                      {int.score}%
                     </div>
                   </motion.div>
                 ))}

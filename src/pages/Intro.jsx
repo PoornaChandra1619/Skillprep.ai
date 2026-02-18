@@ -58,12 +58,6 @@ export default function Intro() {
             {showProfile && (
               <div className="dropdown-menu">
                 <div className="dropdown-item">👤 {user.name}</div>
-                <div className="dropdown-item">
-                  📊 Latest Score: {user?.scores?.length
-                    ? `${user.scores[user.scores.length - 1].score} / ${user.scores[user.scores.length - 1].total
-                    }`
-                    : "No attempts"}
-                </div>
 
                 <div
                   className="dropdown-item"

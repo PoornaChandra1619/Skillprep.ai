@@ -3,9 +3,9 @@ import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 import OpenAI from "openai";
 import multer from "multer";
+import { PDFParse } from "pdf-parse";
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
-const pdf = require("pdf-parse");
 
 const upload = multer({ storage: multer.memoryStorage() });
 
@@ -31,42 +31,90 @@ const authMiddleware = (req, res, next) => {
 };
 
 /* ================= GENERATE MCQS ================= */
-router.post("/generate-mcqs", (req, res) => {
+router.post("/generate-mcqs", async (req, res) => {
   const { notes } = req.body;
 
   if (!notes) {
     return res.status(400).json({ message: "Notes required" });
   }
 
-  // Split into sentences
-  const sentences = notes
-    .split(/[.?!]/)
-    .map((s) => s.trim())
-    .filter(Boolean);
-
-  if (sentences.length === 0) {
-    return res.status(400).json({ message: "Not enough content" });
+  if (!process.env.GROQ_API_KEY) {
+    return res.status(500).json({ message: "Groq API Key is missing" });
   }
 
-  // Create MCQs dynamically
-  const mcqs = sentences.map((sentence, index) => {
-    const words = sentence.split(" ").filter(Boolean);
-
-    const options = [
-      words[0] || "Concept",
-      words[1] || "Data",
-      words[2] || "System",
-      words[3] || "Process",
-    ];
-
-    return {
-      question: `Q${index + 1}. Which keyword relates to: "${sentence.slice(0, 45)}..."`,
-      options,
-      answer: options[0],
-    };
+  const openai = new OpenAI({
+    apiKey: process.env.GROQ_API_KEY,
+    baseURL: process.env.GROQ_BASE_URL || "https://api.groq.com/openai/v1"
   });
 
-  res.json(mcqs);
+  try {
+    const prompt = `Generate 5 high-quality Multiple Choice Questions (MCQs) based on the following notes. 
+    Notes:
+    ${notes}
+
+    Return the response as a JSON object with a key "mcqs" containing an array of 5 questions.
+    Each question must have:
+    - "question": string
+    - "options": array of 4 strings
+    - "answer": string (the exact correct option from the list)
+    `;
+
+    const completion = await openai.chat.completions.create({
+      model: "llama-3.3-70b-versatile",
+      messages: [
+        { role: "system", content: "You are a teacher. You must always return a JSON object with a key 'mcqs'." },
+        { role: "user", content: prompt }
+      ],
+      response_format: { type: "json_object" }
+    });
+
+    let content = JSON.parse(completion.choices[0].message.content);
+    let mcqs = content.mcqs || content.questions || (Array.isArray(content) ? content : []);
+
+    if (!Array.isArray(mcqs) || mcqs.length === 0) {
+      throw new Error("No MCQs found in AI response");
+    }
+
+    res.json(mcqs);
+  } catch (err) {
+    console.error("MCQ Generation Error:", err);
+    res.status(500).json({ message: "Failed to generate MCQs: " + err.message });
+  }
+});
+
+/* ================= UPLOAD & PARSE NOTES ================= */
+router.post("/upload-notes", upload.single("notes"), async (req, res) => {
+  if (!req.file) {
+    console.log("No file uploaded to /upload-notes");
+    return res.status(400).json({ message: "No file uploaded" });
+  }
+
+  console.log(`Received file for /upload-notes: ${req.file.originalname} (${req.file.mimetype})`);
+
+  try {
+    let text = "";
+    if (req.file.mimetype === "application/pdf") {
+      console.log("Parsing PDF notes via PDFParse class...");
+      const parser = new PDFParse({ data: req.file.buffer });
+      const result = await parser.getText();
+      text = result.text;
+      await parser.destroy();
+    } else {
+      console.log("Parsing text notes...");
+      // Assume text/plain or similar
+      text = req.file.buffer.toString("utf-8");
+    }
+
+    if (!text || text.trim().length === 0) {
+      throw new Error("File parsing returned empty content");
+    }
+
+    console.log("Notes parsed successfully");
+    res.json({ text });
+  } catch (err) {
+    console.error("Notes Parsing Error:", err);
+    res.status(500).json({ message: "Failed to parse notes: " + err.message });
+  }
 });
 
 /* ================= SAVE SCORE ================= */
@@ -116,31 +164,17 @@ router.get("/profile", authMiddleware, async (req, res) => {
 });
 
 export default router;
-/* ================= UPLOAD & PARSE RESUME ================= */
-router.post("/upload-resume", upload.single("resume"), async (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ message: "No file uploaded" });
-  }
-
-  try {
-    const data = await pdf(req.file.buffer);
-    if (!data || !data.text) {
-      throw new Error("PDF parsing returned empty content");
-    }
-    res.json({ text: data.text });
-  } catch (err) {
-    console.error("PDF Parsing Error:", err);
-    res.status(500).json({ message: "Failed to parse resume: " + err.message });
-  }
-});
 
 /* ================= INTERVIEW CHAT (REAL-TIME - STREAMING) ================= */
 router.post("/interview-chat", async (req, res) => {
-  if (!process.env.OPENAI_API_KEY) {
-    return res.status(500).json({ message: "OpenAI API Key is missing on server" });
+  if (!process.env.GROQ_API_KEY) {
+    return res.status(500).json({ message: "Groq API Key is missing on server" });
   }
 
-  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  const openai = new OpenAI({
+    apiKey: process.env.GROQ_API_KEY,
+    baseURL: process.env.GROQ_BASE_URL || "https://api.groq.com/openai/v1"
+  });
   const { role, history, resumeText } = req.body;
 
   if (!role || !history) {
@@ -173,16 +207,16 @@ router.post("/interview-chat", async (req, res) => {
     let stream;
     try {
       stream = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
+        model: "llama-3.1-8b-instant",
         messages,
         max_tokens: 150,
         temperature: 0.7,
         stream: true,
       });
     } catch (e) {
-      console.log("gpt-4o-mini failed, falling back to gpt-3.5-turbo");
+      console.log("llama-3.1-8b-instant failed, falling back to llama-3.3-70b-versatile");
       stream = await openai.chat.completions.create({
-        model: "gpt-3.5-turbo",
+        model: "llama-3.3-70b-versatile",
         messages,
         max_tokens: 150,
         temperature: 0.7,
@@ -201,7 +235,7 @@ router.post("/interview-chat", async (req, res) => {
     res.end();
 
   } catch (err) {
-    console.error("OpenAI Streaming Error:", err);
+    console.error("Groq Streaming Error:", err);
     res.write(`data: ${JSON.stringify({ error: err.message })}\n\n`);
     res.end();
   }
@@ -249,9 +283,9 @@ router.post("/interview-questions", (req, res) => {
 });
 
 /* ================= GET INTERVIEW REVIEW ================= */
-router.post("/get-interview-review", async (req, res) => {
-  if (!process.env.OPENAI_API_KEY) {
-    return res.status(500).json({ message: "OpenAI API Key is missing" });
+router.post("/get-interview-review", authMiddleware, async (req, res) => {
+  if (!process.env.GROQ_API_KEY) {
+    return res.status(500).json({ message: "Groq API Key is missing" });
   }
 
   const { history, role } = req.body;
@@ -260,7 +294,10 @@ router.post("/get-interview-review", async (req, res) => {
     return res.status(400).json({ message: "No history to review" });
   }
 
-  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  const openai = new OpenAI({
+    apiKey: process.env.GROQ_API_KEY,
+    baseURL: process.env.GROQ_BASE_URL || "https://api.groq.com/openai/v1"
+  });
 
   try {
     const prompt = `You are an expert technical interviewer. Review the following interview transcript for a ${role} position and provide a constructive summary.
@@ -277,12 +314,31 @@ router.post("/get-interview-review", async (req, res) => {
     }`;
 
     const completion = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
+      model: "llama-3.3-70b-versatile",
       messages: [{ role: "system", content: prompt }],
       response_format: { type: "json_object" }
     });
 
     const review = JSON.parse(completion.choices[0].message.content);
+
+    // Save to user profile if authenticated
+    if (req.userId) {
+      try {
+        const user = await User.findById(req.userId);
+        if (user) {
+          user.interviews.push({
+            role: role || "General",
+            score: review.overallScore || 0,
+            summary: review.summary || "",
+            date: new Date(),
+          });
+          await user.save();
+        }
+      } catch (saveErr) {
+        console.error("Failed to save interview to profile:", saveErr);
+      }
+    }
+
     res.json(review);
 
   } catch (err) {
@@ -290,4 +346,24 @@ router.post("/get-interview-review", async (req, res) => {
     res.status(500).json({ message: "Failed to generate review" });
   }
 });
+/* ================= UPLOAD & PARSE RESUME ================= */
+router.post("/upload-resume", upload.single("resume"), async (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ message: "No file uploaded" });
+  }
 
+  try {
+    console.log("Parsing resume PDF via PDFParse class...");
+    const parser = new PDFParse({ data: req.file.buffer });
+    const result = await parser.getText();
+    if (!result || !result.text) {
+      throw new Error("PDF parsing returned empty content");
+    }
+    console.log("Resume parsed successfully");
+    res.json({ text: result.text });
+    await parser.destroy();
+  } catch (err) {
+    console.error("PDF Parsing Error:", err);
+    res.status(500).json({ message: "Failed to parse resume: " + err.message });
+  }
+});
