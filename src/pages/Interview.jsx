@@ -58,7 +58,14 @@ export default function Interview() {
 
     loadVoices();
     window.speechSynthesis.onvoiceschanged = loadVoices;
-  }, []);
+
+    // Check if user is logged in
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Please login to access the AI Interviewer.");
+      navigate("/");
+    }
+  }, [navigate]);
 
   // Speech to Text
   const startListening = () => {
@@ -230,6 +237,12 @@ export default function Interview() {
       const data = await res.json();
 
       if (!res.ok) {
+        if (res.status === 401) {
+          localStorage.clear();
+          alert("Your session has expired. Please login again.");
+          navigate("/");
+          return;
+        }
         throw new Error(data.message || "Failed to generate review");
       }
 
