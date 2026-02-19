@@ -152,7 +152,10 @@ export default function Interview() {
         body: JSON.stringify({ role, history: newMessages, resumeText }),
       });
 
-      if (!response.ok) throw new Error("Failed to connect to AI");
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || "Failed to connect to AI");
+      }
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder();

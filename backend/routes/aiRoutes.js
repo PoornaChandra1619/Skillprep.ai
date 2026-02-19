@@ -236,6 +236,11 @@ router.post("/interview-chat", async (req, res) => {
 
   } catch (err) {
     console.error("Groq Streaming Error:", err);
+    // If headers haven't been sent yet, we can send a proper JSON error
+    if (!res.headersSent) {
+      return res.status(500).json({ message: "AI Error: " + err.message });
+    }
+    // If streaming already started, send error via stream
     res.write(`data: ${JSON.stringify({ error: err.message })}\n\n`);
     res.end();
   }
