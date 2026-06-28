@@ -43,11 +43,30 @@ export default function Navbar({ onLoginClick }) {
         }
     };
 
+    const handleNavClick = (sectionId) => {
+        if (window.location.pathname === "/") {
+            if (sectionId === "top") {
+                window.scrollTo({ top: 0, behavior: "smooth" });
+            } else {
+                const element = document.getElementById(sectionId);
+                if (element) {
+                    element.scrollIntoView({ behavior: "smooth" });
+                }
+            }
+        } else {
+            if (sectionId === "top") {
+                navigate("/");
+            } else {
+                navigate(`/?scroll=${sectionId}`);
+            }
+        }
+    };
+
     return (
         <nav className="navbar">
             <motion.div
                 className="logo"
-                onClick={() => navigate("/")}
+                onClick={() => handleNavClick("top")}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
             >
@@ -55,9 +74,9 @@ export default function Navbar({ onLoginClick }) {
             </motion.div>
 
             <ul className="nav-links">
-                <li onClick={() => navigate("/")}>Home</li>
-                <li>Features</li>
-                <li>Contact</li>
+                <li onClick={() => handleNavClick("top")}>Home</li>
+                <li onClick={() => handleNavClick("features")}>Features</li>
+                <li onClick={() => handleNavClick("contact")}>Contact</li>
             </ul>
 
             <div style={{ display: "flex", gap: "15px", alignItems: "center" }}>

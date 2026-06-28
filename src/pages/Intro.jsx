@@ -14,13 +14,24 @@ export default function Intro() {
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) setUser(JSON.parse(storedUser));
+  }, []);
 
+  useEffect(() => {
     // Open auth modal if ?login=true in URL
     if (searchParams.get("login") === "true") {
       setShowAuth(true);
       setSearchParams({}, { replace: true }); // clean URL
     }
-  }, []);
+
+    // Scroll to section if ?scroll=id in URL
+    const scrollSection = searchParams.get("scroll");
+    if (scrollSection) {
+      setTimeout(() => {
+        document.getElementById(scrollSection)?.scrollIntoView({ behavior: "smooth" });
+      }, 150);
+      setSearchParams({}, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   const openAuth = () => setShowAuth(true);
   const closeAuth = () => setShowAuth(false);
