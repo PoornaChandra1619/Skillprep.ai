@@ -363,9 +363,22 @@ router.post("/upload-resume", upload.single("resume"), async (req, res) => {
   }
 
   try {
+    let text = "";
+    if (req.file.mimetype === "application/pdf") {
+      const parser = new PDFParse({ data: req.file.buffer });
+      const result = await parser.getText();
+      text = result.text;
+      await parser.destroy();
+    } else {
+      text = req.file.buffer.toString("utf-8");
+    }
+
+    if (!text || text.trim().length === 0) {
+      throw new Error("File parsing returned empty content");
+    }
+
     console.log("Resume parsed successfully");
-    res.json({ text: result.text });
-    await parser.destroy();
+    res.json({ text });
   } catch (err) {
     console.error("PDF Parsing Error:", err);
     res.status(500).json({ message: "Failed to parse resume: " + err.message });
