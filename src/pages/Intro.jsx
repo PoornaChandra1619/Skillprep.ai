@@ -1,88 +1,85 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import AuthModal from "../components/AuthModal";
+import Navbar from "../components/Navbar";
 import "./intro.css";
 
 export default function Intro() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [showAuth, setShowAuth] = useState(false);
-  const [showProfile, setShowProfile] = useState(false);
   const [user, setUser] = useState(null);
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) setUser(JSON.parse(storedUser));
+
+    // Open auth modal if ?login=true in URL
+    if (searchParams.get("login") === "true") {
+      setShowAuth(true);
+      setSearchParams({}, { replace: true }); // clean URL
+    }
   }, []);
 
-  const logout = () => {
-    localStorage.clear();
-    window.location.reload();
-  };
+  const openAuth = () => setShowAuth(true);
+  const closeAuth = () => setShowAuth(false);
 
   const scrollToSection = (id) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   };
 
+  // Floating particles for background
+  const particles = Array.from({ length: 20 }, (_, i) => ({
+    id: i,
+    size: Math.random() * 6 + 3,
+    x: Math.random() * 100,
+    y: Math.random() * 100,
+    duration: Math.random() * 15 + 10,
+    delay: Math.random() * 5,
+  }));
+
   return (
     <div className="colorlib-page">
+      <Navbar onLoginClick={openAuth} />
 
-      {/* ================= NAVBAR ================= */}
-      <nav className="navbar">
-        <div className="logo" onClick={() => navigate("/")}>
-          Sk<span>.</span>
-        </div>
-
-        <ul className="nav-links">
-          <li onClick={() => scrollToSection("about")}>About</li>
-          <li onClick={() => scrollToSection("features")}>Features</li>
-          <li className="nav-item" onClick={() => scrollToSection("contact")}>
-            Contact
-          </li>
-        </ul>
-
-        {/* RIGHT SIDE */}
-        {!user ? (
-          <button className="nav-btn" onClick={() => setShowAuth(true)}>
-            Sign Up Free
-          </button>
-        ) : (
-          <div className="profile-dropdown">
-            <div
-              className="profile-trigger"
-              onClick={() => setShowProfile((prev) => !prev)}
-            >
-              👤 {user.name}
-            </div>
-
-            {showProfile && (
-              <div className="dropdown-menu">
-                <div className="dropdown-item">👤 {user.name}</div>
-
-                <div
-                  className="dropdown-item"
-                  onClick={() => navigate("/profile")}
-                  style={{ color: "#6366f1", fontWeight: "bold" }}
-                >
-                  📄 View Full Profile
-                </div>
-
-                <div
-                  className="dropdown-item logout"
-                  onClick={logout}
-                >
-                  🚪 Logout
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-      </nav>
+      {/* ================= FLOATING PARTICLES ================= */}
+      <div className="particles-container" aria-hidden="true">
+        {particles.map((p) => (
+          <motion.div
+            key={p.id}
+            className="particle"
+            style={{
+              width: p.size,
+              height: p.size,
+              left: `${p.x}%`,
+              top: `${p.y}%`,
+            }}
+            animate={{
+              y: [0, -30, 0],
+              x: [0, Math.random() * 20 - 10, 0],
+              opacity: [0.3, 0.8, 0.3],
+            }}
+            transition={{
+              duration: p.duration,
+              delay: p.delay,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          />
+        ))}
+      </div>
 
       {/* ================= HERO ================= */}
       <section className="hero">
 
-        <div className="watermark">S</div>
+        <motion.div
+          className="watermark"
+          animate={{ opacity: [0.04, 0.08, 0.04] }}
+          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+        >
+          S
+        </motion.div>
 
         {/* LEFT */}
         <motion.div
@@ -92,39 +89,87 @@ export default function Intro() {
           transition={{ duration: 0.8 }}
         >
           <h1>
-            Skill<span>Prep</span> AI
+            <motion.span
+              className="hero-title-main"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+            >
+              Skill
+            </motion.span>
+            <motion.span
+              className="hero-title-accent"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+            >
+              Prep
+            </motion.span>
+            <motion.span
+              className="hero-title-ai"
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.6, type: "spring", stiffness: 200 }}
+            >
+              {" "}AI
+            </motion.span>
           </h1>
 
-          <p>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.8 }}
+          >
             Practice interviews. Convert notes into quizzes.
             <br />
             Prepare smarter for your career.
-          </p>
+          </motion.p>
 
-          {!user && (
-            <button
+          {!user ? (
+            <motion.button
               className="get-started"
-              onClick={() => setShowAuth(true)}
-              whileHover={{ scale: 1.05 }}
+              onClick={openAuth}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 1.0 }}
+              whileHover={{ scale: 1.05, y: -4 }}
               whileTap={{ scale: 0.95 }}
             >
               Get Started
-            </button>
+            </motion.button>
+          ) : (
+            <motion.button
+              className="get-started dashboard-btn"
+              onClick={() => navigate("/dashboard")}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 1.0 }}
+              whileHover={{ scale: 1.05, y: -4 }}
+              whileTap={{ scale: 0.95 }}
+              style={{ background: "transparent", border: "2px solid #22d3ee", color: "#22d3ee" }}
+            >
+              📊 Go to Dashboard
+            </motion.button>
           )}
         </motion.div>
 
         {/* RIGHT — DASHBOARD AFTER LOGIN */}
         {user && (
-          <div className="hero-right">
+          <motion.div
+            className="hero-right"
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+          >
             <div className="feature-box">
 
               <motion.div
                 className="feature-card"
                 onClick={() => navigate("/notes")}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                whileHover={{ scale: 1.03 }}
+                transition={{ delay: 0.5, type: "spring", stiffness: 100 }}
+                whileHover={{ scale: 1.04, y: -8 }}
               >
                 <h3>🧠 Notes → Quiz (MCQs)</h3>
                 <p>Convert notes into AI-generated quizzes.</p>
@@ -133,60 +178,51 @@ export default function Intro() {
               <motion.div
                 className="feature-card"
                 onClick={() => navigate("/interview")}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-                whileHover={{ scale: 1.03 }}
+                transition={{ delay: 0.7, type: "spring", stiffness: 100 }}
+                whileHover={{ scale: 1.04, y: -8 }}
               >
                 <h3>🎤 Interview Prep with AI</h3>
                 <p>Practice real interview-style questions.</p>
               </motion.div>
 
             </div>
-          </div>
+          </motion.div>
         )}
       </section>
 
       {/* ================= FEATURES SECTION ================= */}
       <section id="features" className="section-container">
         <motion.h2
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
           Why Choose SkillPrep AI?
         </motion.h2>
 
         <div className="features-grid">
-          <motion.div
-            className="feature-item"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-          >
-            <h3>📄 Notes to Quiz</h3>
-            <p>Paste your study notes and let our AI generate multiple-choice questions instantly to test your knowledge.</p>
-          </motion.div>
-
-          <motion.div
-            className="feature-item"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-          >
-            <h3>🎤 AI Voice Interviewer</h3>
-            <p>Experience realistic technical interviews with our AI that speaks to you and reacts to your answers in real-time.</p>
-          </motion.div>
-
-          <motion.div
-            className="feature-item"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-          >
-            <h3>📊 Performance Tracking</h3>
-            <p>Keep track of your quiz scores and interview attempts to monitor your progress over time.</p>
-          </motion.div>
+          {[
+            { icon: "📄", title: "Notes to Quiz", desc: "Paste your study notes and let our AI generate multiple-choice questions instantly to test your knowledge.", delay: 0.1 },
+            { icon: "🎤", title: "AI Voice Interviewer", desc: "Experience realistic technical interviews with our AI that speaks to you and reacts to your answers in real-time.", delay: 0.2 },
+            { icon: "📊", title: "Performance Tracking", desc: "Keep track of your quiz scores and interview attempts to monitor your progress over time.", delay: 0.3 },
+          ].map((feature, i) => (
+            <motion.div
+              key={i}
+              className="feature-item"
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: feature.delay, duration: 0.5, type: "spring", stiffness: 80 }}
+              whileHover={{ y: -12, boxShadow: "0 20px 40px rgba(99, 102, 241, 0.15)" }}
+            >
+              <div className="feature-icon">{feature.icon}</div>
+              <h3>{feature.title}</h3>
+              <p>{feature.desc}</p>
+            </motion.div>
+          ))}
         </div>
       </section>
 
@@ -194,8 +230,9 @@ export default function Intro() {
       <section id="about" className="section-container about-section">
         <motion.div
           className="about-content"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
           transition={{ duration: 0.8 }}
         >
           <h2>About Us</h2>
@@ -216,8 +253,10 @@ export default function Intro() {
         <div className="footer-content">
           <motion.div
             className="footer-logo"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
+            initial={{ opacity: 0, scale: 0.8 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ type: "spring", stiffness: 150 }}
           >
             Sk<span>.</span>
           </motion.div>
@@ -246,7 +285,9 @@ export default function Intro() {
       </footer>
 
       {/* AUTH MODAL */}
-      {showAuth && <AuthModal close={() => setShowAuth(false)} />}
+      <AnimatePresence>
+        {showAuth && <AuthModal close={closeAuth} />}
+      </AnimatePresence>
     </div>
   );
 }

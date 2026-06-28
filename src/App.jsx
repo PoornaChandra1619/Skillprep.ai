@@ -6,6 +6,7 @@ import Quiz from "./pages/Quiz.jsx";
 import QuizResult from "./pages/QuizResult";
 import Interview from "./pages/Interview";
 import Profile from "./pages/Profile";
+import Dashboard from "./pages/Dashboard";
 
 export default function App() {
   return (
@@ -14,6 +15,7 @@ export default function App() {
 
         {/* Landing / Dashboard */}
         <Route path="/" element={<Intro />} />
+        <Route path="/dashboard" element={<Dashboard />} />
 
         {/* Notes → MCQ */}
         <Route path="/notes" element={<Notes />} />

@@ -60,12 +60,14 @@ router.post("/generate-mcqs", async (req, res) => {
     `;
 
     const completion = await openai.chat.completions.create({
-      model: "llama-3.3-70b-versatile",
+      model: "llama-3.1-8b-instant",
       messages: [
         { role: "system", content: "You are a teacher. You must always return a JSON object with a key 'mcqs'." },
         { role: "user", content: prompt }
       ],
-      response_format: { type: "json_object" }
+      response_format: { type: "json_object" },
+      max_tokens: 1000,
+      temperature: 0.7
     });
 
     let content = JSON.parse(completion.choices[0].message.content);
@@ -163,7 +165,8 @@ router.get("/profile", authMiddleware, async (req, res) => {
   }
 });
 
-export default router;
+
+
 
 /* ================= INTERVIEW CHAT (REAL-TIME - STREAMING) ================= */
 router.post("/interview-chat", async (req, res) => {
@@ -319,9 +322,11 @@ router.post("/get-interview-review", authMiddleware, async (req, res) => {
     }`;
 
     const completion = await openai.chat.completions.create({
-      model: "llama-3.3-70b-versatile",
+      model: "llama-3.1-8b-instant",
       messages: [{ role: "system", content: prompt }],
-      response_format: { type: "json_object" }
+      response_format: { type: "json_object" },
+      max_tokens: 1000,
+      temperature: 0.7
     });
 
     const review = JSON.parse(completion.choices[0].message.content);
@@ -358,12 +363,6 @@ router.post("/upload-resume", upload.single("resume"), async (req, res) => {
   }
 
   try {
-    console.log("Parsing resume PDF via PDFParse class...");
-    const parser = new PDFParse({ data: req.file.buffer });
-    const result = await parser.getText();
-    if (!result || !result.text) {
-      throw new Error("PDF parsing returned empty content");
-    }
     console.log("Resume parsed successfully");
     res.json({ text: result.text });
     await parser.destroy();
@@ -372,3 +371,57 @@ router.post("/upload-resume", upload.single("resume"), async (req, res) => {
     res.status(500).json({ message: "Failed to parse resume: " + err.message });
   }
 });
+
+/* ================= GENERATE AI ROADMAP ================= */
+router.post("/generate-roadmap", authMiddleware, async (req, res) => {
+  if (!process.env.GROQ_API_KEY) {
+    return res.status(500).json({ message: "Groq API Key is missing" });
+  }
+
+  const { scores, interviews } = req.body;
+
+  const openai = new OpenAI({
+    apiKey: process.env.GROQ_API_KEY,
+    baseURL: process.env.GROQ_BASE_URL || "https://api.groq.com/openai/v1"
+  });
+
+  try {
+    const historySummary = `
+      Quiz Scores: ${scores?.map(s => `${s.score}/${s.total} on ${new Date(s.date).toLocaleDateString()}`).join(", ") || "No quiz data yet."}
+      Interview History: ${interviews?.map(i => `${i.role} (Score: ${i.score}%)`).join(", ") || "No interview data yet."}
+    `;
+
+    const prompt = `Based on the following student performance history, generate a personalized 7-day study roadmap to help them improve their technical skills.
+    
+    Performance History:
+    ${historySummary}
+    
+    Return the response as a JSON object with:
+    - "title": string (e.g., "7-Day [Topic] Mastery Plan")
+    - "steps": an array of 7 objects. Each object must have:
+      - "day": number (1-7)
+      - "task": string (highly actionable study task)
+      - "sources": an array of 2-3 specific learning resource names or URLs (e.g., "MDN Web Docs", "FreeCodeCamp", "YouTube: [Topic] tutorial").
+    Keep the tasks concise.`;
+
+    const completion = await openai.chat.completions.create({
+      model: "llama-3.1-8b-instant",
+      messages: [
+        { role: "system", content: "You are a career coach. You must ALWAYS return a JSON object with 'title' (string) and 'steps' (array of 7 objects with 'day', 'task', and 'sources')." },
+        { role: "user", content: prompt }
+      ],
+      response_format: { type: "json_object" },
+      max_tokens: 1000,
+      temperature: 0.7
+    });
+
+    const roadmap = JSON.parse(completion.choices[0].message.content);
+    res.json(roadmap);
+
+  } catch (err) {
+    console.error("Roadmap Generation Error:", err);
+    res.status(500).json({ message: "Failed to generate roadmap" });
+  }
+});
+
+export default router;

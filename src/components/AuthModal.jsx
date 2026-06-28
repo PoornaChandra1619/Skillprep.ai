@@ -1,9 +1,11 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
 import "./auth.css";
 import { registerUser, loginUser, googleLogin } from "../services/authService";
 
 export default function AuthModal({ close }) {
+  const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(false);
 
   const [form, setForm] = useState({
@@ -57,19 +59,18 @@ export default function AuthModal({ close }) {
       }
 
       if (!data?.token) {
-        throw new Error(data?.msg || "Authentication failed");
+        throw new Error(data?.msg || "Authentication failed. Please try again.");
       }
 
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
 
-      alert(isLogin ? "Login successful 🎉" : "Registered successfully 🎉");
       close();
-      window.location.reload();
+      navigate("/dashboard");
 
     } catch (err) {
-      console.error(err);
-      setError(err.message || "Server not reachable");
+      console.error("Auth Error:", err);
+      setError(err.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -79,6 +80,10 @@ export default function AuthModal({ close }) {
     setLoading(true);
     setError("");
     try {
+      if (!credentialResponse?.credential) {
+        throw new Error("Google did not return credentials. Please try again.");
+      }
+
       const data = await googleLogin(credentialResponse.credential);
 
       if (!data?.token) {
@@ -88,21 +93,30 @@ export default function AuthModal({ close }) {
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
 
-      alert("Login successful 🎉");
       close();
-      window.location.reload();
+      navigate("/dashboard");
     } catch (err) {
-      console.error(err);
-      setError(err.message || "Google Login failed");
+      console.error("Google Auth Error:", err);
+      setError(err.message || "Google Login failed. Please try again.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleGoogleError = () => {
+    setError("Google Login failed. Please check your Google account settings or try email login.");
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter" && !loading) {
+      handleSubmit();
     }
   };
 
   return (
     <div className="auth-overlay" onClick={close}>
       <div className="auth-card" onClick={(e) => e.stopPropagation()}>
-        <button className="close-btn" onClick={close}>✕</button>
+        <button className="close-btn" onClick={close} aria-label="Close">✕</button>
 
         <h2>{isLogin ? "Welcome Back" : "Create Account"}</h2>
         <p className="auth-subtitle">
@@ -114,8 +128,7 @@ export default function AuthModal({ close }) {
         <div className="social-login">
           <GoogleLogin
             onSuccess={handleGoogleSuccess}
-            onError={() => setError("Google Login Failed")}
-            useOneTap
+            onError={handleGoogleError}
             theme="filled_blue"
             shape="pill"
             text="continue_with"
@@ -131,9 +144,11 @@ export default function AuthModal({ close }) {
           <div className="input-group">
             <input
               name="name"
-              placeholder="Name"
+              placeholder="Full Name"
               value={form.name}
               onChange={handleChange}
+              onKeyDown={handleKeyDown}
+              autoComplete="name"
             />
           </div>
         )}
@@ -141,9 +156,12 @@ export default function AuthModal({ close }) {
         <div className="input-group">
           <input
             name="email"
+            type="email"
             placeholder="Email Address"
             value={form.email}
             onChange={handleChange}
+            onKeyDown={handleKeyDown}
+            autoComplete="email"
           />
         </div>
 
@@ -154,6 +172,8 @@ export default function AuthModal({ close }) {
             placeholder="Password (6+ chars, special char)"
             value={form.password}
             onChange={handleChange}
+            onKeyDown={handleKeyDown}
+            autoComplete={isLogin ? "current-password" : "new-password"}
           />
         </div>
 
@@ -162,7 +182,13 @@ export default function AuthModal({ close }) {
           onClick={handleSubmit}
           disabled={loading}
         >
-          {loading ? "Processing..." : isLogin ? "Login" : "Sign Up"}
+          {loading ? (
+            <span className="auth-loading">
+              {isLogin ? "Logging in..." : "Creating account..."}
+            </span>
+          ) : (
+            isLogin ? "Login" : "Sign Up"
+          )}
         </button>
 
         <p className="toggle-auth">

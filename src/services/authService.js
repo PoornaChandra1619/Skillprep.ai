@@ -2,53 +2,94 @@ const API_URL = `${import.meta.env.VITE_API_BASE_URL}/api/auth`;
 
 /* ================= REGISTER ================= */
 export const registerUser = async (data) => {
-  const res = await fetch(`${API_URL}/register`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
+  try {
+    const res = await fetch(`${API_URL}/register`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
 
-  if (!res.ok) {
     const text = await res.text();
-    throw new Error(text || "Register failed");
+    if (!res.ok) {
+      let errorMsg = "Register failed";
+      try {
+        const parsed = JSON.parse(text);
+        if (parsed.msg) errorMsg = parsed.msg;
+      } catch (e) {
+        errorMsg = text || errorMsg;
+      }
+      throw new Error(errorMsg);
+    }
+    return text ? JSON.parse(text) : {};
+  } catch (err) {
+    // Network error — backend not running or unreachable
+    if (err.name === "TypeError" && err.message.includes("fetch")) {
+      throw new Error("Cannot connect to server. Please ensure the backend is running on port 5000.");
+    }
+    throw err;
   }
-
-  return await res.json();
 };
 
 /* ================= LOGIN ================= */
 export const loginUser = async (data) => {
-  const res = await fetch(`${API_URL}/login`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
+  try {
+    const res = await fetch(`${API_URL}/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
 
-  if (!res.ok) {
     const text = await res.text();
-    throw new Error(text || "Login failed");
+    if (!res.ok) {
+      let errorMsg = "Login failed";
+      try {
+        const parsed = JSON.parse(text);
+        if (parsed.msg) errorMsg = parsed.msg;
+      } catch (e) {
+        errorMsg = text || errorMsg;
+      }
+      throw new Error(errorMsg);
+    }
+    return text ? JSON.parse(text) : {};
+  } catch (err) {
+    if (err.name === "TypeError" && err.message.includes("fetch")) {
+      throw new Error("Cannot connect to server. Please ensure the backend is running on port 5000.");
+    }
+    throw err;
   }
-
-  return await res.json();
 };
 
+/* ================= GOOGLE AUTH ================= */
 export const googleLogin = async (idToken) => {
-  const res = await fetch(`${API_URL}/google`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ idToken }),
-  });
+  try {
+    const res = await fetch(`${API_URL}/google`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ idToken }),
+    });
 
-  if (!res.ok) {
     const text = await res.text();
-    throw new Error(text || "Google Login failed");
+    if (!res.ok) {
+      let errorMsg = "Google Login failed";
+      try {
+        const parsed = JSON.parse(text);
+        if (parsed.msg) errorMsg = parsed.msg;
+      } catch (e) {
+        errorMsg = text || errorMsg;
+      }
+      throw new Error(errorMsg);
+    }
+    return text ? JSON.parse(text) : {};
+  } catch (err) {
+    if (err.name === "TypeError" && err.message.includes("fetch")) {
+      throw new Error("Cannot connect to server. Please ensure the backend is running on port 5000.");
+    }
+    throw err;
   }
-
-  return await res.json();
 };

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import Navbar from "../components/Navbar";
 import "./intro.css";
 
 export default function Interview() {
@@ -306,6 +307,7 @@ export default function Interview() {
 
   return (
     <div className="colorlib-page">
+      <Navbar />
       <div className="hero" style={{ justifyContent: "center", alignItems: "flex-start", paddingTop: "100px" }}>
 
         {!started ? (

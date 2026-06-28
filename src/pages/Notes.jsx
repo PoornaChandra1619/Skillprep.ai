@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import Navbar from "../components/Navbar";
 import "./intro.css"; // 👈 reuse SAME CSS
 
 export default function Notes() {
@@ -32,62 +34,78 @@ export default function Notes() {
 
   return (
     <div className="colorlib-page">
-
-      {/* ================= NAVBAR ================= */}
-      <nav className="navbar">
-        <div className="logo">
-          Sk<span>.</span>
-        </div>
-
-        <ul className="nav-links">
-          <li onClick={() => navigate("/")}>Home</li>
-          <li>Features</li>
-          <li>Contact</li>
-        </ul>
-
-        <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
-          <span>👤 {user?.name}</span>
-          <button className="nav-btn" onClick={logout}>
-            Logout
-          </button>
-        </div>
-      </nav>
+      <Navbar />
 
       {/* ================= CONTENT ================= */}
       <section className="hero" style={{ justifyContent: "center" }}>
         <div className="hero-left" style={{ maxWidth: "720px" }}>
-          <h1>
-            Notes<span> → Quiz</span>
-          </h1>
-
-          <p>Paste your notes below and generate MCQ quiz instantly.</p>
-
-          <textarea
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            placeholder="Paste your study notes here..."
-            style={{
-              width: "100%",
-              height: "220px",
-              padding: "18px",
-              borderRadius: "14px",
-              border: "none",
-              outline: "none",
-              fontSize: "16px",
-              marginTop: "20px",
-            }}
-          />
-
-          <button
-            className="get-started"
-            style={{ marginTop: "26px" }}
-            onClick={generateQuiz}
+          <motion.h1
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
           >
-            Generate MCQ Quiz
-          </button>
+            Notes<span> → Quiz</span>
+          </motion.h1>
 
-          <div style={{ marginTop: "20px", display: "flex", alignItems: "center", gap: "10px" }}>
-            <span style={{ opacity: 0.7 }}>OR</span>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+          >
+            Paste your notes below and generate MCQ quiz instantly.
+          </motion.p>
+
+          <motion.div
+            className="prompt-container"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4, type: "spring", stiffness: 100 }}
+          >
+            <div className="prompt-bar">
+              <textarea
+                className="prompt-input"
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Paste your study notes here or upload a file..."
+              />
+              <div className="prompt-actions">
+                <div className="prompt-left-tools">
+                  <motion.button
+                    className="prompt-btn-plus"
+                    type="button"
+                    title="Upload Notes (PDF/Text)"
+                    onClick={() => fileInputRef.current?.click()}
+                    whileHover={{ scale: 1.1, backgroundColor: "rgba(255, 255, 255, 0.2)" }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    +
+                  </motion.button>
+                  <motion.div
+                    className="prompt-pill"
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.8 }}
+                  >
+                    <span>✨ AI Quiz Mode</span>
+                  </motion.div>
+                </div>
+
+                <motion.button
+                  className="prompt-btn-send"
+                  onClick={generateQuiz}
+                  disabled={!notes.trim()}
+                  title="Generate Quiz"
+                  whileHover={notes.trim() ? { scale: 1.1, rotate: -5 } : {}}
+                  whileTap={notes.trim() ? { scale: 0.9 } : {}}
+                >
+                  <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                  </svg>
+                </motion.button>
+              </div>
+            </div>
+
             <input
               type="file"
               ref={fileInputRef}
@@ -113,37 +131,7 @@ export default function Notes() {
                 }
               }}
             />
-            <button
-              className="plus-btn"
-              type="button"
-              title="Upload Notes (PDF/Text)"
-              onClick={(e) => {
-                e.preventDefault();
-                console.log("Plus button clicked");
-                fileInputRef.current?.click();
-              }}
-              style={{
-                width: "50px",
-                height: "50px",
-                borderRadius: "50%",
-                border: "2px solid rgba(255, 255, 255, 0.4)",
-                background: "rgba(255, 255, 255, 0.1)",
-                color: "white",
-                fontSize: "32px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                cursor: "pointer",
-                marginTop: "10px",
-                lineHeight: "0",
-                fontWeight: "bold",
-                padding: "0",
-                zIndex: "10"
-              }}
-            >
-              <span style={{ transform: "translateY(-2px)" }}>+</span>
-            </button>
-          </div>
+          </motion.div>
         </div>
       </section>
     </div>

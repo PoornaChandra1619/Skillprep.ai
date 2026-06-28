@@ -1,37 +1,69 @@
-export const API_URL = "https://skillprep-ai.onrender.com/api";
+const API_URL = import.meta.env.VITE_API_BASE_URL
+  ? `${import.meta.env.VITE_API_BASE_URL}/api`
+  : "http://localhost:5000/api";
+
+export { API_URL };
 
 export const registerUser = async (formData) => {
-  const res = await fetch(`${API_BASE}/auth/register`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(formData),
-  });
+  try {
+    const res = await fetch(`${API_URL}/auth/register`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formData),
+    });
 
-  const data = await res.json();
+    const text = await res.text();
 
-  if (!res.ok) {
-    throw new Error(data.message || "Registration failed");
+    if (!res.ok) {
+      let errorMsg = "Registration failed";
+      try {
+        const parsed = JSON.parse(text);
+        if (parsed.msg || parsed.message) errorMsg = parsed.msg || parsed.message;
+      } catch (e) {
+        errorMsg = text || errorMsg;
+      }
+      throw new Error(errorMsg);
+    }
+
+    return text ? JSON.parse(text) : {};
+  } catch (err) {
+    if (err.name === "TypeError" && err.message.includes("fetch")) {
+      throw new Error("Cannot connect to server. Please check if the backend is running.");
+    }
+    throw err;
   }
-
-  return data;
 };
 
 export const loginUser = async (formData) => {
-  const res = await fetch(`${API_BASE}/auth/login`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(formData),
-  });
+  try {
+    const res = await fetch(`${API_URL}/auth/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formData),
+    });
 
-  const data = await res.json();
+    const text = await res.text();
 
-  if (!res.ok) {
-    throw new Error(data.message || "Login failed");
+    if (!res.ok) {
+      let errorMsg = "Login failed";
+      try {
+        const parsed = JSON.parse(text);
+        if (parsed.msg || parsed.message) errorMsg = parsed.msg || parsed.message;
+      } catch (e) {
+        errorMsg = text || errorMsg;
+      }
+      throw new Error(errorMsg);
+    }
+
+    return text ? JSON.parse(text) : {};
+  } catch (err) {
+    if (err.name === "TypeError" && err.message.includes("fetch")) {
+      throw new Error("Cannot connect to server. Please check if the backend is running.");
+    }
+    throw err;
   }
-
-  return data;
 };
