@@ -48,9 +48,10 @@ router.post("/generate-mcqs", async (req, res) => {
   });
 
   try {
+    const truncatedNotes = notes.slice(0, 6000);
     const prompt = `Generate 5 high-quality Multiple Choice Questions (MCQs) based on the following notes. 
     Notes:
-    ${notes}
+    ${truncatedNotes}
 
     Return the response as a JSON object with a key "mcqs" containing an array of 5 questions.
     Each question must have:
@@ -59,16 +60,31 @@ router.post("/generate-mcqs", async (req, res) => {
     - "answer": string (the exact correct option from the list)
     `;
 
-    const completion = await openai.chat.completions.create({
-      model: "llama-3.1-8b-instant",
-      messages: [
-        { role: "system", content: "You are a teacher. You must always return a JSON object with a key 'mcqs'." },
-        { role: "user", content: prompt }
-      ],
-      response_format: { type: "json_object" },
-      max_tokens: 1000,
-      temperature: 0.7
-    });
+    let completion;
+    try {
+      completion = await openai.chat.completions.create({
+        model: "llama-3.1-8b-instant",
+        messages: [
+          { role: "system", content: "You are a teacher. You must always return a JSON object with a key 'mcqs'." },
+          { role: "user", content: prompt }
+        ],
+        response_format: { type: "json_object" },
+        max_tokens: 1000,
+        temperature: 0.7
+      });
+    } catch (apiErr) {
+      console.log("llama-3.1-8b-instant MCQ gen failed, falling back to llama-3.3-70b-versatile:", apiErr.message);
+      completion = await openai.chat.completions.create({
+        model: "llama-3.3-70b-versatile",
+        messages: [
+          { role: "system", content: "You are a teacher. You must always return a JSON object with a key 'mcqs'." },
+          { role: "user", content: prompt }
+        ],
+        response_format: { type: "json_object" },
+        max_tokens: 1000,
+        temperature: 0.7
+      });
+    }
 
     let content = JSON.parse(completion.choices[0].message.content);
     let mcqs = content.mcqs || content.questions || (Array.isArray(content) ? content : []);
