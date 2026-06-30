@@ -68,7 +68,7 @@ export default function Intro() {
       {/* BANNER */}
       <section id="banner">
         <div className="inner">
-          <div className="logo"><span className="icon fa-solid fa-gem"></span></div>
+          <div className="logo-brand">Sk<span>.</span></div>
           <h2>SkillPrep AI</h2>
           <p>Practice interviews. Convert notes into quizzes. Prepare smarter for your career.</p>
           <ul className="actions" style={{ marginTop: "2em", justifyContent: "center" }}>
@@ -252,7 +252,6 @@ export default function Intro() {
 
           <ul className="copyright">
             <li>&copy; {new Date().getFullYear()} SkillPrep AI. All rights reserved.</li>
-            <li>Design Template: <a href="http://html5up.net" target="_blank" rel="noopener noreferrer">HTML5 UP</a></li>
           </ul>
         </div>
       </section>
