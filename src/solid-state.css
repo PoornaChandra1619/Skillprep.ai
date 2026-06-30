@@ -4179,3 +4179,142 @@ input, select, textarea {
 .logo-brand span {
 	color: #22d3ee !important;
 }
+
+/* ==========================================================================
+   ======================== PREMIUM GLASSMORPHISM THEME =====================
+   ========================================================================== */
+
+/* 1. Global Cosmic Backdrop */
+body {
+	background-color: #0c0d14 !important;
+	background-image: 
+		radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.12) 0%, transparent 40%),
+		radial-gradient(circle at 90% 80%, rgba(34, 211, 238, 0.1) 0%, transparent 45%),
+		linear-gradient(135deg, #0c0d14 0%, #131521 100%) !important;
+	background-attachment: fixed !important;
+}
+
+/* 2. Frosted Sticky Header */
+#header {
+	background: rgba(19, 21, 33, 0.7) !important;
+	backdrop-filter: blur(12px) !important;
+	-webkit-backdrop-filter: blur(12px) !important;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+	box-shadow: 0 4px 30px rgba(0, 0, 0, 0.25) !important;
+}
+
+/* 3. Frosted Main Banner Card */
+#banner .inner {
+	background: rgba(255, 255, 255, 0.02) !important;
+	backdrop-filter: blur(20px) !important;
+	-webkit-backdrop-filter: blur(20px) !important;
+	border: 1px solid rgba(255, 255, 255, 0.08) !important;
+	border-radius: 24px !important;
+	padding: 4em 4em 3.5em 4em !important;
+	box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* 4. Frosted Spotlights */
+.wrapper.spotlight {
+	background-color: rgba(255, 255, 255, 0.01) !important;
+	backdrop-filter: blur(10px) !important;
+	-webkit-backdrop-filter: blur(10px) !important;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
+}
+
+/* 5. Frosted Page Wrappers (Dashboard, Profile, Notes, etc.) */
+.wrapper.style5 {
+	background: transparent !important;
+}
+
+.wrapper > .inner {
+	background: rgba(255, 255, 255, 0.03) !important;
+	backdrop-filter: blur(18px) !important;
+	-webkit-backdrop-filter: blur(18px) !important;
+	border: 1px solid rgba(255, 255, 255, 0.07) !important;
+	border-radius: 20px !important;
+	box-shadow: 0 25px 55px rgba(0, 0, 0, 0.3) !important;
+	padding: 4em 4em 3em 4em !important;
+}
+
+/* 6. Frosted Feature Grid Cards */
+.features article {
+	background: rgba(255, 255, 255, 0.02) !important;
+	backdrop-filter: blur(12px) !important;
+	-webkit-backdrop-filter: blur(12px) !important;
+	border: 1px solid rgba(255, 255, 255, 0.06) !important;
+	border-radius: 16px !important;
+	box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2) !important;
+	transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), 
+	            border-color 0.4s ease, 
+	            box-shadow 0.4s ease !important;
+}
+
+.features article:hover {
+	transform: translateY(-8px) !important;
+	border-color: rgba(34, 211, 238, 0.35) !important;
+	box-shadow: 0 20px 45px rgba(34, 211, 238, 0.12) !important;
+}
+
+/* 7. Frosted Glass-Card Classes (Stats, roadmaps, etc.) */
+.glass-card {
+	background: rgba(255, 255, 255, 0.03) !important;
+	backdrop-filter: blur(14px) !important;
+	-webkit-backdrop-filter: blur(14px) !important;
+	border: 1px solid rgba(255, 255, 255, 0.07) !important;
+	border-radius: 14px !important;
+	box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25) !important;
+	padding: 30px !important;
+}
+
+/* 8. Frosted Auth Modal Card */
+.auth-card {
+	background: rgba(19, 21, 33, 0.8) !important;
+	backdrop-filter: blur(20px) !important;
+	-webkit-backdrop-filter: blur(20px) !important;
+	border: 1px solid rgba(255, 255, 255, 0.08) !important;
+	box-shadow: 0 30px 70px rgba(99, 102, 241, 0.3) !important;
+	color: #ffffff !important;
+}
+
+.auth-card h2 {
+	color: #ffffff !important;
+}
+
+.auth-subtitle {
+	color: rgba(255, 255, 255, 0.6) !important;
+}
+
+.auth-card input {
+	background: rgba(255, 255, 255, 0.04) !important;
+	border: 2px solid rgba(255, 255, 255, 0.08) !important;
+	color: #ffffff !important;
+}
+
+.auth-card input:focus {
+	border-color: #6366f1 !important;
+	background: rgba(255, 255, 255, 0.07) !important;
+	box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15) !important;
+}
+
+.auth-card input::placeholder {
+	color: rgba(255, 255, 255, 0.4) !important;
+}
+
+.google-btn {
+	background: rgba(255, 255, 255, 0.04) !important;
+	border-color: rgba(255, 255, 255, 0.08) !important;
+	color: #ffffff !important;
+}
+
+.divider {
+	color: rgba(255, 255, 255, 0.4) !important;
+}
+
+.divider::before, .divider::after {
+	border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.toggle-auth {
+	color: rgba(255, 255, 255, 0.6) !important;
+}
