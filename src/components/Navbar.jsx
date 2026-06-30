@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import { createPortal } from "react-dom";
 
 export default function Navbar({ onLoginClick }) {
     const navigate = useNavigate();
@@ -77,34 +77,37 @@ export default function Navbar({ onLoginClick }) {
                 </nav>
             </header>
 
-            <nav id="menu">
-                <div className="inner">
-                    <h2>Menu</h2>
-                    <ul className="links">
-                        <li><Link to="/" onClick={(e) => handleNavClick("top", e)}>Home</Link></li>
-                        <li><a href="#features" onClick={(e) => handleNavClick("features", e)}>Features</a></li>
-                        <li><a href="#contact" onClick={(e) => handleNavClick("contact", e)}>Contact</a></li>
-                        
-                        {user ? (
-                            <>
-                                <li><Link to="/dashboard" onClick={() => setShowMenu(false)}>Dashboard</Link></li>
-                                <li><Link to="/profile" onClick={() => setShowMenu(false)}>Profile</Link></li>
-                                <li>
-                                    <a href="#" onClick={(e) => { e.preventDefault(); logout(); }}>
-                                        Logout (👤 {user.name.split(" ")[0]})
-                                    </a>
-                                </li>
-                            </>
-                        ) : (
-                            <>
-                                <li><a href="#" onClick={handleLoginClick}>Log In</a></li>
-                                <li><a href="#" onClick={handleLoginClick}>Sign Up</a></li>
-                            </>
-                        )}
-                    </ul>
-                    <a href="#" className="close" onClick={toggleMenu}>Close</a>
-                </div>
-            </nav>
+            {createPortal(
+                <nav id="menu" onClick={() => setShowMenu(false)}>
+                    <div className="inner" onClick={(e) => e.stopPropagation()}>
+                        <h2>Menu</h2>
+                        <ul className="links">
+                            <li><Link to="/" onClick={(e) => handleNavClick("top", e)}>Home</Link></li>
+                            <li><a href="#features" onClick={(e) => handleNavClick("features", e)}>Features</a></li>
+                            <li><a href="#contact" onClick={(e) => handleNavClick("contact", e)}>Contact</a></li>
+                            
+                            {user ? (
+                                <>
+                                    <li><Link to="/dashboard" onClick={() => setShowMenu(false)}>Dashboard</Link></li>
+                                    <li><Link to="/profile" onClick={() => setShowMenu(false)}>Profile</Link></li>
+                                    <li>
+                                        <a href="#" onClick={(e) => { e.preventDefault(); logout(); }}>
+                                            Logout (👤 {user.name.split(" ")[0]})
+                                        </a>
+                                    </li>
+                                </>
+                            ) : (
+                                <>
+                                    <li><a href="#" onClick={handleLoginClick}>Log In</a></li>
+                                    <li><a href="#" onClick={handleLoginClick}>Sign Up</a></li>
+                                </>
+                            )}
+                        </ul>
+                        <a href="#" className="close" onClick={(e) => { e.preventDefault(); setShowMenu(false); }}>Close</a>
+                    </div>
+                </nav>,
+                document.body
+            )}
         </>
     );
 }
