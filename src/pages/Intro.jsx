@@ -231,7 +231,7 @@ export default function Intro() {
             </div>
             <ul className="actions">
               <li><input type="submit" value="Send Message" /></li>
-            </div>
+            </ul>
           </form>
 
           <ul className="contact">
