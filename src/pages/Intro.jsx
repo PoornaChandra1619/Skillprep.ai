@@ -1,15 +1,21 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import AuthModal from "../components/AuthModal";
 import Navbar from "../components/Navbar";
-import "./intro.css";
 
 export default function Intro() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [showAuth, setShowAuth] = useState(false);
   const [user, setUser] = useState(null);
+
+  // Form state for footer contact
+  const [contactForm, setContactForm] = useState({
+    name: "",
+    email: "",
+    message: ""
+  });
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -20,7 +26,7 @@ export default function Intro() {
     // Open auth modal if ?login=true in URL
     if (searchParams.get("login") === "true") {
       setShowAuth(true);
-      setSearchParams({}, { replace: true }); // clean URL
+      setSearchParams({}, { replace: true });
     }
 
     // Scroll to section if ?scroll=id in URL
@@ -36,264 +42,220 @@ export default function Intro() {
   const openAuth = () => setShowAuth(true);
   const closeAuth = () => setShowAuth(false);
 
-  const scrollToSection = (id) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+  const handleContactSubmit = (e) => {
+    e.preventDefault();
+    if (!contactForm.name || !contactForm.email || !contactForm.message) {
+      alert("Please fill out all fields.");
+      return;
+    }
+    alert(`Thank you, ${contactForm.name}! Your message has been sent successfully.`);
+    setContactForm({ name: "", email: "", message: "" });
   };
 
-  // Floating particles for background
-  const particles = Array.from({ length: 20 }, (_, i) => ({
-    id: i,
-    size: Math.random() * 6 + 3,
-    x: Math.random() * 100,
-    y: Math.random() * 100,
-    duration: Math.random() * 15 + 10,
-    delay: Math.random() * 5,
-  }));
+  const handleActionClick = (targetPath) => {
+    if (user) {
+      navigate(targetPath);
+    } else {
+      openAuth();
+    }
+  };
 
   return (
-    <div className="colorlib-page">
+    <div id="page-wrapper">
+      {/* NAVBAR */}
       <Navbar onLoginClick={openAuth} />
 
-      {/* ================= FLOATING PARTICLES ================= */}
-      <div className="particles-container" aria-hidden="true">
-        {particles.map((p) => (
-          <motion.div
-            key={p.id}
-            className="particle"
-            style={{
-              width: p.size,
-              height: p.size,
-              left: `${p.x}%`,
-              top: `${p.y}%`,
-            }}
-            animate={{
-              y: [0, -30, 0],
-              x: [0, Math.random() * 20 - 10, 0],
-              opacity: [0.3, 0.8, 0.3],
-            }}
-            transition={{
-              duration: p.duration,
-              delay: p.delay,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-          />
-        ))}
-      </div>
-
-      {/* ================= HERO ================= */}
-      <section className="hero">
-
-        <motion.div
-          className="watermark"
-          animate={{ opacity: [0.04, 0.08, 0.04] }}
-          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-        >
-          S
-        </motion.div>
-
-        {/* LEFT */}
-        <motion.div
-          className="hero-left"
-          initial={{ opacity: 0, x: -50 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8 }}
-        >
-          <h1>
-            <motion.span
-              className="hero-title-main"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-            >
-              Skill
-            </motion.span>
-            <motion.span
-              className="hero-title-accent"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.4 }}
-            >
-              Prep
-            </motion.span>
-            <motion.span
-              className="hero-title-ai"
-              initial={{ opacity: 0, scale: 0.5 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5, delay: 0.6, type: "spring", stiffness: 200 }}
-            >
-              {" "}AI
-            </motion.span>
-          </h1>
-
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.8 }}
-          >
-            Practice interviews. Convert notes into quizzes.
-            <br />
-            Prepare smarter for your career.
-          </motion.p>
-
-          {!user ? (
-            <motion.button
-              className="get-started"
-              onClick={openAuth}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 1.0 }}
-              whileHover={{ scale: 1.05, y: -4 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              Get Started
-            </motion.button>
-          ) : (
-            <motion.button
-              className="get-started dashboard-btn"
-              onClick={() => navigate("/dashboard")}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 1.0 }}
-              whileHover={{ scale: 1.05, y: -4 }}
-              whileTap={{ scale: 0.95 }}
-              style={{ background: "transparent", border: "2px solid #22d3ee", color: "#22d3ee" }}
-            >
-              📊 Go to Dashboard
-            </motion.button>
-          )}
-        </motion.div>
-
-        {/* RIGHT — DASHBOARD AFTER LOGIN */}
-        {user && (
-          <motion.div
-            className="hero-right"
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-          >
-            <div className="feature-box">
-
-              <motion.div
-                className="feature-card"
-                onClick={() => navigate("/notes")}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5, type: "spring", stiffness: 100 }}
-                whileHover={{ scale: 1.04, y: -8 }}
-              >
-                <h3>🧠 Notes → Quiz (MCQs)</h3>
-                <p>Convert notes into AI-generated quizzes.</p>
-              </motion.div>
-
-              <motion.div
-                className="feature-card"
-                onClick={() => navigate("/interview")}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.7, type: "spring", stiffness: 100 }}
-                whileHover={{ scale: 1.04, y: -8 }}
-              >
-                <h3>🎤 Interview Prep with AI</h3>
-                <p>Practice real interview-style questions.</p>
-              </motion.div>
-
-            </div>
-          </motion.div>
-        )}
-      </section>
-
-      {/* ================= FEATURES SECTION ================= */}
-      <section id="features" className="section-container">
-        <motion.h2
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-        >
-          Why Choose SkillPrep AI?
-        </motion.h2>
-
-        <div className="features-grid">
-          {[
-            { icon: "📄", title: "Notes to Quiz", desc: "Paste your study notes and let our AI generate multiple-choice questions instantly to test your knowledge.", delay: 0.1 },
-            { icon: "🎤", title: "AI Voice Interviewer", desc: "Experience realistic technical interviews with our AI that speaks to you and reacts to your answers in real-time.", delay: 0.2 },
-            { icon: "📊", title: "Performance Tracking", desc: "Keep track of your quiz scores and interview attempts to monitor your progress over time.", delay: 0.3 },
-          ].map((feature, i) => (
-            <motion.div
-              key={i}
-              className="feature-item"
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: feature.delay, duration: 0.5, type: "spring", stiffness: 80 }}
-              whileHover={{ y: -12, boxShadow: "0 20px 40px rgba(99, 102, 241, 0.15)" }}
-            >
-              <div className="feature-icon">{feature.icon}</div>
-              <h3>{feature.title}</h3>
-              <p>{feature.desc}</p>
-            </motion.div>
-          ))}
+      {/* BANNER */}
+      <section id="banner">
+        <div className="inner">
+          <div className="logo"><span className="icon fa-solid fa-gem"></span></div>
+          <h2>SkillPrep AI</h2>
+          <p>Practice interviews. Convert notes into quizzes. Prepare smarter for your career.</p>
+          <ul className="actions" style={{ marginTop: "2em", justifyContent: "center" }}>
+            {!user ? (
+              <li>
+                <button className="button primary fit" onClick={openAuth} style={{ minWidth: "200px" }}>
+                  Get Started
+                </button>
+              </li>
+            ) : (
+              <li>
+                <button className="button primary fit" onClick={() => navigate("/dashboard")} style={{ minWidth: "200px" }}>
+                  📊 Go to Dashboard
+                </button>
+              </li>
+            )}
+          </ul>
         </div>
       </section>
 
-      {/* ================= ABOUT SECTION ================= */}
-      <section id="about" className="section-container about-section">
-        <motion.div
-          className="about-content"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-        >
-          <h2>About Us</h2>
-          <p>
-            SkillPrep AI was built with a single mission: to make career preparation accessible, smart, and interactive.
-            Whether you are a student preparing for exams or a professional gearing up for your next big interview,
-            our AI-powered tools are designed to give you the competitive edge you need.
-          </p>
-          <p>
-            Built by <strong>Poorna Chandra</strong>, this platform leverages the latest in Generative AI to provide
-            personalized learning experiences.
-          </p>
-        </motion.div>
+      {/* WRAPPER */}
+      <section id="wrapper">
+        {/* ONE - NOTES TO MCQ */}
+        <section id="one" className="wrapper spotlight style1">
+          <div className="inner">
+            <a href="#" className="image" onClick={(e) => { e.preventDefault(); handleActionClick("/notes"); }}>
+              <img src="/images/pic01.jpg" alt="Notes to Quiz" />
+            </a>
+            <div className="content">
+              <h2 className="major">Notes → Quiz (MCQs)</h2>
+              <p>
+                Transform your study notes or reference documents into interactive, custom multiple-choice quizzes in seconds. Our advanced AI automatically parses key concepts, generates high-quality questions, and tracks your scores to help reinforce your knowledge.
+              </p>
+              <button className="special" onClick={() => handleActionClick("/notes")}>
+                Generate a Quiz
+              </button>
+            </div>
+          </div>
+        </section>
+
+        {/* TWO - AI VOICE INTERVIEWER */}
+        <section id="two" className="wrapper alt spotlight style2">
+          <div className="inner">
+            <a href="#" className="image" onClick={(e) => { e.preventDefault(); handleActionClick("/interview"); }}>
+              <img src="/images/pic02.jpg" alt="AI Interview Prep" />
+            </a>
+            <div className="content">
+              <h2 className="major">AI Voice Interviewer</h2>
+              <p>
+                Experience realistic, real-time mock interviews with our conversational AI recruiter. Select your target engineering role, upload your resume, and practice answering custom technical and behavioral questions via interactive voice recognition.
+              </p>
+              <button className="special" onClick={() => handleActionClick("/interview")}>
+                Start Mock Interview
+              </button>
+            </div>
+          </div>
+        </section>
+
+        {/* THREE - PERFORMANCE ANALYTICS */}
+        <section id="three" className="wrapper spotlight style3">
+          <div className="inner">
+            <a href="#" className="image" onClick={(e) => { e.preventDefault(); handleActionClick("/dashboard"); }}>
+              <img src="/images/pic03.jpg" alt="Performance Tracking" />
+            </a>
+            <div className="content">
+              <h2 className="major">Performance Tracking</h2>
+              <p>
+                Monitor your learning velocity over time. Review historical quiz scores, review comprehensive feedback reports from previous interview sessions, and track your metrics comparison vs. top-performing peer benchmarks.
+              </p>
+              <button className="special" onClick={() => handleActionClick("/dashboard")}>
+                View Your Analytics
+              </button>
+            </div>
+          </div>
+        </section>
+
+        {/* FOUR - FEATURES GRID */}
+        <section id="features" className="wrapper alt style1">
+          <div className="inner">
+            <h2 className="major">Advanced Preparation Tools</h2>
+            <p>
+              SkillPrep AI provides you with all the necessary tools to fast-track your career preparation. Whether you are review-studying key concepts or practicing full simulated voice interviews, we have you covered.
+            </p>
+            <section className="features">
+              <article>
+                <a href="#" className="image" onClick={(e) => { e.preventDefault(); handleActionClick("/dashboard"); }}>
+                  <img src="/images/pic04.jpg" alt="AI Roadmaps" />
+                </a>
+                <h3 className="major">Custom Study Roadmaps</h3>
+                <p>Let our AI analyze your quiz history and score trends to generate a custom 7-day master study roadmap tailored to bridge your exact knowledge gaps.</p>
+                <a href="#" className="special" onClick={(e) => { e.preventDefault(); handleActionClick("/dashboard"); }}>Learn more</a>
+              </article>
+              <article>
+                <a href="#" className="image" onClick={(e) => { e.preventDefault(); handleActionClick("/interview"); }}>
+                  <img src="/images/pic05.jpg" alt="Voice Recognition" />
+                </a>
+                <h3 className="major">Voice Speech-to-Text</h3>
+                <p>Respond to technical questions naturally with your voice. Our integrated Web Speech API interprets your audio inputs for a fluid, hands-free prep experience.</p>
+                <a href="#" className="special" onClick={(e) => { e.preventDefault(); handleActionClick("/interview"); }}>Learn more</a>
+              </article>
+              <article>
+                <a href="#" className="image" onClick={(e) => { e.preventDefault(); handleActionClick("/notes"); }}>
+                  <img src="/images/pic06.jpg" alt="Instant MCQ Feedback" />
+                </a>
+                <h3 className="major">Instant MCQ Evaluations</h3>
+                <p>Receive immediate grading, answer breakdowns, and detailed explanation metrics after every quiz attempt to ensure you understand correct methodologies.</p>
+                <a href="#" className="special" onClick={(e) => { e.preventDefault(); handleActionClick("/notes"); }}>Learn more</a>
+              </article>
+              <article>
+                <a href="#" className="image" onClick={(e) => { e.preventDefault(); handleActionClick("/profile"); }}>
+                  <img src="/images/pic07.jpg" alt="User Profile Details" />
+                </a>
+                <h3 className="major">History & User Profiles</h3>
+                <p>Access your centralized profile directory. Manage personal credentials, review saved attempts, check earned preparation badges, and track your study progression.</p>
+                <a href="#" className="special" onClick={(e) => { e.preventDefault(); handleActionClick("/profile"); }}>Learn more</a>
+              </article>
+            </section>
+          </div>
+        </section>
       </section>
 
-      {/* ================= CONTACT / FOOTER SECTION ================= */}
-      <footer id="contact" className="footer-section">
-        <div className="footer-content">
-          <motion.div
-            className="footer-logo"
-            initial={{ opacity: 0, scale: 0.8 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ type: "spring", stiffness: 150 }}
-          >
-            Sk<span>.</span>
-          </motion.div>
+      {/* FOOTER */}
+      <section id="footer">
+        <div className="inner">
+          <h2 className="major">Get in touch</h2>
+          <p>Have questions, ideas, or feedback about SkillPrep AI? Write to us or reach out via our contact details. We'd love to help support your learning and career preparation journey.</p>
+          
+          <form onSubmit={handleContactSubmit}>
+            <div className="fields">
+              <div className="field">
+                <label htmlFor="name">Name</label>
+                <input 
+                  type="text" 
+                  name="name" 
+                  id="name" 
+                  value={contactForm.name}
+                  onChange={(e) => setContactForm({ ...contactForm, name: e.target.value })}
+                />
+              </div>
+              <div className="field">
+                <label htmlFor="email">Email</label>
+                <input 
+                  type="email" 
+                  name="email" 
+                  id="email" 
+                  value={contactForm.email}
+                  onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })}
+                />
+              </div>
+              <div className="field">
+                <label htmlFor="message">Message</label>
+                <textarea 
+                  name="message" 
+                  id="message" 
+                  rows="4"
+                  value={contactForm.message}
+                  onChange={(e) => setContactForm({ ...contactForm, message: e.target.value })}
+                ></textarea>
+              </div>
+            </div>
+            <ul className="actions">
+              <li><input type="submit" value="Send Message" /></li>
+            </div>
+          </form>
 
-          <div className="footer-info">
-            <h3>Get in Touch</h3>
-            <p>Ready to sharpen your skills? Contact us for any queries or feedback.</p>
-            <div className="contact-details">
-              <a href="mailto:purnachandra1619@gmail.com" className="contact-link">📧 purnachandra1619@gmail.com</a>
-              <a
-                href="https://github.com/PoornaChandra1619"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="github-link"
-              >
-                <img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg" alt="GitHub" width="20" />
-                GitHub Profile
+          <ul className="contact">
+            <li className="icon solid fa-home">
+              SkillPrep AI Studio<br />
+              Built by Poorna Chandra<br />
+              India
+            </li>
+            <li className="icon solid fa-envelope">
+              <a href="mailto:purnachandra1619@gmail.com">purnachandra1619@gmail.com</a>
+            </li>
+            <li className="icon brands fa-github">
+              <a href="https://github.com/PoornaChandra1619" target="_blank" rel="noopener noreferrer">
+                github.com/PoornaChandra1619
               </a>
-            </div>
-          </div>
+            </li>
+          </ul>
 
-          <div className="footer-bottom">
-            <p>&copy; {new Date().getFullYear()} SkillPrep AI. Built by Poorna Chandra.</p>
-          </div>
+          <ul className="copyright">
+            <li>&copy; {new Date().getFullYear()} SkillPrep AI. All rights reserved.</li>
+            <li>Design Template: <a href="http://html5up.net" target="_blank" rel="noopener noreferrer">HTML5 UP</a></li>
+          </ul>
         </div>
-      </footer>
+      </section>
 
       {/* AUTH MODAL */}
       <AnimatePresence>

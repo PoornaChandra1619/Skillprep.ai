@@ -4,6 +4,7 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import App from "./App";
 import "./index.css";
 import "./theme.css";
+import "./solid-state.css";
 
 const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "244988304520-ndhnfmpejnlt73mejeo62nbussveh4vq.apps.googleusercontent.com";
 
