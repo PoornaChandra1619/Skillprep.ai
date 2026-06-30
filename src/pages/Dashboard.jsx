@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import Navbar from "../components/Navbar";
-import "./intro.css";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -68,7 +67,18 @@ export default function Dashboard() {
     }
   };
 
-  if (loading) return <div className="colorlib-page"><Navbar /><div className="hero"><h2>Loading Analytics...</h2></div></div>;
+  if (loading) return (
+    <div id="page-wrapper">
+      <Navbar />
+      <section id="wrapper">
+        <header>
+          <div className="inner">
+            <h2>Loading Analytics...</h2>
+          </div>
+        </header>
+      </section>
+    </div>
+  );
 
   const totalQuizzes = user?.scores?.length || 0;
   const avgScore = totalQuizzes
@@ -76,161 +86,167 @@ export default function Dashboard() {
     : 0;
 
   return (
-    <div className="colorlib-page">
+    <div id="page-wrapper">
       <Navbar />
 
-      <section className="hero" style={{ padding: "120px 8% 80px", flexDirection: "column", alignItems: "flex-start" }}>
+      <section id="wrapper">
+        <header>
+          <div className="inner">
+            <h2>Welcome Back, {user?.name.split(" ")[0]}</h2>
+            <p>Here's how your skill preparation is trending.</p>
+          </div>
+        </header>
 
-        <motion.div
-          className="dashboard-header"
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-        >
-          <h1>Welcome Back, <span>{user?.name.split(" ")[0]}</span></h1>
-          <p style={{ opacity: 0.7 }}>Here's how your skill preparation is trending.</p>
-        </motion.div>
+        <div className="wrapper">
+          <div className="inner">
+            <div className="profile-grid" style={{ width: "100%", display: "flex", gap: "30px", flexWrap: "wrap" }}>
 
-        <div className="profile-grid" style={{ width: "100%", marginTop: "40px" }}>
-
-          {/* STATS SUMMARY */}
-          <div className="left-col">
-            <motion.div
-              className="glass-card"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-            >
-              <h3>Performance Pulse</h3>
-              <div className="stats-grid">
-                <div className="stat-item">
-                  <span className="stat-value" style={{ color: "#22d3ee" }}>{totalQuizzes}</span>
-                  <span className="stat-label">Attempts</span>
-                </div>
-                <div className="stat-item">
-                  <span className="stat-value" style={{ color: "#22d3ee" }}>{avgScore}%</span>
-                  <span className="stat-label">Avg Accuracy</span>
-                </div>
-              </div>
-
-              <div style={{ marginTop: "30px" }}>
-                <p style={{ fontSize: "14px", opacity: 0.6 }}>Benchmarking vs. Peers</p>
-                <div className="progress-container" style={{ height: "12px", background: "rgba(255,255,255,0.05)" }}>
-                  <motion.div
-                    className="progress-bar"
-                    style={{ background: "linear-gradient(90deg, #6366f1, #22d3ee)" }}
-                    initial={{ width: 0 }}
-                    animate={{ width: "75%" }} // Simulated benchmark
-                  />
-                </div>
-                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", marginTop: "5px", opacity: 0.5 }}>
-                  <span>You ({avgScore}%)</span>
-                  <span>Top 10% (92%)</span>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* AI ROADMAP CALL TO ACTION */}
-            <motion.div
-              className="glass-card"
-              style={{ marginTop: "25px", border: "1px solid rgba(34, 211, 238, 0.3)" }}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-            >
-              <h3>✨ AI Study Roadmap</h3>
-              <p style={{ fontSize: "14px", opacity: 0.7, margin: "10px 0 20px" }}>
-                Let our AI analyze your quiz history to create a custom 7-day plan to bridge your knowledge gaps.
-              </p>
-              {!roadmap ? (
-                <button
-                  className="nav-btn"
-                  onClick={generateRoadmap}
-                  disabled={isGenerating}
-                  style={{ width: "100%", background: "rgba(34, 211, 238, 0.1)", borderColor: "#22d3ee" }}
+              {/* STATS SUMMARY */}
+              <div className="left-col" style={{ flex: 1, minWidth: "300px" }}>
+                <motion.div
+                  className="glass-card"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  style={{ background: "rgba(255, 255, 255, 0.03)", padding: "30px", borderRadius: "12px", border: "1px solid rgba(255, 255, 255, 0.08)" }}
                 >
-                  {isGenerating ? "Analyzing..." : "Generate My Roadmap"}
-                </button>
-              ) : (
-                <div className="roadmap-preview">
-                  <h4 style={{ color: "#22d3ee", marginBottom: "15px" }}>{roadmap.title}</h4>
-                  <ul style={{ paddingLeft: "15px", fontSize: "13px", color: "rgba(255,255,255,0.8)" }}>
-                    {roadmap.steps.slice(0, 3).map((step, i) => (
-                      <li key={i} style={{ marginBottom: "8px" }}>
-                        <strong>Day {step.day}:</strong> {step.task}
-                      </li>
-                    ))}
-                  </ul>
-                  <button
-                    className="nav-btn"
-                    onClick={() => setShowModal(true)}
-                    style={{ width: "100%", marginTop: "10px", fontSize: "12px" }}
-                  >
-                    View Full Roadmap
-                  </button>
-                </div>
-              )}
-            </motion.div>
-          </div>
-
-          {/* MAIN CHART AREA */}
-          <div className="right-col">
-            <motion.div
-              className="glass-card"
-              style={{ minHeight: "400px" }}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.4 }}
-            >
-              <h3>Score Trend Analysis</h3>
-              <div style={{ marginTop: "40px", height: "250px", width: "100%", position: "relative" }}>
-                {totalQuizzes > 0 ? (
-                  <svg width="100%" height="100%" viewBox="0 0 400 200" preserveAspectRatio="none">
-                    {/* Simulated Path based on scores */}
-                    <path
-                      d={`M ${user.scores.map((s, i) => `${(i / (totalQuizzes - 1 || 1)) * 400},${200 - (s.score / s.total) * 180}`).join(" L ")}`}
-                      fill="none"
-                      stroke="#22d3ee"
-                      strokeWidth="3"
-                      strokeLinecap="round"
-                    />
-                    {/* Dots */}
-                    {user.scores.map((s, i) => (
-                      <circle
-                        key={i}
-                        cx={(i / (totalQuizzes - 1 || 1)) * 400}
-                        cy={200 - (s.score / s.total) * 180}
-                        r="5"
-                        fill="#6366f1"
-                      />
-                    ))}
-                  </svg>
-                ) : (
-                  <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", opacity: 0.4 }}>
-                    Take more quizzes to see your trend!
+                  <h3 className="major" style={{ borderBottom: "1px solid rgba(255, 255, 255, 0.15)", paddingBottom: "10px", marginBottom: "20px" }}>
+                    Performance Pulse
+                  </h3>
+                  <div className="stats-grid" style={{ display: "flex", justifyContent: "space-around", marginBottom: "30px" }}>
+                    <div className="stat-item" style={{ textAlign: "center" }}>
+                      <span className="stat-value" style={{ color: "#22d3ee", fontSize: "2.5em", fontWeight: "700", display: "block" }}>{totalQuizzes}</span>
+                      <span className="stat-label" style={{ fontSize: "12px", opacity: 0.6, textTransform: "uppercase", letterSpacing: "0.05em" }}>Attempts</span>
+                    </div>
+                    <div className="stat-item" style={{ textAlign: "center" }}>
+                      <span className="stat-value" style={{ color: "#22d3ee", fontSize: "2.5em", fontWeight: "700", display: "block" }}>{avgScore}%</span>
+                      <span className="stat-label" style={{ fontSize: "12px", opacity: 0.6, textTransform: "uppercase", letterSpacing: "0.05em" }}>Avg Accuracy</span>
+                    </div>
                   </div>
-                )}
+
+                  <div>
+                    <p style={{ fontSize: "14px", opacity: 0.8, marginBottom: "8px" }}>Benchmarking vs. Peers</p>
+                    <div className="progress-container" style={{ height: "12px", background: "rgba(255, 255, 255, 0.05)", borderRadius: "6px", overflow: "hidden", position: "relative" }}>
+                      <motion.div
+                        className="progress-bar"
+                        style={{ height: "100%", background: "linear-gradient(90deg, #6366f1, #22d3ee)", width: `${Math.min(avgScore, 100)}%` }}
+                        initial={{ width: 0 }}
+                        animate={{ width: `${Math.min(avgScore, 100)}%` }}
+                        transition={{ duration: 1, delay: 0.5 }}
+                      />
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", marginTop: "8px", opacity: 0.5 }}>
+                      <span>You ({avgScore}%)</span>
+                      <span>Top 10% (92%)</span>
+                    </div>
+                  </div>
+                </motion.div>
+
+                {/* AI ROADMAP CALL TO ACTION */}
+                <motion.div
+                  className="glass-card"
+                  style={{ marginTop: "25px", border: "1px solid rgba(34, 211, 238, 0.3)", background: "rgba(255, 255, 255, 0.03)", padding: "30px", borderRadius: "12px" }}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                >
+                  <h3 className="major" style={{ borderBottom: "1px solid rgba(255, 255, 255, 0.15)", paddingBottom: "10px", marginBottom: "15px" }}>
+                    ✨ AI Study Roadmap
+                  </h3>
+                  <p style={{ fontSize: "14px", opacity: 0.7, marginBottom: "20px" }}>
+                    Let our AI analyze your quiz history to create a custom 7-day plan to bridge your knowledge gaps.
+                  </p>
+                  {!roadmap ? (
+                    <button
+                      className="button primary fit"
+                      onClick={generateRoadmap}
+                      disabled={isGenerating}
+                      style={{ width: "100%" }}
+                    >
+                      {isGenerating ? "Analyzing..." : "Generate My Roadmap"}
+                    </button>
+                  ) : (
+                    <div className="roadmap-preview">
+                      <h4 style={{ color: "#22d3ee", marginBottom: "15px" }}>{roadmap.title}</h4>
+                      <ul style={{ paddingLeft: "15px", fontSize: "13px", color: "rgba(255,255,255,0.8)", listStyle: "circle" }}>
+                        {roadmap.steps.slice(0, 3).map((step, i) => (
+                          <li key={i} style={{ marginBottom: "8px" }}>
+                            <strong>Day {step.day}:</strong> {step.task}
+                          </li>
+                        ))}
+                      </ul>
+                      <button
+                        className="button fit"
+                        onClick={() => setShowModal(true)}
+                        style={{ width: "100%", marginTop: "15px" }}
+                      >
+                        View Full Roadmap
+                      </button>
+                    </div>
+                  )}
+                </motion.div>
               </div>
-              <div style={{ display: "flex", justifyContent: "space-between", marginTop: "20px" }}>
-                <button className="get-started" onClick={() => navigate("/notes")}>Launch New Quiz</button>
-                <button className="nav-btn" onClick={() => navigate("/profile")}>Edit Profile</button>
+
+              {/* MAIN CHART AREA */}
+              <div className="right-col" style={{ flex: 1.5, minWidth: "350px" }}>
+                <motion.div
+                  className="glass-card"
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.4 }}
+                  style={{ background: "rgba(255, 255, 255, 0.03)", padding: "30px", borderRadius: "12px", border: "1px solid rgba(255, 255, 255, 0.08)", minHeight: "400px" }}
+                >
+                  <h3 className="major" style={{ borderBottom: "1px solid rgba(255, 255, 255, 0.15)", paddingBottom: "10px", marginBottom: "20px" }}>
+                    Score Trend Analysis
+                  </h3>
+                  <div style={{ marginTop: "40px", height: "250px", width: "100%", position: "relative" }}>
+                    {totalQuizzes > 0 ? (
+                      <svg width="100%" height="100%" viewBox="0 0 400 200" preserveAspectRatio="none">
+                        <path
+                          d={`M ${user.scores.map((s, i) => `${(i / (totalQuizzes - 1 || 1)) * 400},${200 - (s.score / s.total) * 180}`).join(" L ")}`}
+                          fill="none; display: none"
+                          stroke="#22d3ee"
+                          strokeWidth="3"
+                          strokeLinecap="round"
+                        />
+                        {user.scores.map((s, i) => (
+                          <circle
+                            key={i}
+                            cx={(i / (totalQuizzes - 1 || 1)) * 400}
+                            cy={200 - (s.score / s.total) * 180}
+                            r="5"
+                            fill="#6366f1"
+                          />
+                        ))}
+                      </svg>
+                    ) : (
+                      <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", opacity: 0.4 }}>
+                        Take more quizzes to see your trend!
+                      </div>
+                    )}
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginTop: "40px", gap: "20px" }}>
+                    <button className="button primary fit" onClick={() => navigate("/notes")}>Launch New Quiz</button>
+                    <button className="button fit" onClick={() => navigate("/profile")}>Edit Profile</button>
+                  </div>
+                </motion.div>
               </div>
-            </motion.div>
+
+            </div>
           </div>
-
         </div>
-
       </section>
 
       {/* ROADMAP MODAL */}
       <AnimatePresence>
         {showModal && roadmap && (
-          <div className="auth-overlay" style={{ display: "flex", alignItems: "center", justifyContent: "center", zIndex: 2000 }}>
+          <div className="auth-overlay" style={{ display: "flex", alignItems: "center", justifyContent: "center", zIndex: 30000, position: "fixed", top: 0, left: 0, width: "100%", height: "100%", background: "rgba(0,0,0,0.8)" }}>
             <motion.div
               className="glass-card"
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              style={{ maxWidth: "450px", width: "90%", padding: "40px", position: "relative" }}
+              style={{ maxWidth: "550px", width: "90%", padding: "40px", position: "relative", background: "#2e3141", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "10px" }}
             >
               <button
                 onClick={() => setShowModal(false)}
@@ -241,7 +257,7 @@ export default function Dashboard() {
               <h2 style={{ color: "#22d3ee", marginBottom: "5px", fontSize: "20px" }}>{roadmap.title}</h2>
               <p style={{ opacity: 0.6, marginBottom: "20px", fontSize: "13px" }}>Your personalized 7-day preparation strategy.</p>
 
-              <div style={{ display: "flex", flexDirection: "column", gap: "10px", maxHeight: "450px", overflowY: "auto", paddingRight: "10px" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "10px", maxHeight: "400px", overflowY: "auto", paddingRight: "10px" }}>
                 {roadmap.steps.map((step, i) => (
                   <motion.div
                     key={i}
@@ -290,9 +306,9 @@ export default function Dashboard() {
               </div>
 
               <button
-                className="get-started"
+                className="button primary fit"
                 onClick={() => setShowModal(false)}
-                style={{ width: "100%", marginTop: "20px", padding: "12px", fontSize: "14px" }}
+                style={{ width: "100%", marginTop: "20px" }}
               >
                 Close Roadmap
               </button>

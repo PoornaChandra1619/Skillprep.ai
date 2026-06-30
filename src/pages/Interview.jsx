@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
-import "./intro.css";
 
 export default function Interview() {
   const navigate = useNavigate();
@@ -48,71 +47,24 @@ export default function Interview() {
         const female1 = voices.find(v => v.name.includes("Zira") || v.name.includes("Female") || v.name.includes("Google UK English Female")) || voices[1] || voices[0];
         const female2 = voices.find(v => (v.name.includes("Samantha") || v.name.includes("Mary") || v.name.includes("Google US English")) && v !== female1) || voices[2] || voices[0];
 
-        setAvailableVoices([
-          { label: "Male (Professional)", voice: male },
-          { label: "Female (Clear)", voice: female1 },
-          { label: "Female (Soft)", voice: female2 }
-        ]);
-        setSelectedVoice(female1); // Default to female
+        const options = [];
+        if (male) options.push({ label: "Male Voice", voice: male });
+        if (female1) options.push({ label: "Female Voice 1", voice: female1 });
+        if (female2) options.push({ label: "Female Voice 2", voice: female2 });
+
+        setAvailableVoices(options);
+        if (options.length > 0) setSelectedVoice(options[0]);
       }
     };
-
     loadVoices();
     window.speechSynthesis.onvoiceschanged = loadVoices;
-
-    // Check if user is logged in
-    const token = localStorage.getItem("token");
-    if (!token) {
-      alert("Please login to access the AI Interviewer.");
-      navigate("/");
-    }
-  }, [navigate]);
-
-  // Speech to Text
-  const startListening = () => {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      alert("Browser does not support Speech Recognition. Use Chrome/Edge.");
-      return;
-    }
-
-    const recognition = new SpeechRecognition();
-    recognition.lang = "en-US";
-    recognition.start();
-    setIsListening(true);
-
-    recognition.onresult = (event) => {
-      const transcript = event.results[0][0].transcript;
-      sendMessage(transcript);
-      setIsListening(false);
-    };
-
-    recognition.onerror = () => setIsListening(false);
-    recognition.onend = () => setIsListening(false);
-  };
-
-  // Text to Speech
-  const speak = (text) => {
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
-    if (selectedVoice?.voice) {
-      utterance.voice = selectedVoice.voice;
-    }
-    utterance.rate = 1;
-    window.speechSynthesis.speak(utterance);
-  };
+  }, []);
 
   const handleResumeUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    if (file.type !== "application/pdf") {
-      alert("Please upload a PDF file.");
-      return;
-    }
 
-    setResumeFile(file);
     setIsUploading(true);
-
     const formData = new FormData();
     formData.append("resume", file);
 
@@ -121,132 +73,137 @@ export default function Interview() {
         method: "POST",
         body: formData,
       });
-
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Unknown error");
-
+      if (!res.ok) throw new Error(data.message);
       setResumeText(data.text);
+      setResumeFile(file);
     } catch (err) {
-      console.error(err);
-      alert(`Failed to parse resume: ${err.message}. You can still start the interview manually.`);
+      alert("Resume upload failed: " + err.message);
     } finally {
       setIsUploading(false);
     }
   };
 
   const startInterview = async () => {
-    if (!role) return alert("Select or enter a role");
-    setStarted(true);
-
-    // Initial AI greeting
-    const greeting = `Hello! I am your AI interviewer for the ${role} position. ${resumeText ? "I've reviewed your resume and would like to learn more about your experience. " : ""}Let's begin. Tell me about yourself.`;
-    setMessages([{ sender: "ai", text: greeting }]);
-    speak(greeting);
-  };
-
-  const sendMessage = async (text) => {
-    const messageText = text || inputText;
-    if (!messageText) return;
-
-    const newMessages = [...messages, { sender: "user", text: messageText }];
-    setMessages(newMessages);
-    setInputText("");
-    setLoading(true);
-
-    try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/ai/interview-chat`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ role, history: newMessages, resumeText }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || "Failed to connect to AI");
-      }
-
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let aiFullText = "";
-
-      // Add an initial empty AI message that we will update
-      setMessages((prev) => [...prev, { sender: "ai", text: "" }]);
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        const chunk = decoder.decode(value);
-        const lines = chunk.split("\n");
-
-        for (const line of lines) {
-          if (line.startsWith("data: ")) {
-            const dataStr = line.replace("data: ", "");
-            if (dataStr === "[DONE]") {
-              // Finish up
-              speak(aiFullText);
-              break;
-            }
-
-            try {
-              const data = JSON.parse(dataStr);
-              if (data.error) throw new Error(data.error);
-              if (data.text) {
-                aiFullText += data.text;
-                // Update the last message (the AI's message) in real-time
-                setMessages((prev) => {
-                  const updated = [...prev];
-                  updated[updated.length - 1].text = aiFullText;
-                  return updated;
-                });
-              }
-            } catch (e) {
-              console.error("Error parsing stream chunk", e);
-            }
-          }
-        }
-      }
-
-    } catch (err) {
-      console.error(err);
-      alert(`Failed to get AI response: ${err.message}`);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const endInterview = async () => {
-    if (messages.length < 2) {
-      navigate("/");
+    if (!role.trim()) {
+      alert("Please select or type a role first.");
       return;
     }
-
-    setIsGeneratingReview(true);
-    window.speechSynthesis.cancel();
+    setLoading(true);
+    setStarted(true);
 
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/ai/get-interview-review`, {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/ai/start-interview`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`
         },
-        body: JSON.stringify({ role, history: messages }),
+        body: JSON.stringify({ role, resumeText })
       });
 
       const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
 
-      if (!res.ok) {
-        if (res.status === 401) {
-          localStorage.clear();
-          alert("Your session has expired. Please login again.");
-          navigate("/");
-          return;
-        }
-        throw new Error(data.message || "Failed to generate review");
-      }
+      setMessages([{ sender: "ai", text: data.question }]);
+      speakText(data.question);
+    } catch (err) {
+      alert("Failed to start interview: " + err.message);
+      setStarted(false);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  const speakText = (text) => {
+    if (!selectedVoice) return;
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.voice = selectedVoice.voice;
+    window.speechSynthesis.speak(utterance);
+  };
+
+  const sendMessage = async () => {
+    if (!inputText.trim()) return;
+
+    const userMsg = { sender: "user", text: inputText };
+    setMessages(prev => [...prev, userMsg]);
+    setInputText("");
+    setLoading(true);
+
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/ai/chat-interview`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          role,
+          resumeText,
+          history: messages,
+          answer: inputText
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
+
+      setMessages(prev => [...prev, { sender: "ai", text: data.question }]);
+      speakText(data.question);
+    } catch (err) {
+      alert("Error sending message: " + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Web Speech API
+  const startListening = () => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert("Voice speech recognition is not supported in this browser. Please use Chrome or Safari.");
+      return;
+    }
+
+    window.speechSynthesis.cancel();
+    const rec = new SpeechRecognition();
+    rec.continuous = false;
+    rec.interimResults = false;
+    rec.lang = "en-US";
+
+    rec.onstart = () => setIsListening(true);
+    rec.onend = () => setIsListening(false);
+    rec.onerror = (e) => {
+      console.error(e);
+      setIsListening(false);
+    };
+
+    rec.onresult = (e) => {
+      const transcript = e.results[0][0].transcript;
+      setInputText(transcript);
+    };
+
+    rec.start();
+  };
+
+  const endInterview = async () => {
+    setIsGeneratingReview(true);
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/ai/end-interview`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ role, history: messages })
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
       setReview(data);
     } catch (err) {
       console.error(err);
@@ -259,184 +216,234 @@ export default function Interview() {
 
   if (review) {
     return (
-      <div className="colorlib-page">
-        <div className="profile-container" style={{ padding: '100px 8%' }}>
-          <motion.div
-            className="glass-card"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-          >
-            <h2 style={{ fontSize: '2.4rem', marginBottom: '20px' }}>Interview Review 📊</h2>
+      <div id="page-wrapper">
+        <Navbar />
 
-            <div className="stats-grid" style={{ marginBottom: '30px' }}>
-              <div className="stat-item">
-                <span className="stat-value">{review.overallScore || 0}%</span>
-                <span className="stat-label">Communication Score</span>
-              </div>
+        <section id="wrapper">
+          <header>
+            <div className="inner">
+              <h2>Interview Review 📊</h2>
+              <p>Review comprehensive feedback on your performance.</p>
             </div>
+          </header>
 
-            <p style={{ fontSize: '1.2rem', marginBottom: '30px' }}>{review.summary || "No summary available."}</p>
+          <div className="wrapper">
+            <div className="inner" style={{ maxWidth: "800px", margin: "0 auto" }}>
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                style={{ background: "rgba(255, 255, 255, 0.03)", padding: "30px", borderRadius: "12px", border: "1px solid rgba(255, 255, 255, 0.08)" }}
+              >
+                <div className="stats-grid" style={{ display: "flex", justifyContent: "center", marginBottom: "30px" }}>
+                  <div className="stat-item" style={{ textAlign: "center" }}>
+                    <span className="stat-value" style={{ color: "#22d3ee", fontSize: "2.5em", fontWeight: "700" }}>{review.overallScore || 0}%</span>
+                    <span className="stat-label" style={{ display: "block", fontSize: "12px", opacity: 0.6, marginTop: "8px" }}>Communication & Accuracy Score</span>
+                  </div>
+                </div>
 
-            <div className="review-sections" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', textAlign: 'left' }}>
-              <div className="glass-card" style={{ background: 'rgba(239, 68, 68, 0.1)', borderColor: 'rgba(239, 68, 68, 0.2)' }}>
-                <h4 style={{ color: '#ef4444', marginBottom: '15px' }}>Mistakes</h4>
-                <ul>
-                  {review.mistakes?.length > 0 ? review.mistakes.map((m, i) => <li key={i}>{m}</li>) : <li>No notable mistakes.</li>}
-                </ul>
-              </div>
-              <div className="glass-card" style={{ background: 'rgba(34, 211, 238, 0.1)', borderColor: 'rgba(34, 211, 238, 0.2)' }}>
-                <h4 style={{ color: '#22d3ee', marginBottom: '15px' }}>Improvements</h4>
-                <ul>
-                  {review.improvements?.length > 0 ? review.improvements.map((m, i) => <li key={i}>{m}</li>) : <li>Keep up the good work!</li>}
-                </ul>
-              </div>
+                <p style={{ fontSize: "16px", lineHeight: "1.6", marginBottom: "30px", opacity: 0.9 }}>{review.summary || "No summary available."}</p>
+
+                <div className="review-sections" style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}>
+                  <div className="glass-card" style={{ flex: 1, minWidth: "280px", background: "rgba(239, 68, 68, 0.05)", borderColor: "rgba(239, 68, 68, 0.15)", padding: "20px", borderRadius: "10px", border: "1px solid" }}>
+                    <h4 style={{ color: "#ef4444", marginBottom: "15px", fontWeight: "600" }}>Mistakes & Misunderstandings</h4>
+                    <ul style={{ paddingLeft: "15px", fontSize: "13px", color: "rgba(255,255,255,0.8)", listStyle: "circle" }}>
+                      {review.mistakes?.length > 0 ? review.mistakes.map((m, i) => <li key={i} style={{ marginBottom: "6px" }}>{m}</li>) : <li>No notable mistakes.</li>}
+                    </ul>
+                  </div>
+                  <div className="glass-card" style={{ flex: 1, minWidth: "280px", background: "rgba(34, 211, 238, 0.05)", borderColor: "rgba(34, 211, 238, 0.15)", padding: "20px", borderRadius: "10px", border: "1px solid" }}>
+                    <h4 style={{ color: "#22d3ee", marginBottom: "15px", fontWeight: "600" }}>Recommended Improvements</h4>
+                    <ul style={{ paddingLeft: "15px", fontSize: "13px", color: "rgba(255,255,255,0.8)", listStyle: "circle" }}>
+                      {review.improvements?.length > 0 ? review.improvements.map((m, i) => <li key={i} style={{ marginBottom: "6px" }}>{m}</li>) : <li>Keep up the good work!</li>}
+                    </ul>
+                  </div>
+                </div>
+
+                <button
+                  className="button primary fit"
+                  style={{ marginTop: "40px", width: "100%" }}
+                  onClick={() => navigate("/")}
+                >
+                  Done
+                </button>
+              </motion.div>
             </div>
-
-            <button
-              className="get-started"
-              style={{ marginTop: '40px' }}
-              onClick={() => navigate("/")}
-            >
-              Done
-            </button>
-          </motion.div>
-        </div>
+          </div>
+        </section>
       </div>
     );
   }
 
   return (
-    <div className="colorlib-page">
+    <div id="page-wrapper">
       <Navbar />
-      <div className="hero" style={{ justifyContent: "center", alignItems: "flex-start", paddingTop: "100px" }}>
 
-        {!started ? (
-          <motion.div
-            className="hero-left"
-            style={{ maxWidth: "600px" }}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            <h1>AI Interviewer 🎤</h1>
-            <p>Select your role and upload your resume for a personalized interview.</p>
+      <section id="wrapper">
+        <header>
+          <div className="inner">
+            <h2>AI Voice Interviewer 🎤</h2>
+            <p>Practice simulated technical and behavioral interviews with real-time feedback.</p>
+          </div>
+        </header>
 
-            <div className="interview-setup-grid">
-              <div className="role-selector">
-                <input
-                  placeholder="e.g. Frontend Developer"
-                  value={role}
-                  onChange={(e) => setRole(e.target.value)}
-                  className="role-input"
-                  list="roles-list"
-                />
-                <datalist id="roles-list">
-                  {roles.map((r, i) => (
-                    <option key={i} value={r} />
-                  ))}
-                </datalist>
-              </div>
+        <div className="wrapper">
+          <div className="inner" style={{ maxWidth: started ? "800px" : "600px", margin: "0 auto" }}>
+            
+            {!started ? (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                style={{ background: "rgba(255, 255, 255, 0.03)", padding: "30px", borderRadius: "12px", border: "1px solid rgba(255, 255, 255, 0.08)" }}
+              >
+                <h3 className="major" style={{ borderBottom: "1px solid rgba(255, 255, 255, 0.15)", paddingBottom: "10px", marginBottom: "20px" }}>
+                  Setup Interview Profile
+                </h3>
 
-              <div className="resume-upload-section">
-                <input
-                  type="file"
-                  accept=".pdf"
-                  onChange={handleResumeUpload}
-                  style={{ display: 'none' }}
-                  ref={fileInputRef}
-                />
+                <div className="interview-setup-grid" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+                  <div className="field">
+                    <label htmlFor="role-input">Target Job Role</label>
+                    <input
+                      id="role-input"
+                      placeholder="e.g. Frontend Developer"
+                      value={role}
+                      onChange={(e) => setRole(e.target.value)}
+                      style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.15)", color: "white", padding: "10px", borderRadius: "6px", width: "100%", outline: "none" }}
+                      list="roles-list"
+                    />
+                    <datalist id="roles-list">
+                      {roles.map((r, i) => (
+                        <option key={i} value={r} />
+                      ))}
+                    </datalist>
+                  </div>
+
+                  <div className="field">
+                    <label>Resume (Optional, PDF format)</label>
+                    <input
+                      type="file"
+                      accept=".pdf"
+                      onChange={handleResumeUpload}
+                      style={{ display: 'none' }}
+                      ref={fileInputRef}
+                    />
+                    <button
+                      className="button fit"
+                      onClick={() => fileInputRef.current.click()}
+                      disabled={isUploading}
+                      style={{
+                        borderColor: resumeText ? "#22d3ee" : "",
+                        color: resumeText ? "#22d3ee" : ""
+                      }}
+                    >
+                      {isUploading ? "📤 Parsing PDF..." : resumeText ? "✅ Resume Attached successfully" : "📄 Upload Resume"}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="voice-selector-setup" style={{ marginTop: '25px' }}>
+                  <label>Select AI voice model</label>
+                  <div className="voice-options" style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginTop: "10px" }}>
+                    {availableVoices.map((v, i) => (
+                      <button
+                        key={i}
+                        className={`button ${selectedVoice?.label === v.label ? 'primary' : ''}`}
+                        onClick={() => setSelectedVoice(v)}
+                        style={{ fontSize: "10px", height: "35px", lineHeight: "35px", padding: "0 15px" }}
+                      >
+                        {v.label.includes("Male") ? "👨" : "👩"} {v.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
                 <button
-                  className={`upload-resume-btn ${resumeText ? 'success' : ''}`}
-                  onClick={() => fileInputRef.current.click()}
+                  className="button primary fit"
+                  style={{ marginTop: "35px", width: "100%" }}
+                  onClick={startInterview}
                   disabled={isUploading}
                 >
-                  {isUploading ? "📤 Parsing..." : resumeText ? "✅ Resume Added" : "📄 Upload Resume"}
+                  {isUploading ? "Wait for Resume..." : "Start Interview"}
                 </button>
-              </div>
-            </div>
-
-            <div className="voice-selector-setup" style={{ marginTop: '15px' }}>
-              <p style={{ fontSize: '0.9rem', marginBottom: '8px', color: '#64748b' }}>Select AI Voice:</p>
-              <div className="voice-options">
-                {availableVoices.map((v, i) => (
+              </motion.div>
+            ) : (
+              <motion.div
+                className="chat-container"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                style={{ background: "rgba(255, 255, 255, 0.03)", borderRadius: "12px", border: "1px solid rgba(255, 255, 255, 0.08)", overflow: "hidden" }}
+              >
+                <div className="chat-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "20px", borderBottom: "1px solid rgba(255, 255, 255, 0.1)", background: "rgba(255, 255, 255, 0.02)" }}>
+                  <div className="header-info">
+                    <h3 style={{ margin: 0, fontSize: "16px", color: "white" }}>{role} Interview</h3>
+                    <div className="voice-indicator" style={{ fontSize: "11px", opacity: 0.6, marginTop: "4px" }}>
+                      Voice: {selectedVoice?.label.includes("Male") ? "👨" : "👩"} {selectedVoice?.label}
+                    </div>
+                  </div>
                   <button
-                    key={i}
-                    className={`voice-btn ${selectedVoice?.label === v.label ? 'active' : ''}`}
-                    onClick={() => setSelectedVoice(v)}
+                    className="button"
+                    onClick={endInterview}
+                    disabled={isGeneratingReview}
+                    style={{ background: "rgba(239, 68, 68, 0.2)", borderColor: "rgba(239, 68, 68, 0.3)", color: "#ef4444", fontSize: "11px", height: "35px", lineHeight: "35px", padding: "0 15px" }}
                   >
-                    {v.label.includes("Male") ? "👨" : "👩"} {v.label}
+                    {isGeneratingReview ? "Generating..." : "End Interview"}
                   </button>
-                ))}
-              </div>
-            </div>
-
-            <button
-              className="get-started"
-              style={{ marginTop: "24px", width: "100%" }}
-              onClick={startInterview}
-              disabled={isUploading}
-            >
-              {isUploading ? "Wait for Resume..." : "Start Interview"}
-            </button>
-          </motion.div>
-        ) : (
-          <motion.div
-            className="chat-container interview-mode"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-          >
-            <div className="chat-header">
-              <div className="header-info">
-                <h3>{role} Interview</h3>
-                <div className="voice-indicator">
-                  Voice: {selectedVoice?.label.includes("Male") ? "👨" : "👩"} {selectedVoice?.label}
                 </div>
-              </div>
-              <button
-                className="end-btn"
-                onClick={endInterview}
-                disabled={isGeneratingReview}
-              >
-                {isGeneratingReview ? "Generating Review..." : "End Interview"}
-              </button>
-            </div>
 
-            <div className="chat-box">
-              {messages.map((msg, index) => (
-                <div key={index} className={`chat-bubble ${msg.sender}`}>
-                  {msg.text}
+                <div className="chat-box" style={{ padding: "20px", minHeight: "350px", maxHeight: "400px", overflowY: "auto", display: "flex", flexDirection: "column", gap: "15px" }}>
+                  {messages.map((msg, index) => (
+                    <div
+                      key={index}
+                      style={{
+                        alignSelf: msg.sender === "ai" ? "flex-start" : "flex-end",
+                        background: msg.sender === "ai" ? "rgba(255, 255, 255, 0.06)" : "linear-gradient(135deg, #6366f1, #22d3ee)",
+                        color: "white",
+                        padding: "12px 18px",
+                        borderRadius: msg.sender === "ai" ? "12px 12px 12px 0px" : "12px 12px 0px 12px",
+                        maxWidth: "80%",
+                        fontSize: "14px",
+                        lineHeight: "1.4",
+                        border: msg.sender === "ai" ? "1px solid rgba(255, 255, 255, 0.08)" : ""
+                      }}
+                    >
+                      {msg.text}
+                    </div>
+                  ))}
+                  {loading && <div style={{ alignSelf: "flex-start", opacity: 0.5, fontSize: "12px", fontStyle: "italic" }}>AI is typing response...</div>}
+                  <div ref={messagesEndRef} />
                 </div>
-              ))}
-              {loading && <div className="chat-bubble ai typing">AI is thinking...</div>}
-              <div ref={messagesEndRef} />
-            </div>
 
-            <div className="chat-input-area hybrid">
-              <button
-                className={`mic-btn hybrid ${isListening ? "listening" : ""}`}
-                onClick={startListening}
-                title="Voice Input"
-              >
-                🎤
-              </button>
+                <div className="chat-input-area hybrid" style={{ display: "flex", gap: "10px", padding: "20px", borderTop: "1px solid rgba(255, 255, 255, 0.1)", background: "rgba(255, 255, 255, 0.02)", alignItems: "center" }}>
+                  <button
+                    className={`button ${isListening ? "primary" : ""}`}
+                    onClick={startListening}
+                    title="Voice input (Speak to AI)"
+                    style={{ width: "42px", height: "42px", borderRadius: "50%", padding: 0, display: "flex", alignItems: "center", justifyContent: "center", minWidth: "42px", borderColor: isListening ? "#22d3ee" : "", color: isListening ? "#0f172a" : "" }}
+                  >
+                    🎤
+                  </button>
 
-              <input
-                placeholder="Type your answer here..."
-                value={inputText}
-                onChange={(e) => setInputText(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-              />
+                  <input
+                    placeholder="Type your response or click microphone..."
+                    value={inputText}
+                    onChange={(e) => setInputText(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+                    style={{ flex: 1, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.15)", color: "white", padding: "10px 15px", borderRadius: "30px", outline: "none" }}
+                  />
 
-              <button
-                className="send-btn"
-                onClick={() => sendMessage()}
-                disabled={!inputText.trim()}
-              >
-                ➔
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </div>
+                  <button
+                    className="button primary"
+                    onClick={() => sendMessage()}
+                    disabled={!inputText.trim()}
+                    style={{ width: "42px", height: "42px", borderRadius: "50%", padding: 0, display: "flex", alignItems: "center", justifyContent: "center", minWidth: "42px" }}
+                  >
+                    ➔
+                  </button>
+                </div>
+              </motion.div>
+            )}
+            
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
