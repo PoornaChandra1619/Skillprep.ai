@@ -1,0 +1,843 @@
+/* ==========================================================================
+   ======================= NETFLIX-INSPIRED GLASS THEME =====================
+   ========================================================================== */
+
+/* 1. Global Reset & Variables */
+:root {
+  --bg-black: #141414;
+  --bg-card: #1f1f1f;
+  --brand-red: #E50914;
+  --brand-red-hover: #b80710;
+  --text-white: #ffffff;
+  --text-grey: #aaaaaa;
+  --glass-bg: rgba(20, 20, 20, 0.75);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --font-display: 'Bebas Neue', sans-serif;
+  --font-body: 'Outfit', sans-serif;
+  --font-utility: 'Fira Code', monospace;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-black);
+  background-image: 
+    radial-gradient(circle at 5% 5%, rgba(229, 9, 20, 0.1) 0%, transparent 40%),
+    radial-gradient(circle at 95% 95%, rgba(99, 102, 241, 0.08) 0%, transparent 45%);
+  background-attachment: fixed;
+  color: var(--text-white);
+  font-family: var(--font-body);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.5;
+}
+
+/* 2. Typography */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-body);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.bebas-font {
+  font-family: var(--font-display);
+  letter-spacing: 0.05em;
+  font-weight: normal;
+}
+
+/* 3. Global Navbar */
+#header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 68px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 4%;
+  z-index: 10000;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
+  transition: background-color 0.4s ease;
+}
+
+#header.scrolled {
+  background-color: var(--bg-black);
+  border-bottom: 1px solid var(--glass-border);
+}
+
+#header h1 {
+  font-family: var(--font-display);
+  font-size: 2.2rem;
+  letter-spacing: 0.03em;
+}
+
+#header h1 a {
+  color: var(--brand-red) !important;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+#header h1 a span {
+  color: var(--text-white);
+}
+
+#header nav {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+#header nav a {
+  color: var(--text-white);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+#header nav a:hover {
+  color: var(--brand-red);
+}
+
+#header .menu-btn {
+  background: var(--brand-red);
+  color: var(--text-white);
+  padding: 6px 16px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+#header .menu-btn:hover {
+  background-color: var(--brand-red-hover);
+}
+
+/* 4. Netflix Slide-out Drawer */
+#menu {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 320px;
+  height: 100vh;
+  background: var(--glass-bg);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border-left: 1px solid var(--glass-border);
+  box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+  z-index: 20000;
+  padding: 80px 40px;
+  transform: translateX(100%);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+}
+
+body.is-menu-visible #menu {
+  transform: translateX(0);
+}
+
+body.is-menu-visible #page-wrapper {
+  filter: blur(2px);
+  pointer-events: none;
+}
+
+#menu h2 {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  color: var(--brand-red);
+  margin-bottom: 30px;
+  border-bottom: 2px solid var(--brand-red);
+  padding-bottom: 10px;
+}
+
+#menu .links {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+#menu .links a {
+  color: var(--text-white);
+  text-decoration: none;
+  font-size: 1.1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  display: block;
+}
+
+#menu .links a:hover {
+  color: var(--brand-red);
+  transform: translateX(5px);
+}
+
+#menu .close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  color: var(--text-white);
+  font-size: 24px;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+#menu .close:hover {
+  color: var(--brand-red);
+}
+
+/* 5. Netflix Landing Hero Banner (index.html/Intro.jsx) */
+#banner {
+  min-height: 95vh;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-image: 
+    linear-gradient(to top, rgba(20,20,20,1) 0%, rgba(20,20,20,0.4) 50%, rgba(20,20,20,0.85) 100%),
+    url('/images/pic08.jpg'); /* fallback or cinema backdrop */
+  background-size: cover;
+  background-position: center;
+  padding: 100px 4%;
+  text-align: center;
+}
+
+#banner .inner {
+  max-width: 800px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  padding: 60px 40px;
+  border-radius: 20px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+}
+
+#banner h2 {
+  font-family: var(--font-display);
+  font-size: 4rem;
+  line-height: 1.05;
+  margin-bottom: 20px;
+  letter-spacing: 0.02em;
+}
+
+#banner h2 span {
+  color: var(--brand-red);
+}
+
+#banner p {
+  font-size: 1.4rem;
+  color: var(--text-white);
+  margin-bottom: 35px;
+  opacity: 0.9;
+}
+
+.email-signup-row {
+  display: flex;
+  gap: 12px;
+  max-width: 650px;
+  margin: 0 auto;
+  flex-wrap: wrap;
+}
+
+.email-signup-row input {
+  flex: 1;
+  min-width: 280px;
+  padding: 18px 24px;
+  background: rgba(0,0,0,0.5);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 8px;
+  color: var(--text-white);
+  font-size: 1.05rem;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.email-signup-row input:focus {
+  border-color: var(--brand-red);
+  background: rgba(0,0,0,0.7);
+  box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.2);
+}
+
+.email-signup-row button {
+  background: var(--brand-red);
+  color: var(--text-white);
+  border: none;
+  padding: 18px 36px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.email-signup-row button:hover {
+  background-color: var(--brand-red-hover);
+  transform: translateY(-1px);
+}
+
+.email-signup-row button:active {
+  transform: translateY(0);
+}
+
+/* 6. FAQ Accordion (Netflix style) */
+.faq-section {
+  padding: 80px 4%;
+  background-color: var(--bg-black);
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.faq-section h2 {
+  font-family: var(--font-display);
+  font-size: 3rem;
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.faq-item {
+  background: var(--bg-card);
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.faq-question {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 22px 30px;
+  font-size: 1.25rem;
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s ease;
+}
+
+.faq-question:hover {
+  background-color: rgba(255,255,255,0.03);
+}
+
+.faq-question .faq-icon {
+  font-size: 1.6rem;
+  font-weight: 300;
+  transition: transform 0.3s ease;
+}
+
+.faq-item.open .faq-icon {
+  transform: rotate(45deg);
+}
+
+.faq-answer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1), padding 0.3s ease;
+  padding: 0 30px;
+  color: var(--text-grey);
+  font-size: 1.1rem;
+  line-height: 1.6;
+  border-top: 1px solid transparent;
+}
+
+.faq-item.open .faq-answer {
+  max-height: 500px;
+  padding: 24px 30px;
+  border-top-color: rgba(255,255,255,0.05);
+}
+
+/* 7. General Netflix wrapper style for dashboard/subpages */
+#wrapper {
+  padding-top: 68px; /* space for sticky navbar */
+  min-height: 100vh;
+}
+
+#wrapper > header {
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  padding: 100px 4% 60px 4%;
+  background-image: linear-gradient(to bottom, rgba(20,20,20,0.6) 0%, rgba(20,20,20,1) 100%);
+  border-bottom: 2px solid var(--brand-red);
+}
+
+#wrapper > header .inner {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+#wrapper > header h2 {
+  font-family: var(--font-display);
+  font-size: 3.5rem;
+  line-height: 1.1;
+  color: var(--text-white);
+  margin-bottom: 10px;
+  letter-spacing: 0.01em;
+}
+
+#wrapper > header p {
+  color: var(--text-grey);
+  font-size: 1.25rem;
+}
+
+.wrapper {
+  padding: 60px 4%;
+}
+
+.wrapper > .inner {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* 8. Feature / Project Cards grid (browse.html rows) */
+.features-slider-container {
+  margin-bottom: 40px;
+  position: relative;
+}
+
+.features-slider-container h3 {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  margin-bottom: 15px;
+  color: var(--text-white);
+  display: inline-block;
+  border-left: 4px solid var(--brand-red);
+  padding-left: 10px;
+}
+
+.features-slider {
+  display: flex;
+  gap: 15px;
+  overflow-x: auto;
+  padding: 15px 0;
+  scroll-behavior: smooth;
+  scrollbar-width: none; /* Firefox */
+}
+
+.features-slider::-webkit-scrollbar {
+  display: none; /* Safari/Chrome */
+}
+
+.features article {
+  flex: 0 0 280px;
+  background: var(--bg-card);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  cursor: pointer;
+}
+
+.features article .image {
+  height: 160px;
+  overflow: hidden;
+  position: relative;
+}
+
+.features article .image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.features article:hover {
+  transform: translateY(-8px) scale(1.03);
+  border-color: var(--brand-red);
+  box-shadow: 0 15px 35px rgba(229, 9, 20, 0.15);
+}
+
+.features article:hover .image img {
+  transform: scale(1.08);
+}
+
+.features article .content {
+  padding: 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.features article h3 {
+  font-size: 1.2rem;
+  color: var(--text-white);
+  margin-bottom: 8px;
+}
+
+.features article p {
+  color: var(--text-grey);
+  font-size: 0.9rem;
+  line-height: 1.4;
+  margin-bottom: 15px;
+  flex: 1;
+}
+
+.features article .special {
+  color: var(--brand-red);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: auto;
+}
+
+/* 9. Glassmorphic elements & stats cards */
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.35);
+  margin-bottom: 30px;
+}
+
+.glass-card h3.major {
+  font-family: var(--font-body);
+  font-size: 1.5rem;
+  color: var(--text-white);
+  border-bottom: 2px solid var(--brand-red);
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+}
+
+.button {
+  background-color: transparent;
+  color: var(--text-white);
+  border: 2px solid rgba(255,255,255,0.25);
+  padding: 12px 28px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  border-radius: 6px;
+  cursor: pointer;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
+}
+
+.button.primary {
+  background-color: var(--brand-red);
+  border-color: var(--brand-red);
+}
+
+.button:hover {
+  border-color: var(--brand-red);
+  color: var(--text-white);
+}
+
+.button.primary:hover {
+  background-color: var(--brand-red-hover);
+  border-color: var(--brand-red-hover);
+}
+
+.button.fit {
+  width: 100%;
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 10. Forms, inputs, and textareas */
+form .fields {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 25px;
+}
+
+form .field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+form label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-white);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+form input[type="text"],
+form input[type="email"],
+form textarea,
+form select {
+  width: 100%;
+  padding: 14px 18px;
+  background: rgba(0,0,0,0.4);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 8px;
+  color: var(--text-white);
+  font-size: 1rem;
+  outline: none;
+  font-family: var(--font-body);
+  transition: all 0.3s ease;
+}
+
+form input:focus,
+form textarea:focus,
+form select:focus {
+  border-color: var(--brand-red);
+  background: rgba(0,0,0,0.6);
+  box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.2);
+}
+
+form textarea {
+  resize: vertical;
+}
+
+/* 11. Netflix-style login modal */
+.auth-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 30000;
+  animation: overlayFadeIn 0.3s ease;
+}
+
+.auth-card {
+  background: rgba(0,0,0,0.75) !important;
+  backdrop-filter: blur(25px) !important;
+  -webkit-backdrop-filter: blur(25px) !important;
+  border: 1px solid var(--glass-border) !important;
+  border-radius: 12px !important;
+  width: 450px !important;
+  max-width: 90vw !important;
+  padding: 60px 40px !important;
+  box-shadow: 0 25px 60px rgba(229,9,20,0.2) !important;
+  position: relative;
+  text-align: center;
+}
+
+.auth-card h2 {
+  font-size: 2.2rem !important;
+  font-weight: 700 !important;
+  color: var(--text-white) !important;
+  margin-bottom: 8px !important;
+  text-align: left !important;
+}
+
+.auth-subtitle {
+  color: var(--text-grey) !important;
+  margin-bottom: 30px !important;
+  font-size: 0.95rem !important;
+  text-align: left !important;
+}
+
+.auth-card input {
+  background: #333333 !important;
+  border: none !important;
+  border-radius: 6px !important;
+  color: var(--text-white) !important;
+  padding: 14px 20px !important;
+  font-size: 1rem !important;
+  width: 100% !important;
+  outline: none !important;
+  margin-bottom: 16px !important;
+  transition: background-color 0.2s ease !important;
+}
+
+.auth-card input:focus {
+  background: #454545 !important;
+  box-shadow: none !important;
+}
+
+.auth-card input::placeholder {
+  color: #8c8c8c !important;
+}
+
+.submit-btn {
+  background: var(--brand-red) !important;
+  color: var(--text-white) !important;
+  font-weight: 700 !important;
+  font-size: 1.05rem !important;
+  border: none !important;
+  border-radius: 6px !important;
+  padding: 14px !important;
+  width: 100% !important;
+  cursor: pointer !important;
+  margin-top: 15px !important;
+  transition: background-color 0.2s ease !important;
+}
+
+.submit-btn:hover {
+  background-color: var(--brand-red-hover) !important;
+}
+
+.toggle-auth {
+  color: #737373 !important;
+  margin-top: 30px !important;
+  font-size: 0.95rem !important;
+  text-align: left !important;
+}
+
+.toggle-auth span {
+  color: var(--text-white) !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+}
+
+.toggle-auth span:hover {
+  text-decoration: underline !important;
+}
+
+.close-btn {
+  position: absolute !important;
+  top: 20px !important;
+  right: 20px !important;
+  background: none !important;
+  border: none !important;
+  color: var(--text-white) !important;
+  font-size: 22px !important;
+  cursor: pointer !important;
+  opacity: 0.7 !important;
+  transition: opacity 0.2s ease !important;
+}
+
+.close-btn:hover {
+  opacity: 1 !important;
+}
+
+.divider {
+  display: flex !important;
+  align-items: center !important;
+  margin: 25px 0 !important;
+  color: #737373 !important;
+  font-size: 0.8rem !important;
+}
+
+.divider::before, .divider::after {
+  border-bottom: 1px solid #333333 !important;
+}
+
+.social-login {
+  margin-bottom: 10px !important;
+  display: flex !important;
+  justify-content: center !important;
+}
+
+.auth-error {
+  background: rgba(229, 9, 20, 0.1) !important;
+  border: 1px solid var(--brand-red) !important;
+  color: var(--text-white) !important;
+  border-radius: 6px !important;
+  padding: 12px 16px !important;
+  font-size: 0.9rem !important;
+  margin-bottom: 20px !important;
+  text-align: left !important;
+}
+
+/* 12. Netflix Billboard Banner (browse dashboard) */
+.billboard-container {
+  height: 65vh;
+  position: relative;
+  background-size: cover;
+  background-position: center 20%;
+  display: flex;
+  align-items: center;
+  padding: 0 4%;
+  margin-bottom: 20px;
+}
+
+.billboard-container::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, rgba(20,20,20,0.9) 0%, rgba(20,20,20,0.6) 40%, rgba(20,20,20,0) 100%),
+              linear-gradient(to top, rgba(20,20,20,1) 0%, rgba(20,20,20,0) 25%);
+  z-index: 1;
+}
+
+.billboard-content {
+  max-width: 600px;
+  position: relative;
+  z-index: 2;
+}
+
+.billboard-content h2 {
+  font-family: var(--font-display);
+  font-size: 4.5rem;
+  line-height: 1.05;
+  margin-bottom: 15px;
+}
+
+.billboard-content p {
+  font-size: 1.2rem;
+  color: var(--text-white);
+  opacity: 0.9;
+  margin-bottom: 25px;
+  line-height: 1.5;
+}
+
+.billboard-buttons {
+  display: flex;
+  gap: 15px;
+}
+
+/* 13. Interactive Footer */
+#footer {
+  padding: 80px 4% 40px 4%;
+  background-color: var(--bg-black);
+  border-top: 1px solid var(--glass-border);
+}
+
+#footer .inner {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+#footer h2.major {
+  font-family: var(--font-display);
+  font-size: 2.2rem;
+  color: var(--brand-red);
+  margin-bottom: 25px;
+  border-bottom: 2px solid var(--brand-red);
+  padding-bottom: 10px;
+}
+
+#footer .copyright {
+  text-align: center;
+  color: #555555;
+  font-size: 0.85rem;
+  margin-top: 50px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  padding-top: 25px;
+  list-style: none;
+}

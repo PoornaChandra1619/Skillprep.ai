@@ -73,7 +73,7 @@ export default function Dashboard() {
       <section id="wrapper">
         <header>
           <div className="inner">
-            <h2>Loading Analytics...</h2>
+            <h2 className="bebas-font">Loading Dashboard...</h2>
           </div>
         </header>
       </section>
@@ -89,37 +89,134 @@ export default function Dashboard() {
     <div id="page-wrapper">
       <Navbar />
 
-      <section id="wrapper">
-        <header>
-          <div className="inner">
-            <h2>Welcome Back, {user?.name.split(" ")[0]}</h2>
-            <p>Here's how your skill preparation is trending.</p>
+      {/* NETFLIX BILLBOARD HERO BANNER */}
+      <section className="billboard-container" style={{ backgroundImage: `url('/images/pic02.jpg')` }}>
+        <div className="billboard-content">
+          <h2 className="bebas-font">AI VOICE INTERVIEWER</h2>
+          <p>
+            Experience realistic, real-time mock interviews with our conversational AI recruiter. Speak your answers naturally and get evaluated instantly.
+          </p>
+          <div className="billboard-buttons">
+            <button className="button primary" onClick={() => navigate("/interview")}>
+              ▶ Play Mock
+            </button>
+            <button className="button" onClick={() => {
+              const element = document.getElementById("analytics-pulse");
+              if (element) element.scrollIntoView({ behavior: "smooth" });
+            }}>
+              ⓘ More Info
+            </button>
           </div>
-        </header>
+        </div>
+      </section>
 
+      {/* DASHBOARD CONTENT ROWS */}
+      <section id="wrapper" style={{ paddingTop: "0" }}>
         <div className="wrapper">
           <div className="inner">
-            <div className="profile-grid" style={{ width: "100%", display: "flex", gap: "30px", flexWrap: "wrap" }}>
+            
+            {/* ROW 1: RECOMMENDATIONS */}
+            <div className="features-slider-container">
+              <h3 className="bebas-font">Trending Career Prep Modules</h3>
+              <div className="features-slider">
+                <article onClick={() => navigate("/notes")}>
+                  <div className="image">
+                    <img src="/images/pic01.jpg" alt="Notes to MCQ" />
+                  </div>
+                  <div className="content">
+                    <h3>Notes to MCQ Generator</h3>
+                    <p>Convert your notes or study material into custom quiz questions instantly.</p>
+                    <span className="special">Launch Module ➔</span>
+                  </div>
+                </article>
 
-              {/* STATS SUMMARY */}
+                <article onClick={() => navigate("/interview")}>
+                  <div className="image">
+                    <img src="/images/pic02.jpg" alt="AI Interview" />
+                  </div>
+                  <div className="content">
+                    <h3>AI Voice Mock Recruiter</h3>
+                    <p>Simulate voice interviews and receive detailed scorecard evaluations.</p>
+                    <span className="special">Launch Module ➔</span>
+                  </div>
+                </article>
+
+                <article onClick={() => {
+                  const element = document.getElementById("analytics-pulse");
+                  if (element) element.scrollIntoView({ behavior: "smooth" });
+                }}>
+                  <div className="image">
+                    <img src="/images/pic03.jpg" alt="Score Trends" />
+                  </div>
+                  <div className="content">
+                    <h3>Performance Analytics</h3>
+                    <p>Track your quiz accuracy, study velocity, and peer benchmarking.</p>
+                    <span className="special">Scroll to Stats ➔</span>
+                  </div>
+                </article>
+              </div>
+            </div>
+
+            {/* ROW 2: EXPLORE ADDITIONAL TOOLS */}
+            <div className="features-slider-container" style={{ marginTop: "20px" }}>
+              <h3 className="bebas-font">Advanced Preparation Features</h3>
+              <div className="features-slider">
+                <article onClick={() => navigate("/interview")}>
+                  <div className="image">
+                    <img src="/images/pic05.jpg" alt="Voice speech" />
+                  </div>
+                  <div className="content">
+                    <h3>Speech-to-Text</h3>
+                    <p>Interpret technical terms using natural voice audio input recognition.</p>
+                    <span className="special">Explore ➔</span>
+                  </div>
+                </article>
+
+                <article onClick={() => navigate("/notes")}>
+                  <div className="image">
+                    <img src="/images/pic06.jpg" alt="MCQ Evaluation" />
+                  </div>
+                  <div className="content">
+                    <h3>Instant Evaluations</h3>
+                    <p>Gain deep knowledge breakdowns and correction milestones.</p>
+                    <span className="special">Explore ➔</span>
+                  </div>
+                </article>
+
+                <article onClick={() => navigate("/profile")}>
+                  <div className="image">
+                    <img src="/images/pic07.jpg" alt="Badge History" />
+                  </div>
+                  <div className="content">
+                    <h3>Profile & Badge Milestones</h3>
+                    <p>Manage credentials, check score reports, and review earned awards.</p>
+                    <span className="special">Explore ➔</span>
+                  </div>
+                </article>
+              </div>
+            </div>
+
+            {/* ANALYTICS SECTION */}
+            <div id="analytics-pulse" className="profile-grid" style={{ width: "100%", display: "flex", gap: "30px", flexWrap: "wrap", marginTop: "50px" }}>
+
+              {/* STATS CARD */}
               <div className="left-col" style={{ flex: 1, minWidth: "300px" }}>
                 <motion.div
                   className="glass-card"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 }}
-                  style={{ background: "rgba(255, 255, 255, 0.03)", padding: "30px", borderRadius: "12px", border: "1px solid rgba(255, 255, 255, 0.08)" }}
                 >
-                  <h3 className="major" style={{ borderBottom: "1px solid rgba(255, 255, 255, 0.15)", paddingBottom: "10px", marginBottom: "20px" }}>
+                  <h3 className="bebas-font" style={{ fontSize: "1.8rem", color: "var(--brand-red)", borderBottom: "1px solid rgba(255, 255, 255, 0.15)", paddingBottom: "10px", marginBottom: "20px" }}>
                     Performance Pulse
                   </h3>
                   <div className="stats-grid" style={{ display: "flex", justifyContent: "space-around", marginBottom: "30px" }}>
                     <div className="stat-item" style={{ textAlign: "center" }}>
-                      <span className="stat-value" style={{ color: "#22d3ee", fontSize: "2.5em", fontWeight: "700", display: "block" }}>{totalQuizzes}</span>
+                      <span className="stat-value" style={{ color: "var(--text-white)", fontSize: "2.5em", fontWeight: "700", display: "block" }}>{totalQuizzes}</span>
                       <span className="stat-label" style={{ fontSize: "12px", opacity: 0.6, textTransform: "uppercase", letterSpacing: "0.05em" }}>Attempts</span>
                     </div>
                     <div className="stat-item" style={{ textAlign: "center" }}>
-                      <span className="stat-value" style={{ color: "#22d3ee", fontSize: "2.5em", fontWeight: "700", display: "block" }}>{avgScore}%</span>
+                      <span className="stat-value" style={{ color: "var(--brand-red)", fontSize: "2.5em", fontWeight: "700", display: "block" }}>{avgScore}%</span>
                       <span className="stat-label" style={{ fontSize: "12px", opacity: 0.6, textTransform: "uppercase", letterSpacing: "0.05em" }}>Avg Accuracy</span>
                     </div>
                   </div>
@@ -129,7 +226,7 @@ export default function Dashboard() {
                     <div className="progress-container" style={{ height: "12px", background: "rgba(255, 255, 255, 0.05)", borderRadius: "6px", overflow: "hidden", position: "relative" }}>
                       <motion.div
                         className="progress-bar"
-                        style={{ height: "100%", background: "linear-gradient(90deg, #6366f1, #22d3ee)", width: `${Math.min(avgScore, 100)}%` }}
+                        style={{ height: "100%", background: "linear-gradient(90deg, #E50914, #ff6b72)", width: `${Math.min(avgScore, 100)}%` }}
                         initial={{ width: 0 }}
                         animate={{ width: `${Math.min(avgScore, 100)}%` }}
                         transition={{ duration: 1, delay: 0.5 }}
@@ -142,15 +239,15 @@ export default function Dashboard() {
                   </div>
                 </motion.div>
 
-                {/* AI ROADMAP CALL TO ACTION */}
+                {/* AI ROADMAP CTAS */}
                 <motion.div
                   className="glass-card"
-                  style={{ marginTop: "25px", border: "1px solid rgba(34, 211, 238, 0.3)", background: "rgba(255, 255, 255, 0.03)", padding: "30px", borderRadius: "12px" }}
+                  style={{ marginTop: "25px", border: "1px solid rgba(229, 9, 20, 0.3)" }}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 }}
                 >
-                  <h3 className="major" style={{ borderBottom: "1px solid rgba(255, 255, 255, 0.15)", paddingBottom: "10px", marginBottom: "15px" }}>
+                  <h3 className="bebas-font" style={{ fontSize: "1.8rem", color: "var(--brand-red)", borderBottom: "1px solid rgba(255, 255, 255, 0.15)", paddingBottom: "10px", marginBottom: "15px" }}>
                     ✨ AI Study Roadmap
                   </h3>
                   <p style={{ fontSize: "14px", opacity: 0.7, marginBottom: "20px" }}>
@@ -167,7 +264,7 @@ export default function Dashboard() {
                     </button>
                   ) : (
                     <div className="roadmap-preview">
-                      <h4 style={{ color: "#22d3ee", marginBottom: "15px" }}>{roadmap.title}</h4>
+                      <h4 style={{ color: "var(--brand-red)", marginBottom: "15px" }}>{roadmap.title}</h4>
                       <ul style={{ paddingLeft: "15px", fontSize: "13px", color: "rgba(255,255,255,0.8)", listStyle: "circle" }}>
                         {roadmap.steps.slice(0, 3).map((step, i) => (
                           <li key={i} style={{ marginBottom: "8px" }}>
@@ -187,16 +284,16 @@ export default function Dashboard() {
                 </motion.div>
               </div>
 
-              {/* MAIN CHART AREA */}
+              {/* SCORE TREND GRAPH */}
               <div className="right-col" style={{ flex: 1.5, minWidth: "350px" }}>
                 <motion.div
                   className="glass-card"
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.4 }}
-                  style={{ background: "rgba(255, 255, 255, 0.03)", padding: "30px", borderRadius: "12px", border: "1px solid rgba(255, 255, 255, 0.08)", minHeight: "400px" }}
+                  style={{ minHeight: "400px" }}
                 >
-                  <h3 className="major" style={{ borderBottom: "1px solid rgba(255, 255, 255, 0.15)", paddingBottom: "10px", marginBottom: "20px" }}>
+                  <h3 className="bebas-font" style={{ fontSize: "1.8rem", color: "var(--brand-red)", borderBottom: "1px solid rgba(255, 255, 255, 0.15)", paddingBottom: "10px", marginBottom: "20px" }}>
                     Score Trend Analysis
                   </h3>
                   <div style={{ marginTop: "40px", height: "250px", width: "100%", position: "relative" }}>
@@ -204,8 +301,8 @@ export default function Dashboard() {
                       <svg width="100%" height="100%" viewBox="0 0 400 200" preserveAspectRatio="none">
                         <path
                           d={`M ${user.scores.map((s, i) => `${(i / (totalQuizzes - 1 || 1)) * 400},${200 - (s.score / s.total) * 180}`).join(" L ")}`}
-                          fill="none; display: none"
-                          stroke="#22d3ee"
+                          fill="none"
+                          stroke="#E50914"
                           strokeWidth="3"
                           strokeLinecap="round"
                         />
@@ -215,7 +312,7 @@ export default function Dashboard() {
                             cx={(i / (totalQuizzes - 1 || 1)) * 400}
                             cy={200 - (s.score / s.total) * 180}
                             r="5"
-                            fill="#6366f1"
+                            fill="#ffffff"
                           />
                         ))}
                       </svg>
@@ -240,24 +337,19 @@ export default function Dashboard() {
       {/* ROADMAP MODAL */}
       <AnimatePresence>
         {showModal && roadmap && (
-          <div className="auth-overlay" style={{ display: "flex", alignItems: "center", justifyContent: "center", zIndex: 30000, position: "fixed", top: 0, left: 0, width: "100%", height: "100%", background: "rgba(0,0,0,0.8)" }}>
+          <div className="auth-overlay">
             <motion.div
-              className="glass-card"
+              className="auth-card"
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              style={{ maxWidth: "550px", width: "90%", padding: "40px", position: "relative", background: "#2e3141", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "10px" }}
+              style={{ maxWidth: "600px", padding: "40px" }}
             >
-              <button
-                onClick={() => setShowModal(false)}
-                style={{ position: "absolute", top: "20px", right: "20px", background: "none", border: "none", color: "white", fontSize: "20px", cursor: "pointer" }}
-              >
-                ✕
-              </button>
-              <h2 style={{ color: "#22d3ee", marginBottom: "5px", fontSize: "20px" }}>{roadmap.title}</h2>
-              <p style={{ opacity: 0.6, marginBottom: "20px", fontSize: "13px" }}>Your personalized 7-day preparation strategy.</p>
+              <button onClick={() => setShowModal(false)} className="close-btn">✕</button>
+              <h2 className="bebas-font" style={{ color: "var(--brand-red)", marginBottom: "5px" }}>{roadmap.title}</h2>
+              <p className="auth-subtitle">Your personalized 7-day preparation strategy.</p>
 
-              <div style={{ display: "flex", flexDirection: "column", gap: "10px", maxHeight: "400px", overflowY: "auto", paddingRight: "10px" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "10px", maxHeight: "350px", overflowY: "auto", paddingRight: "10px", textAlign: "left" }}>
                 {roadmap.steps.map((step, i) => (
                   <motion.div
                     key={i}
@@ -265,36 +357,36 @@ export default function Dashboard() {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: i * 0.05 }}
                     style={{
-                      padding: "12px",
+                      padding: "15px",
                       background: "rgba(255,255,255,0.03)",
-                      borderRadius: "10px",
-                      border: "1px solid rgba(255,255,255,0.08)",
+                      borderRadius: "8px",
+                      border: "1px solid var(--glass-border)",
                       display: "flex",
-                      gap: "12px",
+                      gap: "15px",
                       alignItems: "flex-start"
                     }}
                   >
                     <div style={{
-                      background: "#22d3ee",
-                      color: "#0f172a",
+                      background: "var(--brand-red)",
+                      color: "var(--text-white)",
                       borderRadius: "50%",
-                      width: "20px",
-                      height: "20px",
+                      width: "24px",
+                      height: "24px",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
                       flexShrink: 0,
                       fontWeight: "bold",
-                      fontSize: "10px"
+                      fontSize: "12px"
                     }}>
                       {step.day}
                     </div>
                     <div style={{ flex: 1 }}>
-                      <span style={{ fontSize: "13px", fontWeight: "600", display: "block", marginBottom: "4px" }}>{step.task}</span>
+                      <span style={{ fontSize: "14px", fontWeight: "600", display: "block", marginBottom: "4px", color: "var(--text-white)" }}>{step.task}</span>
                       {step.sources && step.sources.length > 0 && (
                         <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginTop: "6px" }}>
                           {step.sources.map((source, si) => (
-                            <span key={si} style={{ fontSize: "10px", background: "rgba(34, 211, 238, 0.15)", color: "#22d3ee", padding: "2px 8px", borderRadius: "10px", border: "1px solid rgba(34, 211, 238, 0.2)" }}>
+                            <span key={si} style={{ fontSize: "11px", background: "rgba(229, 9, 20, 0.15)", color: "#ff6b72", padding: "2px 8px", borderRadius: "10px", border: "1px solid rgba(229, 9, 20, 0.2)" }}>
                               🔗 {source}
                             </span>
                           ))}
@@ -305,11 +397,7 @@ export default function Dashboard() {
                 ))}
               </div>
 
-              <button
-                className="button primary fit"
-                onClick={() => setShowModal(false)}
-                style={{ width: "100%", marginTop: "20px" }}
-              >
+              <button className="button primary fit" onClick={() => setShowModal(false)} style={{ marginTop: "20px" }}>
                 Close Roadmap
               </button>
             </motion.div>

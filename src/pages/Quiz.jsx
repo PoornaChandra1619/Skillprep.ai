@@ -1,6 +1,7 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import "./intro.css";
+import Navbar from "../components/Navbar";
+import { motion } from "framer-motion";
 
 export default function Quiz() {
   const location = useLocation();
@@ -40,7 +41,6 @@ export default function Quiz() {
     }
   };
 
-  /* ================= SAVE SCORE ================= */
   const saveScore = async (finalScore, total) => {
     try {
       const token = localStorage.getItem("token");
@@ -63,10 +63,16 @@ export default function Quiz() {
 
   if (!mcqs.length) {
     return (
-      <div className="colorlib-page">
-        <div className="hero">
-          <h2>Generating Quiz...</h2>
-        </div>
+      <div id="page-wrapper">
+        <Navbar />
+        <section id="wrapper">
+          <header>
+            <div className="inner">
+              <h2 className="bebas-font">Generating Quiz...</h2>
+              <p>Our AI is analyzing your notes to compile custom questions.</p>
+            </div>
+          </header>
+        </section>
       </div>
     );
   }
@@ -84,9 +90,7 @@ export default function Quiz() {
     if (current + 1 < mcqs.length) {
       setCurrent(current + 1);
     } else {
-      // 🔥 STEP-3 IMPLEMENT HERE (QUIZ FINISH)
       saveScore(newScore, mcqs.length);
-
       navigate("/quiz/result", {
         state: { score: newScore, total: mcqs.length },
       });
@@ -94,22 +98,49 @@ export default function Quiz() {
   };
 
   return (
-    <div className="colorlib-page">
-      <section className="hero" style={{ justifyContent: "center" }}>
-        <div className="hero-left" style={{ maxWidth: "720px" }}>
-          <h2>Question {current + 1}</h2>
-          <p>{q.question}</p>
+    <div id="page-wrapper">
+      <Navbar />
 
-          {q.options.map((opt, i) => (
-            <button
-              key={i}
-              className="get-started"
-              style={{ display: "block", marginTop: "14px", width: "100%" }}
-              onClick={() => selectAnswer(opt)}
+      <section id="wrapper">
+        <header style={{ backgroundImage: `url('/images/pic06.jpg')` }}>
+          <div className="inner">
+            <h2 className="bebas-font">Question {current + 1} of {mcqs.length}</h2>
+            <p>Select the correct answer below.</p>
+          </div>
+        </header>
+
+        <div className="wrapper">
+          <div className="inner" style={{ maxWidth: "700px", margin: "0 auto" }}>
+            <motion.div 
+              className="glass-card"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              key={current}
             >
-              {opt}
-            </button>
-          ))}
+              <h3 style={{ fontSize: "1.4rem", lineHeight: "1.4", marginBottom: "25px", fontWeight: "600" }}>{q.question}</h3>
+              
+              <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                {q.options.map((opt, i) => (
+                  <button
+                    key={i}
+                    className="button fit"
+                    style={{ 
+                      textTransform: "none", 
+                      textAlign: "left", 
+                      padding: "14px 20px", 
+                      fontSize: "1rem", 
+                      lineHeight: "1.4",
+                      background: "rgba(0,0,0,0.3)",
+                      letterSpacing: "0"
+                    }}
+                    onClick={() => selectAnswer(opt)}
+                  >
+                    {opt}
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          </div>
         </div>
       </section>
     </div>

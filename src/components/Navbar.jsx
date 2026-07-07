@@ -6,10 +6,22 @@ export default function Navbar({ onLoginClick }) {
     const navigate = useNavigate();
     const [user, setUser] = useState(null);
     const [showMenu, setShowMenu] = useState(false);
+    const [isScrolled, setIsScrolled] = useState(false);
 
     useEffect(() => {
         const storedUser = localStorage.getItem("user");
         if (storedUser) setUser(JSON.parse(storedUser));
+
+        const handleScroll = () => {
+            if (window.scrollY > 50) {
+                setIsScrolled(true);
+            } else {
+                setIsScrolled(false);
+            }
+        };
+
+        window.addEventListener("scroll", handleScroll);
+        return () => window.removeEventListener("scroll", handleScroll);
     }, []);
 
     const logout = () => {
@@ -68,12 +80,21 @@ export default function Navbar({ onLoginClick }) {
 
     return (
         <>
-            <header id="header" className="alt">
+            <header id="header" className={isScrolled ? "scrolled" : ""}>
                 <h1>
-                    <Link to="/" onClick={(e) => handleNavClick("top", e)}>SkillPrep AI</Link>
+                    <Link to="/" onClick={(e) => handleNavClick("top", e)}>POORNA CHANDRA<span>.</span></Link>
                 </h1>
                 <nav>
-                    <a href="#menu" onClick={toggleMenu}>Menu</a>
+                    {user ? (
+                        <>
+                            <Link to="/dashboard" style={{ fontWeight: '600' }}>Dashboard</Link>
+                            <Link to="/profile" style={{ fontWeight: '600' }}>Profile</Link>
+                            <a href="#" onClick={(e) => { e.preventDefault(); logout(); }} style={{ color: '#E50914' }}>Logout</a>
+                        </>
+                    ) : (
+                        <a href="#" className="menu-btn" onClick={handleLoginClick}>Sign In</a>
+                    )}
+                    <button className="menu-btn" style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.4)', marginLeft: '10px' }} onClick={toggleMenu}>☰</button>
                 </nav>
             </header>
 
@@ -84,7 +105,7 @@ export default function Navbar({ onLoginClick }) {
                         <ul className="links">
                             <li><Link to="/" onClick={(e) => handleNavClick("top", e)}>Home</Link></li>
                             <li><a href="#features" onClick={(e) => handleNavClick("features", e)}>Features</a></li>
-                            <li><a href="#contact" onClick={(e) => handleNavClick("contact", e)}>Contact</a></li>
+                            <li><a href="#faq" onClick={(e) => handleNavClick("faq", e)}>FAQs</a></li>
                             
                             {user ? (
                                 <>
@@ -103,7 +124,7 @@ export default function Navbar({ onLoginClick }) {
                                 </>
                             )}
                         </ul>
-                        <a href="#" className="close" onClick={(e) => { e.preventDefault(); setShowMenu(false); }}>Close</a>
+                        <a href="#" className="close" onClick={(e) => { e.preventDefault(); setShowMenu(false); }}>✕</a>
                     </div>
                 </nav>,
                 document.body
