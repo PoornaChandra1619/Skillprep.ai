@@ -78,8 +78,8 @@ export default function Intro() {
       {/* BANNER / HERO */}
       <section id="banner">
         <div className="inner">
-          <h2>DEVELOPMENT IS LATEST<span>.</span></h2>
-          <p>Practice simulated voice interviews. Convert study notes into quizzes. Prepare smarter for your engineering career.</p>
+          <h2>Skills, evaluated.<br />Feedback, instant<span>.</span></h2>
+          <p>AI-graded assessments across DSA, Machine Learning, Web Dev, and placement aptitude — with feedback that tells you exactly what to fix, not just a score.</p>
           
           {!user ? (
             <form onSubmit={handleGetStarted} style={{ marginTop: "2.5em" }}>
@@ -282,7 +282,7 @@ export default function Intro() {
           </form>
           
           <ul className="copyright">
-            <li>&copy; {new Date().getFullYear()} Poorna Chandra SkillPrep AI. All rights reserved.</li>
+            <li>&copy; {new Date().getFullYear()} SkillPrep.AI. All rights reserved.</li>
           </ul>
         </div>
       </section>

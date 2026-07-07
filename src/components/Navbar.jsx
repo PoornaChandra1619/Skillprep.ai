@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { createPortal } from "react-dom";
+import Logo from "./Logo";
 
 export default function Navbar({ onLoginClick }) {
     const navigate = useNavigate();
@@ -82,19 +83,21 @@ export default function Navbar({ onLoginClick }) {
         <>
             <header id="header" className={isScrolled ? "scrolled" : ""}>
                 <h1>
-                    <Link to="/" onClick={(e) => handleNavClick("top", e)}>POORNA CHANDRA<span>.</span></Link>
+                    <Link to="/" onClick={(e) => handleNavClick("top", e)} style={{ display: "inline-block", textDecoration: "none", border: "none" }}>
+                        <Logo size={24} />
+                    </Link>
                 </h1>
                 <nav>
                     {user ? (
                         <>
                             <Link to="/dashboard" style={{ fontWeight: '600' }}>Dashboard</Link>
                             <Link to="/profile" style={{ fontWeight: '600' }}>Profile</Link>
-                            <a href="#" onClick={(e) => { e.preventDefault(); logout(); }} style={{ color: '#E50914' }}>Logout</a>
+                            <a href="#" onClick={(e) => { e.preventDefault(); logout(); }} style={{ color: 'var(--brand-red)' }}>Logout</a>
                         </>
                     ) : (
                         <a href="#" className="menu-btn" onClick={handleLoginClick}>Sign In</a>
                     )}
-                    <button className="menu-btn" style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.4)', marginLeft: '10px' }} onClick={toggleMenu}>☰</button>
+                    <button className="menu-btn" style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', marginLeft: '10px' }} onClick={toggleMenu}>☰</button>
                 </nav>
             </header>
 

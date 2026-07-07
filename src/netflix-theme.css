@@ -1,19 +1,22 @@
 /* ==========================================================================
-   ======================= NETFLIX-INSPIRED GLASS THEME =====================
+   ======================= SKILLPREP.AI PURPLE & CYAN THEME ==================
    ========================================================================== */
 
 /* 1. Global Reset & Variables */
 :root {
-  --bg-black: #141414;
-  --bg-card: #1f1f1f;
-  --brand-red: #E50914;
-  --brand-red-hover: #b80710;
-  --text-white: #ffffff;
-  --text-grey: #aaaaaa;
-  --glass-bg: rgba(20, 20, 20, 0.75);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --font-display: 'Bebas Neue', sans-serif;
-  --font-body: 'Outfit', sans-serif;
+  --bg-black: #0a0e16;
+  --bg-deep: #05070c;
+  --bg-card: #12151f;
+  --bg-card-light: #1a1e2b;
+  --brand-red: #7c5cff; /* Vibrant purple accent */
+  --brand-red-hover: #5b3fd9;
+  --brand-cyan: #2fd9d9; /* Neon cyan accent */
+  --text-white: #f2f3f7;
+  --text-grey: #8a90a3;
+  --glass-bg: rgba(18, 21, 31, 0.75);
+  --glass-border: #232838;
+  --font-display: 'Sora', 'Space Grotesk', sans-serif;
+  --font-body: 'Inter', sans-serif;
   --font-utility: 'Fira Code', monospace;
 }
 
@@ -24,10 +27,11 @@
 }
 
 body {
-  background-color: var(--bg-black);
+  background-color: var(--bg-deep);
   background-image: 
-    radial-gradient(circle at 5% 5%, rgba(229, 9, 20, 0.1) 0%, transparent 40%),
-    radial-gradient(circle at 95% 95%, rgba(99, 102, 241, 0.08) 0%, transparent 45%);
+    radial-gradient(circle at 10% 20%, rgba(124, 92, 255, 0.12) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(47, 217, 217, 0.1) 0%, transparent 45%),
+    linear-gradient(135deg, var(--bg-deep) 0%, var(--bg-black) 100%);
   background-attachment: fixed;
   color: var(--text-white);
   font-family: var(--font-body);
@@ -38,15 +42,15 @@ body {
 
 /* 2. Typography */
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-body);
+  font-family: var(--font-display);
   font-weight: 700;
   letter-spacing: -0.02em;
 }
 
 .bebas-font {
   font-family: var(--font-display);
-  letter-spacing: 0.05em;
-  font-weight: normal;
+  letter-spacing: -0.01em;
+  font-weight: 700;
 }
 
 /* 3. Global Navbar */
@@ -55,35 +59,25 @@ h1, h2, h3, h4, h5, h6 {
   top: 0;
   left: 0;
   width: 100%;
-  height: 68px;
+  height: 72px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 0 4%;
   z-index: 10000;
-  background: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
-  transition: background-color 0.4s ease;
+  background: linear-gradient(to bottom, rgba(5,7,12,0.85) 0%, rgba(5,7,12,0) 100%);
+  transition: background-color 0.4s ease, border-color 0.4s ease;
 }
 
 #header.scrolled {
-  background-color: var(--bg-black);
+  background-color: var(--bg-deep);
   border-bottom: 1px solid var(--glass-border);
 }
 
 #header h1 {
   font-family: var(--font-display);
-  font-size: 2.2rem;
-  letter-spacing: 0.03em;
-}
-
-#header h1 a {
-  color: var(--brand-red) !important;
-  text-decoration: none;
-  transition: color 0.3s ease;
-}
-
-#header h1 a span {
-  color: var(--text-white);
+  font-size: 1.3rem;
+  letter-spacing: -0.02em;
 }
 
 #header nav {
@@ -107,21 +101,21 @@ h1, h2, h3, h4, h5, h6 {
 #header .menu-btn {
   background: var(--brand-red);
   color: var(--text-white);
-  padding: 6px 16px;
-  border-radius: 4px;
-  font-size: 0.85rem;
+  padding: 10px 22px;
+  border-radius: 6px;
+  font-size: 0.88rem;
   font-weight: 600;
-  letter-spacing: 0.05em;
   border: none;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
 #header .menu-btn:hover {
   background-color: var(--brand-red-hover);
+  transform: translateY(-1px);
 }
 
-/* 4. Netflix Slide-out Drawer */
+/* 4. Slide-out Drawer */
 #menu {
   position: fixed;
   top: 0;
@@ -152,8 +146,8 @@ body.is-menu-visible #page-wrapper {
 
 #menu h2 {
   font-family: var(--font-display);
-  font-size: 2rem;
-  color: var(--brand-red);
+  font-size: 1.8rem;
+  color: var(--text-white);
   margin-bottom: 30px;
   border-bottom: 2px solid var(--brand-red);
   padding-bottom: 10px;
@@ -194,39 +188,35 @@ body.is-menu-visible #page-wrapper {
   color: var(--brand-red);
 }
 
-/* 5. Netflix Landing Hero Banner (index.html/Intro.jsx) */
+/* 5. Landing Hero Banner */
 #banner {
   min-height: 95vh;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-image: 
-    linear-gradient(to top, rgba(20,20,20,1) 0%, rgba(20,20,20,0.4) 50%, rgba(20,20,20,0.85) 100%),
-    url('/images/pic08.jpg'); /* fallback or cinema backdrop */
-  background-size: cover;
-  background-position: center;
   padding: 100px 4%;
   text-align: center;
+  overflow: hidden;
 }
 
 #banner .inner {
   max-width: 800px;
-  background: var(--glass-bg);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  position: relative;
+  z-index: 2;
+  background: var(--bg-card);
   border: 1px solid var(--glass-border);
   padding: 60px 40px;
-  border-radius: 20px;
-  box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+  border-radius: 16px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.5);
 }
 
 #banner h2 {
   font-family: var(--font-display);
-  font-size: 4rem;
-  line-height: 1.05;
+  font-size: 3.5rem;
+  line-height: 1.1;
   margin-bottom: 20px;
-  letter-spacing: 0.02em;
+  letter-spacing: -0.02em;
 }
 
 #banner h2 span {
@@ -234,10 +224,10 @@ body.is-menu-visible #page-wrapper {
 }
 
 #banner p {
-  font-size: 1.4rem;
-  color: var(--text-white);
+  font-size: 1.25rem;
+  color: var(--text-grey);
   margin-bottom: 35px;
-  opacity: 0.9;
+  line-height: 1.6;
 }
 
 .email-signup-row {
@@ -251,10 +241,10 @@ body.is-menu-visible #page-wrapper {
 .email-signup-row input {
   flex: 1;
   min-width: 280px;
-  padding: 18px 24px;
-  background: rgba(0,0,0,0.5);
-  border: 1px solid rgba(255,255,255,0.25);
-  border-radius: 8px;
+  padding: 14px 18px;
+  background: var(--bg-deep);
+  border: 1px solid var(--glass-border);
+  border-radius: 6px;
   color: var(--text-white);
   font-size: 1.05rem;
   outline: none;
@@ -263,18 +253,17 @@ body.is-menu-visible #page-wrapper {
 
 .email-signup-row input:focus {
   border-color: var(--brand-red);
-  background: rgba(0,0,0,0.7);
-  box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.2);
+  box-shadow: 0 0 0 3px rgba(124, 92, 255, 0.2);
 }
 
 .email-signup-row button {
   background: var(--brand-red);
   color: var(--text-white);
   border: none;
-  padding: 18px 36px;
-  font-size: 1.15rem;
+  padding: 14px 26px;
+  font-size: 1.05rem;
   font-weight: 700;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -287,23 +276,19 @@ body.is-menu-visible #page-wrapper {
   transform: translateY(-1px);
 }
 
-.email-signup-row button:active {
-  transform: translateY(0);
-}
-
-/* 6. FAQ Accordion (Netflix style) */
+/* 6. FAQ Accordion */
 .faq-section {
   padding: 80px 4%;
-  background-color: var(--bg-black);
   max-width: 900px;
   margin: 0 auto;
 }
 
 .faq-section h2 {
   font-family: var(--font-display);
-  font-size: 3rem;
+  font-size: 2.5rem;
   text-align: center;
   margin-bottom: 40px;
+  letter-spacing: -0.02em;
 }
 
 .faq-list {
@@ -315,7 +300,7 @@ body.is-menu-visible #page-wrapper {
 .faq-item {
   background: var(--bg-card);
   border: 1px solid var(--glass-border);
-  border-radius: 8px;
+  border-radius: 10px;
   overflow: hidden;
   transition: all 0.3s ease;
 }
@@ -324,22 +309,22 @@ body.is-menu-visible #page-wrapper {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 22px 30px;
-  font-size: 1.25rem;
+  padding: 20px 30px;
+  font-size: 1.15rem;
   font-weight: 600;
   cursor: pointer;
   user-select: none;
-  transition: background-color 0.2s ease;
 }
 
 .faq-question:hover {
-  background-color: rgba(255,255,255,0.03);
+  background-color: rgba(255,255,255,0.02);
 }
 
 .faq-question .faq-icon {
-  font-size: 1.6rem;
+  font-size: 1.5rem;
   font-weight: 300;
   transition: transform 0.3s ease;
+  color: var(--brand-cyan);
 }
 
 .faq-item.open .faq-icon {
@@ -352,49 +337,45 @@ body.is-menu-visible #page-wrapper {
   transition: max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1), padding 0.3s ease;
   padding: 0 30px;
   color: var(--text-grey);
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   line-height: 1.6;
-  border-top: 1px solid transparent;
 }
 
 .faq-item.open .faq-answer {
   max-height: 500px;
-  padding: 24px 30px;
-  border-top-color: rgba(255,255,255,0.05);
+  padding: 20px 30px;
+  border-top: 1px solid rgba(255,255,255,0.05);
 }
 
-/* 7. General Netflix wrapper style for dashboard/subpages */
+/* 7. Wrapper subpages layout */
 #wrapper {
-  padding-top: 68px; /* space for sticky navbar */
+  padding-top: 72px;
   min-height: 100vh;
 }
 
 #wrapper > header {
-  background-size: cover;
-  background-position: center;
   position: relative;
-  padding: 100px 4% 60px 4%;
-  background-image: linear-gradient(to bottom, rgba(20,20,20,0.6) 0%, rgba(20,20,20,1) 100%);
+  padding: 80px 4% 50px 4%;
+  background: linear-gradient(to bottom, rgba(5,7,12,0.6) 0%, var(--bg-deep) 100%);
   border-bottom: 2px solid var(--brand-red);
 }
 
 #wrapper > header .inner {
-  max-width: 1000px;
+  max-width: 1100px;
   margin: 0 auto;
 }
 
 #wrapper > header h2 {
   font-family: var(--font-display);
-  font-size: 3.5rem;
+  font-size: 2.8rem;
   line-height: 1.1;
   color: var(--text-white);
   margin-bottom: 10px;
-  letter-spacing: 0.01em;
 }
 
 #wrapper > header p {
   color: var(--text-grey);
-  font-size: 1.25rem;
+  font-size: 1.15rem;
 }
 
 .wrapper {
@@ -406,7 +387,7 @@ body.is-menu-visible #page-wrapper {
   margin: 0 auto;
 }
 
-/* 8. Feature / Project Cards grid (browse.html rows) */
+/* 8. Sliding rows layout */
 .features-slider-container {
   margin-bottom: 40px;
   position: relative;
@@ -414,11 +395,11 @@ body.is-menu-visible #page-wrapper {
 
 .features-slider-container h3 {
   font-family: var(--font-display);
-  font-size: 1.8rem;
+  font-size: 1.5rem;
   margin-bottom: 15px;
   color: var(--text-white);
   display: inline-block;
-  border-left: 4px solid var(--brand-red);
+  border-left: 4px solid var(--brand-cyan);
   padding-left: 10px;
 }
 
@@ -426,23 +407,22 @@ body.is-menu-visible #page-wrapper {
   display: flex;
   gap: 15px;
   overflow-x: auto;
-  padding: 15px 0;
-  scroll-behavior: smooth;
-  scrollbar-width: none; /* Firefox */
+  padding: 10px 0;
+  scrollbar-width: none;
 }
 
 .features-slider::-webkit-scrollbar {
-  display: none; /* Safari/Chrome */
+  display: none;
 }
 
 .features article {
   flex: 0 0 280px;
   background: var(--bg-card);
   border: 1px solid var(--glass-border);
-  border-radius: 12px;
+  border-radius: 10px;
   overflow: hidden;
   box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+  transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
   display: flex;
   flex-direction: column;
   position: relative;
@@ -450,7 +430,7 @@ body.is-menu-visible #page-wrapper {
 }
 
 .features article .image {
-  height: 160px;
+  height: 150px;
   overflow: hidden;
   position: relative;
 }
@@ -463,38 +443,39 @@ body.is-menu-visible #page-wrapper {
 }
 
 .features article:hover {
-  transform: translateY(-8px) scale(1.03);
+  transform: translateY(-6px);
   border-color: var(--brand-red);
-  box-shadow: 0 15px 35px rgba(229, 9, 20, 0.15);
+  box-shadow: 0 15px 35px rgba(124, 92, 255, 0.15);
 }
 
 .features article:hover .image img {
-  transform: scale(1.08);
+  transform: scale(1.06);
 }
 
 .features article .content {
-  padding: 20px;
+  padding: 18px;
   flex: 1;
   display: flex;
   flex-direction: column;
 }
 
 .features article h3 {
-  font-size: 1.2rem;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
   color: var(--text-white);
   margin-bottom: 8px;
 }
 
 .features article p {
   color: var(--text-grey);
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   line-height: 1.4;
   margin-bottom: 15px;
   flex: 1;
 }
 
 .features article .special {
-  color: var(--brand-red);
+  color: var(--brand-cyan);
   text-decoration: none;
   font-weight: 700;
   font-size: 0.85rem;
@@ -506,11 +487,9 @@ body.is-menu-visible #page-wrapper {
   margin-top: auto;
 }
 
-/* 9. Glassmorphic elements & stats cards */
+/* 9. Glass card panels */
 .glass-card {
-  background: var(--glass-bg);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  background: var(--bg-card);
   border: 1px solid var(--glass-border);
   border-radius: 12px;
   padding: 30px;
@@ -519,24 +498,24 @@ body.is-menu-visible #page-wrapper {
 }
 
 .glass-card h3.major {
-  font-family: var(--font-body);
-  font-size: 1.5rem;
+  font-family: var(--font-display);
+  font-size: 1.35rem;
   color: var(--text-white);
   border-bottom: 2px solid var(--brand-red);
-  padding-bottom: 10px;
+  padding-bottom: 8px;
   margin-bottom: 20px;
 }
 
 .button {
   background-color: transparent;
   color: var(--text-white);
-  border: 2px solid rgba(255,255,255,0.25);
-  padding: 12px 28px;
-  font-size: 0.9rem;
-  font-weight: 700;
+  border: 1px solid rgba(255,255,255,0.2);
+  padding: 12px 24px;
+  font-size: 0.88rem;
+  font-weight: 600;
   border-radius: 6px;
   cursor: pointer;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   transition: all 0.2s ease;
   text-decoration: none;
@@ -550,8 +529,7 @@ body.is-menu-visible #page-wrapper {
 }
 
 .button:hover {
-  border-color: var(--brand-red);
-  color: var(--text-white);
+  border-color: var(--brand-cyan);
 }
 
 .button.primary:hover {
@@ -583,7 +561,7 @@ form .field {
 }
 
 form label {
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   font-weight: 600;
   color: var(--text-white);
   text-transform: uppercase;
@@ -595,12 +573,12 @@ form input[type="email"],
 form textarea,
 form select {
   width: 100%;
-  padding: 14px 18px;
-  background: rgba(0,0,0,0.4);
-  border: 1px solid rgba(255,255,255,0.15);
-  border-radius: 8px;
+  padding: 12px 16px;
+  background: var(--bg-deep);
+  border: 1px solid var(--glass-border);
+  border-radius: 6px;
   color: var(--text-white);
-  font-size: 1rem;
+  font-size: 0.95rem;
   outline: none;
   font-family: var(--font-body);
   transition: all 0.3s ease;
@@ -610,87 +588,84 @@ form input:focus,
 form textarea:focus,
 form select:focus {
   border-color: var(--brand-red);
-  background: rgba(0,0,0,0.6);
-  box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.2);
+  box-shadow: 0 0 0 3px rgba(124, 92, 255, 0.15);
 }
 
 form textarea {
   resize: vertical;
 }
 
-/* 11. Netflix-style login modal */
+/* 11. Custom Auth Modal Dialog */
 .auth-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.8);
+  background: rgba(5,7,12,0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 30000;
-  animation: overlayFadeIn 0.3s ease;
 }
 
 .auth-card {
-  background: rgba(0,0,0,0.75) !important;
-  backdrop-filter: blur(25px) !important;
-  -webkit-backdrop-filter: blur(25px) !important;
+  background: var(--bg-card) !important;
   border: 1px solid var(--glass-border) !important;
   border-radius: 12px !important;
-  width: 450px !important;
+  width: 440px !important;
   max-width: 90vw !important;
-  padding: 60px 40px !important;
-  box-shadow: 0 25px 60px rgba(229,9,20,0.2) !important;
+  padding: 45px 35px !important;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.5) !important;
   position: relative;
   text-align: center;
 }
 
 .auth-card h2 {
-  font-size: 2.2rem !important;
+  font-family: var(--font-display) !important;
+  font-size: 1.8rem !important;
   font-weight: 700 !important;
   color: var(--text-white) !important;
   margin-bottom: 8px !important;
   text-align: left !important;
+  letter-spacing: -0.02em !important;
 }
 
 .auth-subtitle {
   color: var(--text-grey) !important;
-  margin-bottom: 30px !important;
-  font-size: 0.95rem !important;
+  margin-bottom: 25px !important;
+  font-size: 0.9rem !important;
   text-align: left !important;
 }
 
 .auth-card input {
-  background: #333333 !important;
-  border: none !important;
+  background: var(--bg-deep) !important;
+  border: 1px solid var(--glass-border) !important;
   border-radius: 6px !important;
   color: var(--text-white) !important;
-  padding: 14px 20px !important;
-  font-size: 1rem !important;
+  padding: 12px 16px !important;
+  font-size: 0.95rem !important;
   width: 100% !important;
   outline: none !important;
-  margin-bottom: 16px !important;
-  transition: background-color 0.2s ease !important;
+  margin-bottom: 14px !important;
+  transition: all 0.3s ease !important;
 }
 
 .auth-card input:focus {
-  background: #454545 !important;
-  box-shadow: none !important;
+  border-color: var(--brand-red) !important;
 }
 
 .auth-card input::placeholder {
-  color: #8c8c8c !important;
+  color: #585d6e !important;
 }
 
 .submit-btn {
   background: var(--brand-red) !important;
   color: var(--text-white) !important;
   font-weight: 700 !important;
-  font-size: 1.05rem !important;
+  font-size: 1rem !important;
   border: none !important;
   border-radius: 6px !important;
-  padding: 14px !important;
+  padding: 13px !important;
   width: 100% !important;
   cursor: pointer !important;
   margin-top: 15px !important;
@@ -702,14 +677,14 @@ form textarea {
 }
 
 .toggle-auth {
-  color: #737373 !important;
-  margin-top: 30px !important;
-  font-size: 0.95rem !important;
+  color: var(--text-grey) !important;
+  margin-top: 25px !important;
+  font-size: 0.9rem !important;
   text-align: left !important;
 }
 
 .toggle-auth span {
-  color: var(--text-white) !important;
+  color: var(--brand-cyan) !important;
   font-weight: 600 !important;
   cursor: pointer !important;
 }
@@ -738,13 +713,13 @@ form textarea {
 .divider {
   display: flex !important;
   align-items: center !important;
-  margin: 25px 0 !important;
-  color: #737373 !important;
+  margin: 20px 0 !important;
+  color: var(--text-grey) !important;
   font-size: 0.8rem !important;
 }
 
 .divider::before, .divider::after {
-  border-bottom: 1px solid #333333 !important;
+  border-bottom: 1px solid var(--glass-border) !important;
 }
 
 .social-login {
@@ -755,7 +730,7 @@ form textarea {
 
 .auth-error {
   background: rgba(229, 9, 20, 0.1) !important;
-  border: 1px solid var(--brand-red) !important;
+  border: 1px solid rgba(229,9,20,0.3) !important;
   color: var(--text-white) !important;
   border-radius: 6px !important;
   padding: 12px 16px !important;
@@ -764,9 +739,9 @@ form textarea {
   text-align: left !important;
 }
 
-/* 12. Netflix Billboard Banner (browse dashboard) */
+/* 12. Netflix-style Billboard Banner */
 .billboard-container {
-  height: 65vh;
+  height: 60vh;
   position: relative;
   background-size: cover;
   background-position: center 20%;
@@ -780,8 +755,9 @@ form textarea {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(to right, rgba(20,20,20,0.9) 0%, rgba(20,20,20,0.6) 40%, rgba(20,20,20,0) 100%),
-              linear-gradient(to top, rgba(20,20,20,1) 0%, rgba(20,20,20,0) 25%);
+  background: 
+    linear-gradient(to right, rgba(5,7,12,0.95) 0%, rgba(5,7,12,0.6) 45%, rgba(5,7,12,0) 100%),
+    linear-gradient(to top, rgba(5,7,12,1) 0%, rgba(5,7,12,0) 25%);
   z-index: 1;
 }
 
@@ -793,15 +769,15 @@ form textarea {
 
 .billboard-content h2 {
   font-family: var(--font-display);
-  font-size: 4.5rem;
+  font-size: 3.8rem;
   line-height: 1.05;
   margin-bottom: 15px;
+  letter-spacing: -0.02em;
 }
 
 .billboard-content p {
-  font-size: 1.2rem;
-  color: var(--text-white);
-  opacity: 0.9;
+  font-size: 1.15rem;
+  color: var(--text-grey);
   margin-bottom: 25px;
   line-height: 1.5;
 }
@@ -814,30 +790,31 @@ form textarea {
 /* 13. Interactive Footer */
 #footer {
   padding: 80px 4% 40px 4%;
-  background-color: var(--bg-black);
+  background-color: var(--bg-deep);
   border-top: 1px solid var(--glass-border);
 }
 
 #footer .inner {
-  max-width: 1000px;
+  max-width: 1100px;
   margin: 0 auto;
 }
 
 #footer h2.major {
   font-family: var(--font-display);
-  font-size: 2.2rem;
+  font-size: 1.8rem;
   color: var(--brand-red);
   margin-bottom: 25px;
   border-bottom: 2px solid var(--brand-red);
   padding-bottom: 10px;
+  letter-spacing: -0.01em;
 }
 
 #footer .copyright {
   text-align: center;
-  color: #555555;
+  color: #555866;
   font-size: 0.85rem;
   margin-top: 50px;
-  border-top: 1px solid rgba(255,255,255,0.05);
+  border-top: 1px solid var(--glass-border);
   padding-top: 25px;
   list-style: none;
 }

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
 import "./auth.css";
+import Logo from "./Logo";
 import { registerUser, loginUser, googleLogin } from "../services/authService";
 
 export default function AuthModal({ close }) {
@@ -117,6 +118,10 @@ export default function AuthModal({ close }) {
     <div className="auth-overlay" onClick={close}>
       <div className="auth-card" onClick={(e) => e.stopPropagation()}>
         <button className="close-btn" onClick={close} aria-label="Close">✕</button>
+
+        <div style={{ display: "flex", justifyContent: "center", marginBottom: "25px" }}>
+          <Logo size={28} />
+        </div>
 
         <h2>{isLogin ? "Welcome Back" : "Create Account"}</h2>
         <p className="auth-subtitle">
