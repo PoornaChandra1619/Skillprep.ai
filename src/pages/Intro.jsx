@@ -15,6 +15,11 @@ export default function Intro() {
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) setUser(JSON.parse(storedUser));
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("login") === "true") {
+      setShowAuth(true);
+    }
   }, []);
 
   const openAuth = () => setShowAuth(true);

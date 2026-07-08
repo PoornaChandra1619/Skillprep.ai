@@ -3,11 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
 import "./auth.css";
 import Logo from "./Logo";
-import { registerUser, loginUser, googleLogin } from "../services/authService";
+import { registerUser, loginUser, googleLogin, forgotPassword } from "../services/authService";
 
 export default function AuthModal({ close }) {
   const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(false);
+  const [isForgot, setIsForgot] = useState(false);
+  const [forgotSuccess, setForgotSuccess] = useState("");
 
   const [form, setForm] = useState({
     name: "",
@@ -26,15 +28,18 @@ export default function AuthModal({ close }) {
     if (!form.email.includes("@") || !form.email.includes(".")) {
       return "Please enter a valid email address";
     }
-    if (form.password.length < 6) {
-      return "Password must be at least 6 characters";
+
+    if (!isLogin) {
+      if (!form.name.trim()) return "Name is required";
+      if (form.password.length < 6) return "Password must be at least 6 characters";
+      const hasSpecial = /[!@#$%^&*(),.?":{}|<>_]/;
+      if (!hasSpecial.test(form.password)) {
+        return "Password must contain at least one special character";
+      }
+    } else {
+      if (!form.password) return "Password is required";
     }
-    if (!/[!@#$%^&*(),.?":{}|<>]/.test(form.password)) {
-      return "Password must contain at least one special character";
-    }
-    if (!isLogin && !form.name) {
-      return "Name is required";
-    }
+
     return null;
   };
 
@@ -77,6 +82,28 @@ export default function AuthModal({ close }) {
     }
   };
 
+  const handleForgotSubmit = async () => {
+    setError("");
+    setForgotSuccess("");
+    if (!form.email) {
+      return setError("Email is required");
+    }
+    if (!form.email.includes("@") || !form.email.includes(".")) {
+      return setError("Please enter a valid email address");
+    }
+
+    setLoading(true);
+    try {
+      const data = await forgotPassword(form.email);
+      setForgotSuccess(data.msg || "If a user exists with that email, a reset link has been sent.");
+    } catch (err) {
+      console.error(err);
+      setError(err.message || "Failed to send reset link.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleGoogleSuccess = async (credentialResponse) => {
     setLoading(true);
     setError("");
@@ -113,6 +140,58 @@ export default function AuthModal({ close }) {
       handleSubmit();
     }
   };
+
+  if (isForgot) {
+    return (
+      <div className="auth-overlay" onClick={close}>
+        <div className="auth-card" onClick={(e) => e.stopPropagation()}>
+          <button className="close-btn" onClick={close} aria-label="Close">✕</button>
+
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: "25px" }}>
+            <Logo size={28} />
+          </div>
+
+          <h2>Reset Password</h2>
+          <p className="auth-subtitle">
+            Enter your email to receive a password reset link
+          </p>
+
+          {error && <div className="auth-error">{error}</div>}
+          {forgotSuccess && (
+            <div style={{ background: "rgba(47, 217, 217, 0.1)", border: "1px solid rgba(47, 217, 217, 0.3)", color: "var(--brand-cyan)", borderRadius: "6px", padding: "12px 16px", fontSize: "0.9rem", marginBottom: "20px", textAlign: "left" }}>
+              {forgotSuccess}
+            </div>
+          )}
+
+          <div className="input-group">
+            <input
+              name="email"
+              type="email"
+              placeholder="Email Address"
+              value={form.email}
+              onChange={handleChange}
+              onKeyDown={(e) => e.key === "Enter" && !loading && handleForgotSubmit()}
+              autoComplete="email"
+            />
+          </div>
+
+          <button
+            className="submit-btn"
+            onClick={handleForgotSubmit}
+            disabled={loading}
+          >
+            {loading ? "Sending..." : "Send Reset Link"}
+          </button>
+
+          <p className="toggle-auth">
+            <span onClick={() => { setError(""); setForgotSuccess(""); setIsForgot(false); setIsLogin(true); }}>
+              Back to Login
+            </span>
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="auth-overlay" onClick={close}>
@@ -181,6 +260,17 @@ export default function AuthModal({ close }) {
             autoComplete={isLogin ? "current-password" : "new-password"}
           />
         </div>
+
+        {isLogin && (
+          <div style={{ textAlign: "right", marginTop: "-8px", marginBottom: "15px" }}>
+            <span
+              onClick={() => { setError(""); setIsForgot(true); }}
+              style={{ color: "var(--brand-cyan)", fontSize: "12px", fontWeight: "600", cursor: "pointer" }}
+            >
+              Forgot Password?
+            </span>
+          </div>
+        )}
 
         <button
           className="submit-btn"

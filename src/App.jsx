@@ -7,6 +7,7 @@ import QuizResult from "./pages/QuizResult";
 import Interview from "./pages/Interview";
 import Profile from "./pages/Profile";
 import Dashboard from "./pages/Dashboard";
+import ResetPassword from "./pages/ResetPassword";
 
 export default function App() {
   return (
@@ -29,6 +30,9 @@ export default function App() {
 
         {/* User Profile */}
         <Route path="/profile" element={<Profile />} />
+
+        {/* Password Reset */}
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
 
       </Routes>
     </BrowserRouter>

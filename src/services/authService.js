@@ -94,3 +94,65 @@ export const googleLogin = async (idToken) => {
     throw err;
   }
 };
+
+/* ================= FORGOT PASSWORD ================= */
+export const forgotPassword = async (email) => {
+  try {
+    const res = await fetch(`${API_URL}/forgot-password`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email }),
+    });
+
+    const text = await res.text();
+    if (!res.ok) {
+      let errorMsg = "Forgot password request failed";
+      try {
+        const parsed = JSON.parse(text);
+        if (parsed.msg) errorMsg = parsed.msg;
+      } catch (e) {
+        errorMsg = text || errorMsg;
+      }
+      throw new Error(errorMsg);
+    }
+    return text ? JSON.parse(text) : {};
+  } catch (err) {
+    if (err.name === "TypeError" && err.message.includes("fetch")) {
+      throw new Error("Cannot connect to server. Please ensure the backend is running on port 5000.");
+    }
+    throw err;
+  }
+};
+
+/* ================= RESET PASSWORD ================= */
+export const resetPassword = async (token, password) => {
+  try {
+    const res = await fetch(`${API_URL}/reset-password/${token}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ password }),
+    });
+
+    const text = await res.text();
+    if (!res.ok) {
+      let errorMsg = "Reset password request failed";
+      try {
+        const parsed = JSON.parse(text);
+        if (parsed.msg) errorMsg = parsed.msg;
+      } catch (e) {
+        errorMsg = text || errorMsg;
+      }
+      throw new Error(errorMsg);
+    }
+    return text ? JSON.parse(text) : {};
+  } catch (err) {
+    if (err.name === "TypeError" && err.message.includes("fetch")) {
+      throw new Error("Cannot connect to server. Please ensure the backend is running on port 5000.");
+    }
+    throw err;
+  }
+};
