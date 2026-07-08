@@ -732,7 +732,7 @@ export default function Dashboard() {
       {/* RESUME REVIEW MODAL (Absolute slider panel) */}
       <AnimatePresence>
         {showResumePanel && (
-          <div className="auth-overlay drawer-backdrop" onClick={() => setShowResumePanel(false)} style={{ zIndex: 2000 }}>
+          <div className="auth-overlay drawer-backdrop" onClick={() => setShowResumePanel(false)} style={{ zIndex: 20000 }}>
             <motion.div
               className="auth-card drawer-panel"
               initial={{ x: "100%" }}
