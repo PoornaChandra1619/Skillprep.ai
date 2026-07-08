@@ -200,6 +200,26 @@ export default function Intro() {
           </section>
         </RevealSection>
 
+        {/* ROW 4 - INTERVIEW QUESTIONS BY COMPANY */}
+        <RevealSection>
+          <section id="questions-teaser" className="wrapper alt spotlight">
+            <div className="inner">
+              <a href="#" className="image" onClick={(e) => { e.preventDefault(); navigate("/questions"); }}>
+                <img src="/images/pic04.jpg" alt="Company Interview Questions" />
+              </a>
+              <div className="content">
+                <h2 className="major">Interview Questions by Company</h2>
+                <p>
+                  Browse commonly reported patterns for Google, Amazon, Microsoft, service-company, and startup interview sessions. Questions are organized by round (Technical, Behavioral, HR) with professional coaching notes on how to answer each one.
+                </p>
+                <button className="button sp-btn" onClick={() => navigate("/questions")}>
+                  Explore Company Questions
+                </button>
+              </div>
+            </div>
+          </section>
+        </RevealSection>
+
         {/* PRACTICE TRACKS SECTION */}
         <RevealSection>
           <section id="practice-tracks" className="wrapper spotlight" style={{ paddingBottom: "40px" }}>

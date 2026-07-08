@@ -9,6 +9,7 @@ import Profile from "./pages/Profile";
 import Dashboard from "./pages/Dashboard";
 import ResetPassword from "./pages/ResetPassword";
 import Flashcards from "./pages/Flashcards";
+import InterviewQuestions from "./pages/InterviewQuestions";
 
 export default function App() {
   return (
@@ -37,6 +38,9 @@ export default function App() {
 
         {/* Flashcards */}
         <Route path="/flashcards" element={<Flashcards />} />
+
+        {/* Questions */}
+        <Route path="/questions" element={<InterviewQuestions />} />
 
       </Routes>
     </BrowserRouter>

@@ -510,6 +510,19 @@ export default function Dashboard() {
                     <h3 style={{ fontSize: "1.05rem", color: "var(--text-white)", margin: 0, fontWeight: "600" }}>Profile & Badge Milestones</h3>
                   </div>
                 </article>
+
+                <article 
+                  onClick={() => navigate("/questions")}
+                  style={{ flex: "0 0 280px", height: "160px", position: "relative", overflow: "hidden", borderRadius: "10px", border: "1px solid var(--glass-border)", cursor: "pointer" }}
+                  className="dashboard-thumbnail-card sp-card"
+                >
+                  <div style={{ width: "100%", height: "100%" }}>
+                    <img src="/images/pic02.jpg" alt="Company Questions" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.4s ease" }} className="card-banner-img" />
+                  </div>
+                  <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(5,7,12,0.95) 0%, rgba(5,7,12,0.4) 50%, rgba(5,7,12,0) 100%)", display: "flex", alignItems: "flex-end", padding: "15px" }}>
+                    <h3 style={{ fontSize: "1.05rem", color: "var(--text-white)", margin: 0, fontWeight: "600" }}>Company Interview Packs</h3>
+                  </div>
+                </article>
               </div>
             </div>
 

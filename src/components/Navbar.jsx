@@ -90,12 +90,16 @@ export default function Navbar({ onLoginClick }) {
                 <nav>
                     {user ? (
                         <>
+                            <Link to="/questions" style={{ fontWeight: '600' }}>Questions</Link>
                             <Link to="/dashboard" style={{ fontWeight: '600' }}>Dashboard</Link>
                             <Link to="/profile" style={{ fontWeight: '600' }}>Profile</Link>
                             <a href="#" onClick={(e) => { e.preventDefault(); logout(); }} style={{ color: 'var(--brand-red)' }}>Logout</a>
                         </>
                     ) : (
-                        <a href="#" className="menu-btn" onClick={handleLoginClick}>Sign In</a>
+                        <>
+                            <Link to="/questions" style={{ fontWeight: '600', marginRight: '15px' }}>Questions</Link>
+                            <a href="#" className="menu-btn" onClick={handleLoginClick}>Sign In</a>
+                        </>
                     )}
                     <button className="menu-btn" style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', marginLeft: '10px' }} onClick={toggleMenu}>☰</button>
                 </nav>
@@ -109,6 +113,7 @@ export default function Navbar({ onLoginClick }) {
                             <li><Link to="/" onClick={(e) => handleNavClick("top", e)}>Home</Link></li>
                             <li><a href="#features" onClick={(e) => handleNavClick("features", e)}>Features</a></li>
                             <li><a href="#faq" onClick={(e) => handleNavClick("faq", e)}>FAQs</a></li>
+                            <li><Link to="/questions" onClick={() => setShowMenu(false)}>Interview Questions</Link></li>
                             
                             {user ? (
                                 <>
