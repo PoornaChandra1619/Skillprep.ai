@@ -10,6 +10,7 @@ import Dashboard from "./pages/Dashboard";
 import ResetPassword from "./pages/ResetPassword";
 import Flashcards from "./pages/Flashcards";
 import InterviewQuestions from "./pages/InterviewQuestions";
+import PrepAgent from "./components/PrepAgent";
 
 export default function App() {
   return (
@@ -43,6 +44,7 @@ export default function App() {
         <Route path="/questions" element={<InterviewQuestions />} />
 
       </Routes>
+      <PrepAgent />
     </BrowserRouter>
   );
 }

@@ -606,4 +606,58 @@ router.post("/generate-roadmap", authMiddleware, async (req, res) => {
   }
 });
 
+/* ================= PREP AI ASSISTANT CHAT ================= */
+const AGENT_SYSTEM_PROMPT = `You are "Prep", the embedded AI assistant inside SkillPrep.AI, a career-prep platform for CS students.
+
+You can help with:
+- Recommending which module or interview pack fits the student's goal (Trending modules: Resume Deep-Dive, System Design Sprint, Behavioral Round Prep, Coding Assessment, HR Round Simulator)
+- Explaining features: AI Voice Interviewer (realistic conversational mock interviews), Notes to MCQ Generator (turns study notes into quizzes), AI Study Roadmap (7-day personalized plan on the Dashboard)
+- Interview prep packs by company type: FAANG-Style, Startup-Style, Service-Company-Style (TCS/Infosys-style)
+- Interview Questions page: organized by company (Google, Amazon, Microsoft, Service-Company, Startups) and round (Technical, Behavioral, HR), each with a coaching note
+
+Keep answers short (2-4 sentences) and conversational, like a helpful in-app guide, not a formal essay. If a student would benefit from visiting a specific page, end your reply on its own new line with exactly:
+ACTION: goto:<page>
+where <page> is one of: home, dashboard, questions, profile. Only include this line when it's genuinely useful navigation, and only ever one per reply. Do not explain the ACTION line itself, just append it silently after your normal answer.`;
+
+router.post("/prep-chat", async (req, res) => {
+  const { history } = req.body;
+
+  if (!history || !Array.isArray(history)) {
+    return res.status(400).json({ message: "History array required" });
+  }
+
+  if (!process.env.GROQ_API_KEY) {
+    return res.status(500).json({ message: "Groq API Key is missing" });
+  }
+
+  const openai = new OpenAI({
+    apiKey: process.env.GROQ_API_KEY,
+    baseURL: process.env.GROQ_BASE_URL || "https://api.groq.com/openai/v1"
+  });
+
+  try {
+    const recentHistory = history.slice(-10);
+    const messages = [
+      { role: "system", content: AGENT_SYSTEM_PROMPT },
+      ...recentHistory.map(msg => ({
+        role: msg.role === "assistant" ? "assistant" : "user",
+        content: msg.text
+      }))
+    ];
+
+    const completion = await openai.chat.completions.create({
+      model: "llama-3.1-8b-instant",
+      messages,
+      max_tokens: 400,
+      temperature: 0.7
+    });
+
+    const reply = completion.choices[0].message.content;
+    res.json({ reply });
+  } catch (err) {
+    console.error("Prep Chat Error:", err);
+    res.status(500).json({ message: "Prep Assistant is currently unavailable" });
+  }
+});
+
 export default router;
