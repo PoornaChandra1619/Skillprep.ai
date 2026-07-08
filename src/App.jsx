@@ -8,6 +8,7 @@ import Interview from "./pages/Interview";
 import Profile from "./pages/Profile";
 import Dashboard from "./pages/Dashboard";
 import ResetPassword from "./pages/ResetPassword";
+import Flashcards from "./pages/Flashcards";
 
 export default function App() {
   return (
@@ -33,6 +34,9 @@ export default function App() {
 
         {/* Password Reset */}
         <Route path="/reset-password/:token" element={<ResetPassword />} />
+
+        {/* Flashcards */}
+        <Route path="/flashcards" element={<Flashcards />} />
 
       </Routes>
     </BrowserRouter>

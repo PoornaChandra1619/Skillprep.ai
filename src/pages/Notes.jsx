@@ -27,6 +27,14 @@ export default function Notes() {
     navigate("/quiz", { state: { notes } });
   };
 
+  const generateFlashcards = () => {
+    if (!notes.trim()) {
+      alert("Please enter or upload notes first.");
+      return;
+    }
+    navigate("/flashcards", { state: { notes } });
+  };
+
   return (
     <div id="page-wrapper">
       <Navbar />
@@ -34,8 +42,8 @@ export default function Notes() {
       <section id="wrapper">
         <header style={{ backgroundImage: `url('/images/pic01.jpg')` }}>
           <div className="inner">
-            <h2 className="bebas-font">Notes → Quiz (MCQs)</h2>
-            <p>Convert your study notes into multiple-choice questions instantly to test your knowledge.</p>
+            <h2 className="bebas-font">Notes → Quiz & Flashcards</h2>
+            <p>Convert your study notes into multiple-choice questions or spaced-repetition flashcards instantly.</p>
           </div>
         </header>
 
@@ -120,20 +128,32 @@ export default function Notes() {
                         gap: "6px"
                       }}
                     >
-                      <span style={{ color: "#ff6b72" }}>✨ AI Quiz Mode</span>
+                      <span style={{ color: "#ff6b72" }}>✨ AI Study Mode</span>
                     </motion.div>
                   </div>
 
-                  <motion.button
-                    className="button primary"
-                    onClick={generateQuiz}
-                    disabled={!notes.trim() || isUploading}
-                    whileHover={notes.trim() ? { scale: 1.03 } : {}}
-                    whileTap={notes.trim() ? { scale: 0.97 } : {}}
-                    style={{ padding: "0 24px", height: "42px", lineHeight: "42px", fontSize: "0.85rem", letterSpacing: "0.05em" }}
-                  >
-                    {isUploading ? "Uploading..." : "Generate Quiz"}
-                  </motion.button>
+                  <div style={{ display: "flex", gap: "12px" }}>
+                    <motion.button
+                      className="button sp-btn"
+                      onClick={generateFlashcards}
+                      disabled={!notes.trim() || isUploading}
+                      whileHover={notes.trim() ? { scale: 1.03 } : {}}
+                      whileTap={notes.trim() ? { scale: 0.97 } : {}}
+                      style={{ padding: "0 24px", height: "42px", lineHeight: "42px", fontSize: "0.85rem", letterSpacing: "0.05em", background: "rgba(47, 217, 217, 0.1)", border: "1px solid rgba(47, 217, 217, 0.3)", color: "var(--brand-cyan)" }}
+                    >
+                      Generate Flashcards
+                    </motion.button>
+                    <motion.button
+                      className="button primary sp-btn"
+                      onClick={generateQuiz}
+                      disabled={!notes.trim() || isUploading}
+                      whileHover={notes.trim() ? { scale: 1.03 } : {}}
+                      whileTap={notes.trim() ? { scale: 0.97 } : {}}
+                      style={{ padding: "0 24px", height: "42px", lineHeight: "42px", fontSize: "0.85rem", letterSpacing: "0.05em" }}
+                    >
+                      {isUploading ? "Uploading..." : "Generate Quiz"}
+                    </motion.button>
+                  </div>
                 </div>
               </div>
 

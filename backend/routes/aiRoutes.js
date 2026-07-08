@@ -100,6 +100,159 @@ router.post("/generate-mcqs", async (req, res) => {
   }
 });
 
+/* ================= GENERATE FLASHCARDS ================= */
+router.post("/generate-flashcards", async (req, res) => {
+  const { notes } = req.body;
+
+  if (!notes) {
+    return res.status(400).json({ message: "Notes required" });
+  }
+
+  if (!process.env.GROQ_API_KEY) {
+    return res.status(500).json({ message: "Groq API Key is missing" });
+  }
+
+  const openai = new OpenAI({
+    apiKey: process.env.GROQ_API_KEY,
+    baseURL: process.env.GROQ_BASE_URL || "https://api.groq.com/openai/v1"
+  });
+
+  try {
+    const truncatedNotes = notes.slice(0, 6000);
+    const prompt = `Based on the following notes, extract 5 key terms, formulas, or concepts and generate flashcards.
+    Notes:
+    ${truncatedNotes}
+
+    Return the response as a JSON object with a key "flashcards" containing an array of 5 flashcard objects.
+    Each flashcard object must have:
+    - "front": string (the term, question, or concept name)
+    - "back": string (a short, clear definition, formula, explanation, or answer)
+    `;
+
+    let completion;
+    try {
+      completion = await openai.chat.completions.create({
+        model: "llama-3.1-8b-instant",
+        messages: [
+          { role: "system", content: "You are a teacher. You must always return a JSON object with a key 'flashcards'." },
+          { role: "user", content: prompt }
+        ],
+        response_format: { type: "json_object" },
+        max_tokens: 1000,
+        temperature: 0.7
+      });
+    } catch (apiErr) {
+      console.log("llama-3.1-8b-instant flashcard gen failed, falling back to llama-3.3-70b-versatile:", apiErr.message);
+      completion = await openai.chat.completions.create({
+        model: "llama-3.3-70b-versatile",
+        messages: [
+          { role: "system", content: "You are a teacher. You must always return a JSON object with a key 'flashcards'." },
+          { role: "user", content: prompt }
+        ],
+        response_format: { type: "json_object" },
+        max_tokens: 1000,
+        temperature: 0.7
+      });
+    }
+
+    let content = JSON.parse(completion.choices[0].message.content);
+    let flashcards = content.flashcards || (Array.isArray(content) ? content : []);
+
+    if (!Array.isArray(flashcards) || flashcards.length === 0) {
+      throw new Error("No flashcards found in AI response");
+    }
+
+    res.json(flashcards);
+  } catch (err) {
+    console.error("Flashcard Generation Error:", err);
+    res.status(500).json({ message: "Failed to generate flashcards: " + err.message });
+  }
+});
+
+/* ================= REVIEW RESUME ================= */
+router.post("/review-resume", upload.single("resume"), async (req, res) => {
+  let resumeText = req.body.resumeText;
+
+  if (req.file) {
+    try {
+      if (req.file.mimetype === "application/pdf") {
+        const parser = new PDFParse({ data: req.file.buffer });
+        const result = await parser.getText();
+        resumeText = result.text;
+      } else {
+        resumeText = req.file.buffer.toString("utf-8");
+      }
+    } catch (parseErr) {
+      console.error("Failed to parse uploaded resume:", parseErr);
+      return res.status(400).json({ message: "Failed to parse resume file: " + parseErr.message });
+    }
+  }
+
+  if (!resumeText || !resumeText.trim()) {
+    return res.status(400).json({ message: "Resume text or file is required" });
+  }
+
+  if (!process.env.GROQ_API_KEY) {
+    return res.status(500).json({ message: "Groq API Key is missing" });
+  }
+
+  const openai = new OpenAI({
+    apiKey: process.env.GROQ_API_KEY,
+    baseURL: process.env.GROQ_BASE_URL || "https://api.groq.com/openai/v1"
+  });
+
+  try {
+    const prompt = `You are a resume reviewer for engineering and CS students applying to internships
+    and entry-level roles. Given the resume text below, return JSON with:
+    - "overall_score": integer 0-100
+    - "strengths": array of up to 4 short strings
+    - "gaps": array of up to 4 short strings (missing metrics, unclear impact, formatting issues)
+    - "ats_flags": array of any ATS-compatibility issues (tables, images, non-standard headers)
+    - "rewrite_suggestions": array of { "original": string, "improved": string } objects for the 3 weakest bullet points
+
+    Be specific and reference the actual text. Do not invent experience the candidate didn't list.
+
+    Resume:
+    """
+    ${resumeText.slice(0, 8000)}
+    """
+
+    Return only valid JSON, no prose.`;
+
+    let completion;
+    try {
+      completion = await openai.chat.completions.create({
+        model: "llama-3.1-8b-instant",
+        messages: [
+          { role: "system", content: "You are a professional technical recruiter. You must always return a JSON object." },
+          { role: "user", content: prompt }
+        ],
+        response_format: { type: "json_object" },
+        max_tokens: 1500,
+        temperature: 0.5
+      });
+    } catch (apiErr) {
+      console.log("llama-3.1-8b-instant resume review failed, falling back to llama-3.3-70b-versatile:", apiErr.message);
+      completion = await openai.chat.completions.create({
+        model: "llama-3.3-70b-versatile",
+        messages: [
+          { role: "system", content: "You are a professional technical recruiter. You must always return a JSON object." },
+          { role: "user", content: prompt }
+        ],
+        response_format: { type: "json_object" },
+        max_tokens: 1500,
+        temperature: 0.5
+      });
+    }
+
+    const reviewData = JSON.parse(completion.choices[0].message.content);
+    res.json(reviewData);
+  } catch (err) {
+    console.error("Resume Review Error:", err);
+    res.status(500).json({ message: "Failed to analyze resume: " + err.message });
+  }
+});
+
 /* ================= UPLOAD & PARSE NOTES ================= */
 router.post("/upload-notes", upload.single("notes"), async (req, res) => {
   if (!req.file) {

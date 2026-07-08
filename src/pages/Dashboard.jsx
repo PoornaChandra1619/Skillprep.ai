@@ -2,6 +2,74 @@ import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import Navbar from "../components/Navbar";
+import { useCountUp } from "../hooks/useCountUp";
+import { useToast } from "../hooks/useToast";
+
+// Stat number count up animator component
+function StatNumber({ value, suffix = "" }) {
+  const animated = useCountUp(value, 600);
+  return (
+    <span style={{ fontFamily: "Sora, sans-serif", fontWeight: 800 }}>
+      {animated}{suffix}
+    </span>
+  );
+}
+
+// BenchmarkBar progress animator component
+function BenchmarkBar({ percent }) {
+  const [width, setWidth] = useState(0);
+
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setWidth(percent));
+    return () => cancelAnimationFrame(id);
+  }, [percent]);
+
+  return (
+    <div style={{ height: 6, borderRadius: 3, background: "#232838", position: "relative" }}>
+      <div style={{
+        position: "absolute", left: 0, top: 0, bottom: 0,
+        width: `${width}%`, background: "#7c5cff", borderRadius: 3,
+        transition: "width 700ms cubic-bezier(0.22, 1, 0.36, 1)",
+      }} />
+    </div>
+  );
+}
+
+// Skeletons
+function PerformancePulseSkeleton() {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 20, padding: "10px 0" }}>
+      <div className="skeleton" style={{ height: 24, width: "60%" }} />
+      <div style={{ display: "flex", justifyContent: "space-around" }}>
+        <div style={{ textAlign: "center" }}>
+          <div className="skeleton" style={{ height: 40, width: 60, marginBottom: "8px" }} />
+          <div className="skeleton" style={{ height: 12, width: 70 }} />
+        </div>
+        <div style={{ textAlign: "center" }}>
+          <div className="skeleton" style={{ height: 40, width: 60, marginBottom: "8px" }} />
+          <div className="skeleton" style={{ height: 12, width: 70 }} />
+        </div>
+      </div>
+      <div>
+        <div className="skeleton" style={{ height: 12, width: "100%", marginBottom: "10px" }} />
+        <div className="skeleton" style={{ height: 12, width: "100%" }} />
+      </div>
+    </div>
+  );
+}
+
+function GraphSkeleton() {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 15, height: "300px", justifyContent: "center" }}>
+      <div className="skeleton" style={{ height: 25, width: "50%" }} />
+      <div className="skeleton" style={{ height: "180px", width: "100%" }} />
+      <div style={{ display: "flex", justifyContent: "space-between" }}>
+        <div className="skeleton" style={{ height: 35, width: "45%" }} />
+        <div className="skeleton" style={{ height: 35, width: "45%" }} />
+      </div>
+    </div>
+  );
+}
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -12,8 +80,21 @@ export default function Dashboard() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [activeAssessment, setActiveAssessment] = useState(null);
+  const { show: triggerToast, ToastUI } = useToast();
 
-  // Categories and assessments data model
+  // Streak state
+  const [streak, setStreak] = useState({ currentStreak: 1, longestStreak: 1, lastActiveDate: "" });
+
+  // Resume Review state
+  const [resumeText, setResumeText] = useState("");
+  const [resumeFile, setResumeFile] = useState(null);
+  const [isReviewing, setIsReviewing] = useState(false);
+  const [resumeResult, setResumeResult] = useState(null);
+  const [showResumePanel, setShowResumePanel] = useState(false);
+
+  // Selected Company Pack for Interview
+  const [selectedPack, setSelectedPack] = useState("faang");
+
   const CATEGORIES = [
     {
       id: "dsa",
@@ -59,18 +140,17 @@ export default function Dashboard() {
     },
   ];
 
-  // Trending career modules
   const TRENDING_MODULES = [
     {
       id: "trend-1",
-      title: "Resume Deep-Dive",
-      category: "Career Support",
+      title: "Resume Analyzer",
+      category: "AI Support",
       level: "All Levels",
-      mins: 15,
-      tag: "Profile",
-      desc: "Analyze your profile credentials, score history, and badge achievements to customize your resume representation.",
+      mins: 10,
+      tag: "LLM Review",
+      desc: "Instant ATS score check, strength listings, keyword gaps, and professional bullet re-writing suggestions.",
       cover: "/images/pic07.jpg",
-      type: "profile"
+      type: "resume"
     },
     {
       id: "trend-2",
@@ -99,24 +179,65 @@ export default function Dashboard() {
     }
   ];
 
-  useEffect(() => {
-    fetchUserData();
-  }, []);
+  const INTERVIEW_PACKS = [
+    { id: "faang", label: "FAANG-Style Pack", focus: "System Design, STAR Behavioral, Medium/Hard Coding", tone: "Formal & time-boxed" },
+    { id: "startup", label: "Startup-Style Pack", focus: "Ownership, Practical Coding Speed, Agile Mindset", tone: "Casual & fast-paced" },
+    { id: "service", label: "Service-Company Pack", focus: "Tech Fundamentals, Aptitude, Client Communication", tone: "Structured & friendly" }
+  ];
+
+  // Leaderboard mock stats
+  const LEADERBOARD_ENTRIES = [
+    { id: "l-1", name: "Rohan S.", score: 94, rank: 1 },
+    { id: "l-2", name: "Ananya M.", score: 88, rank: 2 },
+    { id: "user-self", name: "You (purnachandra)", score: 82, rank: 3 },
+    { id: "l-4", name: "Vikram K.", score: 79, rank: 4 },
+    { id: "l-5", name: "Learner #482", score: 72, rank: 5 }
+  ];
+
+  // Badges mock stats
+  const BADGES = [
+    { id: "badge-1", title: "DSA Foundations Completed" },
+    { id: "badge-2", title: "AI Voice Recruiter Cleared" }
+  ];
 
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const track = params.get("track");
-    if (track && !loading) {
-      setTimeout(() => {
-        const element = document.getElementById(`track-${cat.id}`);
-        if (element) {
-          element.scrollIntoView({ behavior: "smooth" });
-          element.style.borderColor = "var(--brand-cyan)";
-          setTimeout(() => { element.style.borderColor = "transparent"; }, 2000);
-        }
-      }, 500);
+    fetchUserData();
+    setupStreak();
+  }, []);
+
+  const setupStreak = () => {
+    const today = new Date().toISOString().slice(0, 10);
+    const stored = localStorage.getItem("streakData");
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      const last = new Date(parsed.lastActiveDate);
+      const diffDays = Math.floor((Date.now() - last.getTime()) / 86400000);
+
+      if (diffDays === 0) {
+        setStreak(parsed);
+      } else if (diffDays === 1) {
+        const nextStreak = {
+          currentStreak: parsed.currentStreak + 1,
+          longestStreak: Math.max(parsed.currentStreak + 1, parsed.longestStreak),
+          lastActiveDate: today
+        };
+        setStreak(nextStreak);
+        localStorage.setItem("streakData", JSON.stringify(nextStreak));
+      } else {
+        const nextStreak = {
+          currentStreak: 1,
+          longestStreak: parsed.longestStreak,
+          lastActiveDate: today
+        };
+        setStreak(nextStreak);
+        localStorage.setItem("streakData", JSON.stringify(nextStreak));
+      }
+    } else {
+      const initial = { currentStreak: 1, longestStreak: 1, lastActiveDate: today };
+      setStreak(initial);
+      localStorage.setItem("streakData", JSON.stringify(initial));
     }
-  }, [location, loading]);
+  };
 
   const fetchUserData = async () => {
     try {
@@ -159,10 +280,11 @@ export default function Dashboard() {
         })
       });
 
-      if (!res.ok) throw new Error("Failed to generate roadmap");
+      if (!res.ok) throw new Error("Failed to generate");
 
       const data = await res.json();
       setRoadmap(data);
+      triggerToast("Roadmap generated successfully! ✨");
     } catch (err) {
       alert("Error generating roadmap: " + err.message);
     } finally {
@@ -172,14 +294,56 @@ export default function Dashboard() {
 
   const handleStartAssessment = (item) => {
     setActiveAssessment(null);
-    if (item.type === "profile") {
+    if (item.type === "resume") {
+      setShowResumePanel(true);
+    } else if (item.type === "profile") {
       navigate("/profile");
     } else if (item.type === "interview") {
-      navigate("/interview", { state: { role: item.role || "Full Stack Developer" } });
+      const packInfo = INTERVIEW_PACKS.find(p => p.id === selectedPack);
+      navigate("/interview", { state: { role: item.role || "Full Stack Developer", tone: packInfo?.tone, focus: packInfo?.focus } });
     } else {
       const prompt = `Generate an MCQ quiz covering the following topic: ${item.title}. Subtopics to include: ${item.topics?.join(", ") || "General concepts"}. Difficulty level: ${item.level}.`;
       navigate("/quiz", { state: { notes: prompt } });
     }
+  };
+
+  const handleAnalyzeResume = async (e) => {
+    e.preventDefault();
+    if (!resumeText.trim() && !resumeFile) {
+      alert("Please upload a file or paste resume text first");
+      return;
+    }
+    setIsReviewing(true);
+    setResumeResult(null);
+
+    try {
+      const formData = new FormData();
+      if (resumeFile) {
+        formData.append("resume", resumeFile);
+      } else {
+        formData.append("resumeText", resumeText);
+      }
+
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/ai/review-resume`, {
+        method: "POST",
+        body: formData
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to analyze");
+
+      setResumeResult(data);
+      triggerToast("Resume reviewed! ATS score calculated 🎯");
+    } catch (err) {
+      alert("Resume analysis failed: " + err.message);
+    } finally {
+      setIsReviewing(false);
+    }
+  };
+
+  const buildLinkedInShareUrl = (badge) => {
+    const text = encodeURIComponent(`Just earned the '${badge.title}' badge on SkillPrep.AI! 🎓`);
+    return `https://www.linkedin.com/sharing/share-offsite/?url=https://skillprep.ai/badges/${badge.id || "dsa"}&summary=${text}`;
   };
 
   if (loading) return (
@@ -207,15 +371,43 @@ export default function Dashboard() {
       {/* NETFLIX BILLBOARD HERO BANNER */}
       <section className="billboard-container" style={{ backgroundImage: `url('/images/pic02.jpg')` }}>
         <div className="billboard-content">
+          <div style={{ display: "flex", gap: "10px", alignItems: "center", marginBottom: "15px" }}>
+            <span style={{ background: "rgba(229, 9, 20, 0.2)", color: "var(--brand-red)", border: "1px solid rgba(229, 9, 20, 0.4)", borderRadius: "20px", padding: "4px 12px", fontSize: "12px", fontWeight: "700" }}>
+              🔥 {streak.currentStreak} DAY STREAK
+            </span>
+          </div>
           <h2 className="bebas-font">AI VOICE INTERVIEWER</h2>
           <p>
-            Experience realistic, real-time mock interviews with our conversational AI recruiter. Speak your answers naturally and get evaluated instantly.
+            Experience realistic, mock interviews with our conversational AI recruiter. Select an interview prep pack focus area below to adjust interviewer tone.
           </p>
+
+          {/* Company Pack selector */}
+          <div style={{ display: "flex", gap: "10px", marginBottom: "25px", flexWrap: "wrap" }}>
+            {INTERVIEW_PACKS.map(pack => (
+              <button 
+                key={pack.id}
+                onClick={() => setSelectedPack(pack.id)}
+                style={{
+                  padding: "6px 14px",
+                  fontSize: "12px",
+                  borderRadius: "20px",
+                  background: selectedPack === pack.id ? "var(--brand-red)" : "rgba(255,255,255,0.05)",
+                  border: `1px solid ${selectedPack === pack.id ? "var(--brand-red)" : "var(--glass-border)"}`,
+                  color: "#ffffff",
+                  cursor: "pointer"
+                }}
+                className="sp-btn"
+              >
+                {pack.label}
+              </button>
+            ))}
+          </div>
+
           <div className="billboard-buttons">
-            <button className="button primary" onClick={() => navigate("/interview", { state: { role: "Full Stack Developer" } })}>
-              ▶ Play Mock
+            <button className="button primary sp-btn" onClick={() => handleStartAssessment({ type: "interview" })}>
+              ▶ Start Mock
             </button>
-            <button className="button" onClick={() => {
+            <button className="button sp-btn" onClick={() => {
               const element = document.getElementById("analytics-pulse");
               if (element) element.scrollIntoView({ behavior: "smooth" });
             }}>
@@ -239,7 +431,7 @@ export default function Dashboard() {
                     key={item.id} 
                     onClick={() => setActiveAssessment(item)}
                     style={{ flex: "0 0 280px", height: "160px", position: "relative", overflow: "hidden", borderRadius: "10px", border: "1px solid var(--glass-border)", cursor: "pointer" }}
-                    className="dashboard-thumbnail-card"
+                    className="dashboard-thumbnail-card sp-card"
                   >
                     <div style={{ width: "100%", height: "100%" }}>
                       <img src={item.cover} alt={item.title} style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.4s ease" }} className="card-banner-img" />
@@ -262,7 +454,7 @@ export default function Dashboard() {
                       key={item.id} 
                       onClick={() => setActiveAssessment({ ...item, cover: cat.cover, category: cat.label })}
                       style={{ flex: "0 0 280px", height: "160px", position: "relative", overflow: "hidden", borderRadius: "10px", border: "1px solid var(--glass-border)", cursor: "pointer" }}
-                      className="dashboard-thumbnail-card"
+                      className="dashboard-thumbnail-card sp-card"
                     >
                       <div style={{ width: "100%", height: "100%" }}>
                         <img src={cat.cover} alt={item.title} style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.4s ease" }} className="card-banner-img" />
@@ -283,7 +475,7 @@ export default function Dashboard() {
                 <article 
                   onClick={() => navigate("/interview")}
                   style={{ flex: "0 0 280px", height: "160px", position: "relative", overflow: "hidden", borderRadius: "10px", border: "1px solid var(--glass-border)", cursor: "pointer" }}
-                  className="dashboard-thumbnail-card"
+                  className="dashboard-thumbnail-card sp-card"
                 >
                   <div style={{ width: "100%", height: "100%" }}>
                     <img src="/images/pic05.jpg" alt="Voice speech" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.4s ease" }} className="card-banner-img" />
@@ -296,7 +488,7 @@ export default function Dashboard() {
                 <article 
                   onClick={() => navigate("/notes")}
                   style={{ flex: "0 0 280px", height: "160px", position: "relative", overflow: "hidden", borderRadius: "10px", border: "1px solid var(--glass-border)", cursor: "pointer" }}
-                  className="dashboard-thumbnail-card"
+                  className="dashboard-thumbnail-card sp-card"
                 >
                   <div style={{ width: "100%", height: "100%" }}>
                     <img src="/images/pic06.jpg" alt="MCQ Evaluation" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.4s ease" }} className="card-banner-img" />
@@ -309,7 +501,7 @@ export default function Dashboard() {
                 <article 
                   onClick={() => navigate("/profile")}
                   style={{ flex: "0 0 280px", height: "160px", position: "relative", overflow: "hidden", borderRadius: "10px", border: "1px solid var(--glass-border)", cursor: "pointer" }}
-                  className="dashboard-thumbnail-card"
+                  className="dashboard-thumbnail-card sp-card"
                 >
                   <div style={{ width: "100%", height: "100%" }}>
                     <img src="/images/pic07.jpg" alt="Badge History" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.4s ease" }} className="card-banner-img" />
@@ -325,9 +517,9 @@ export default function Dashboard() {
             <div id="analytics-pulse" className="profile-grid" style={{ width: "100%", display: "flex", gap: "30px", flexWrap: "wrap", marginTop: "50px" }}>
 
               {/* STATS CARD */}
-              <div className="left-col" style={{ flex: 1, minWidth: "300px" }}>
+              <div className="left-col" style={{ flex: 1.1, minWidth: "300px" }}>
                 <motion.div
-                  className="glass-card"
+                  className="glass-card sp-card"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 }}
@@ -335,38 +527,41 @@ export default function Dashboard() {
                   <h3 className="bebas-font" style={{ fontSize: "1.8rem", color: "var(--brand-red)", borderBottom: "1px solid rgba(255, 255, 255, 0.15)", paddingBottom: "10px", marginBottom: "20px" }}>
                     Performance Pulse
                   </h3>
-                  <div className="stats-grid" style={{ display: "flex", justifyContent: "space-around", marginBottom: "30px" }}>
-                    <div className="stat-item" style={{ textAlign: "center" }}>
-                      <span className="stat-value" style={{ color: "var(--text-white)", fontSize: "2.5em", fontWeight: "700", display: "block" }}>{totalQuizzes}</span>
-                      <span className="stat-label" style={{ fontSize: "12px", opacity: 0.6, textTransform: "uppercase", letterSpacing: "0.05em" }}>Attempts</span>
-                    </div>
-                    <div className="stat-item" style={{ textAlign: "center" }}>
-                      <span className="stat-value" style={{ color: "var(--brand-red)", fontSize: "2.5em", fontWeight: "700", display: "block" }}>{avgScore}%</span>
-                      <span className="stat-label" style={{ fontSize: "12px", opacity: 0.6, textTransform: "uppercase", letterSpacing: "0.05em" }}>Avg Accuracy</span>
-                    </div>
-                  </div>
+                  
+                  {loading ? (
+                    <PerformancePulseSkeleton />
+                  ) : (
+                    <>
+                      <div className="stats-grid" style={{ display: "flex", justifyContent: "space-around", marginBottom: "30px" }}>
+                        <div className="stat-item" style={{ textAlign: "center" }}>
+                          <span className="stat-value" style={{ color: "var(--text-white)", fontSize: "2.5em", fontWeight: "700", display: "block" }}>
+                            <StatNumber value={totalQuizzes} />
+                          </span>
+                          <span className="stat-label" style={{ fontSize: "12px", opacity: 0.6, textTransform: "uppercase", letterSpacing: "0.05em" }}>Attempts</span>
+                        </div>
+                        <div className="stat-item" style={{ textAlign: "center" }}>
+                          <span className="stat-value" style={{ color: "var(--brand-red)", fontSize: "2.5em", fontWeight: "700", display: "block" }}>
+                            <StatNumber value={avgScore} suffix="%" />
+                          </span>
+                          <span className="stat-label" style={{ fontSize: "12px", opacity: 0.6, textTransform: "uppercase", letterSpacing: "0.05em" }}>Avg Accuracy</span>
+                        </div>
+                      </div>
 
-                  <div>
-                    <p style={{ fontSize: "14px", opacity: 0.8, marginBottom: "8px" }}>Benchmarking vs. Peers</p>
-                    <div className="progress-container" style={{ height: "12px", background: "rgba(255, 255, 255, 0.05)", borderRadius: "6px", overflow: "hidden", position: "relative" }}>
-                      <motion.div
-                        className="progress-bar"
-                        style={{ height: "100%", background: "linear-gradient(90deg, #7c5cff, #2fd9d9)", width: `${Math.min(avgScore, 100)}%` }}
-                        initial={{ width: 0 }}
-                        animate={{ width: `${Math.min(avgScore, 100)}%` }}
-                        transition={{ duration: 1, delay: 0.5 }}
-                      />
-                    </div>
-                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", marginTop: "8px", opacity: 0.5 }}>
-                      <span>You ({avgScore}%)</span>
-                      <span>Top 10% (92%)</span>
-                    </div>
-                  </div>
+                      <div>
+                        <p style={{ fontSize: "14px", opacity: 0.8, marginBottom: "8px" }}>Benchmarking vs. Peers</p>
+                        <BenchmarkBar percent={avgScore} />
+                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", marginTop: "8px", opacity: 0.5 }}>
+                          <span>You ({avgScore}%)</span>
+                          <span>Top 10% (92%)</span>
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </motion.div>
 
                 {/* AI ROADMAP CTAS */}
                 <motion.div
-                  className="glass-card"
+                  className="glass-card sp-card"
                   style={{ marginTop: "25px", border: "1px solid rgba(124, 92, 255, 0.3)" }}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -380,7 +575,7 @@ export default function Dashboard() {
                   </p>
                   {!roadmap ? (
                     <button
-                      className="button primary fit"
+                      className="button primary fit sp-btn"
                       onClick={generateRoadmap}
                       disabled={isGenerating}
                       style={{ width: "100%" }}
@@ -398,7 +593,7 @@ export default function Dashboard() {
                         ))}
                       </ul>
                       <button
-                        className="button fit"
+                        className="button fit sp-btn"
                         onClick={() => setShowModal(true)}
                         style={{ width: "100%", marginTop: "15px" }}
                       >
@@ -410,54 +605,281 @@ export default function Dashboard() {
               </div>
 
               {/* SCORE TREND GRAPH */}
-              <div className="right-col" style={{ flex: 1.5, minWidth: "350px" }}>
+              <div className="right-col" style={{ flex: 1.4, minWidth: "350px" }}>
                 <motion.div
-                  className="glass-card"
+                  className="glass-card sp-card"
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.4 }}
                   style={{ minHeight: "400px" }}
                 >
-                  <h3 className="bebas-font" style={{ fontSize: "1.8rem", color: "var(--brand-red)", borderBottom: "1px solid rgba(255, 255, 255, 0.15)", paddingBottom: "10px", marginBottom: "20px" }}>
-                    Score Trend Analysis
-                  </h3>
-                  <div style={{ marginTop: "40px", height: "250px", width: "100%", position: "relative" }}>
-                    {totalQuizzes > 0 ? (
-                      <svg width="100%" height="100%" viewBox="0 0 400 200" preserveAspectRatio="none">
-                        <path
-                          d={`M ${user.scores.map((s, i) => `${(i / (totalQuizzes - 1 || 1)) * 400},${200 - (s.score / s.total) * 180}`).join(" L ")}`}
-                          fill="none"
-                          stroke="var(--brand-red)"
-                          strokeWidth="3"
-                          strokeLinecap="round"
-                        />
-                        {user.scores.map((s, i) => (
-                          <circle
-                             key={i}
-                             cx={(i / (totalQuizzes - 1 || 1)) * 400}
-                             cy={200 - (s.score / s.total) * 180}
-                             r="5"
-                             fill="#ffffff"
-                           />
-                        ))}
-                      </svg>
-                    ) : (
-                      <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", opacity: 0.4 }}>
-                        Take more quizzes to see your trend!
+                  {loading ? (
+                    <GraphSkeleton />
+                  ) : (
+                    <>
+                      <h3 className="bebas-font" style={{ fontSize: "1.8rem", color: "var(--brand-red)", borderBottom: "1px solid rgba(255, 255, 255, 0.15)", paddingBottom: "10px", marginBottom: "20px" }}>
+                        Score Trend Analysis
+                      </h3>
+                      <div style={{ marginTop: "40px", height: "250px", width: "100%", position: "relative" }}>
+                        {totalQuizzes > 0 ? (
+                          <svg width="100%" height="100%" viewBox="0 0 400 200" preserveAspectRatio="none">
+                            <path
+                              d={`M ${user.scores.map((s, i) => `${(i / (totalQuizzes - 1 || 1)) * 400},${200 - (s.score / s.total) * 180}`).join(" L ")}`}
+                              fill="none"
+                              stroke="var(--brand-red)"
+                              strokeWidth="3"
+                              strokeLinecap="round"
+                            />
+                            {user.scores.map((s, i) => (
+                              <circle
+                                 key={i}
+                                 cx={(i / (totalQuizzes - 1 || 1)) * 400}
+                                 cy={200 - (s.score / s.total) * 180}
+                                 r="5"
+                                 fill="#ffffff"
+                               />
+                            ))}
+                          </svg>
+                        ) : (
+                          <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", opacity: 0.4 }}>
+                            Take more quizzes to see your trend!
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginTop: "40px", gap: "20px" }}>
-                    <button className="button primary fit" onClick={() => navigate("/notes")}>Launch New Quiz</button>
-                    <button className="button fit" onClick={() => navigate("/profile")}>Edit Profile</button>
-                  </div>
+                      <div style={{ display: "flex", justifyContent: "space-between", marginTop: "40px", gap: "20px" }}>
+                        <button className="button primary fit sp-btn" onClick={() => navigate("/notes")}>Launch New Quiz</button>
+                        <button className="button fit sp-btn" onClick={() => navigate("/profile")}>Edit Profile</button>
+                      </div>
+                    </>
+                  )}
                 </motion.div>
               </div>
 
             </div>
+
+            {/* LEADERBOARD & BADGES ROW */}
+            <div style={{ display: "flex", gap: "30px", flexWrap: "wrap", marginTop: "40px" }}>
+              {/* Leaderboard panel */}
+              <div style={{ flex: 1, minWidth: "300px" }}>
+                <div className="glass-card sp-card">
+                  <h3 className="bebas-font" style={{ fontSize: "1.8rem", color: "var(--brand-red)", borderBottom: "1px solid rgba(255, 255, 255, 0.15)", paddingBottom: "10px", marginBottom: "20px" }}>
+                    🔥 Peer Leaderboard
+                  </h3>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                    {LEADERBOARD_ENTRIES.map((entry) => (
+                      <div 
+                        key={entry.id} 
+                        style={{
+                          display: "flex", justifyContent: "space-between", alignItems: "center",
+                          padding: "12px 16px", borderRadius: "8px",
+                          background: entry.id === "user-self" ? "rgba(124, 92, 255, 0.15)" : "rgba(255,255,255,0.02)",
+                          border: entry.id === "user-self" ? "1px solid #7c5cff" : "1px solid var(--glass-border)",
+                        }}
+                      >
+                        <span style={{ fontWeight: "600", color: entry.id === "user-self" ? "var(--text-white)" : "rgba(255,255,255,0.8)" }}>
+                          #{entry.rank} {entry.name}
+                        </span>
+                        <span style={{ color: "var(--brand-cyan)", fontWeight: "bold" }}>{entry.score}%</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Badges panel */}
+              <div style={{ flex: 1, minWidth: "300px" }}>
+                <div className="glass-card sp-card" style={{ height: "100%" }}>
+                  <h3 className="bebas-font" style={{ fontSize: "1.8rem", color: "var(--brand-red)", borderBottom: "1px solid rgba(255, 255, 255, 0.15)", paddingBottom: "10px", marginBottom: "20px" }}>
+                    🎓 Earned Badges
+                  </h3>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
+                    {BADGES.map((badge) => (
+                      <div 
+                        key={badge.id} 
+                        style={{
+                          background: "rgba(255,255,255,0.03)",
+                          border: "1px solid var(--glass-border)",
+                          borderRadius: "10px",
+                          padding: "15px",
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "space-between",
+                          minHeight: "130px"
+                        }}
+                      >
+                        <span style={{ fontSize: "1.5rem", display: "block", marginBottom: "8px" }}>🏅</span>
+                        <h4 style={{ fontSize: "13px", fontWeight: "600", color: "#ffffff", margin: "0 0 10px 0" }}>{badge.title}</h4>
+                        <a 
+                          href={buildLinkedInShareUrl(badge)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="button primary sp-btn"
+                          style={{ fontSize: "10px", height: "26px", lineHeight: "26px", padding: "0 8px", width: "100%", textAlign: "center" }}
+                        >
+                          Share on LinkedIn
+                        </a>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
       </section>
+
+      {/* RESUME REVIEW MODAL (Absolute slider panel) */}
+      <AnimatePresence>
+        {showResumePanel && (
+          <div className="auth-overlay drawer-backdrop" onClick={() => setShowResumePanel(false)} style={{ zIndex: 2000 }}>
+            <motion.div
+              className="auth-card drawer-panel"
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                position: "absolute",
+                top: 0,
+                right: 0,
+                bottom: 0,
+                width: "550px",
+                maxWidth: "100%",
+                borderRadius: 0,
+                overflowY: "auto",
+                padding: "40px 30px",
+                textAlign: "left"
+              }}
+            >
+              <button onClick={() => setShowResumePanel(false)} className="close-btn">✕</button>
+              
+              <h2 className="bebas-font" style={{ fontSize: "2rem", color: "var(--brand-red)", marginBottom: "5px" }}>
+                AI Resume Reviewer
+              </h2>
+              <p className="auth-subtitle" style={{ marginBottom: "30px" }}>
+                Score your resume compatibility and optimize bullet points for ATS scanners.
+              </p>
+
+              {isReviewing ? (
+                <div style={{ padding: "40px 0", textAlign: "center" }}>
+                  <div className="skeleton" style={{ height: "40px", width: "40px", borderRadius: "50%", margin: "0 auto 20px auto" }} />
+                  <div className="skeleton" style={{ height: "20px", width: "60%", margin: "0 auto 10px auto" }} />
+                  <div className="skeleton" style={{ height: "14px", width: "40%", margin: "0 auto" }} />
+                </div>
+              ) : resumeResult ? (
+                <div>
+                  {/* ATS Score banner */}
+                  <div style={{ display: "flex", gap: "20px", alignItems: "center", background: "rgba(124, 92, 255, 0.1)", border: "1px solid rgba(124, 92, 255, 0.3)", borderRadius: "12px", padding: "20px", marginBottom: "30px" }}>
+                    <div style={{
+                      width: "70px", height: "70px", borderRadius: "50%", border: "4px solid var(--brand-red)",
+                      display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.8rem", fontWeight: "bold"
+                    }}>
+                      {resumeResult.overall_score}
+                    </div>
+                    <div>
+                      <h4 style={{ margin: 0, color: "#ffffff", fontWeight: "600" }}>Overall ATS Compatibility Score</h4>
+                      <p style={{ margin: "5px 0 0 0", fontSize: "13px", opacity: 0.7 }}>Based on tech keyword alignments and STAR bullet points.</p>
+                    </div>
+                  </div>
+
+                  {/* Strengths */}
+                  <h4 className="bebas-font" style={{ color: "var(--brand-cyan)", fontSize: "1.1rem", marginBottom: "10px" }}>Strengths</h4>
+                  <ul style={{ paddingLeft: "15px", listStyle: "circle", fontSize: "13px", marginBottom: "25px", opacity: 0.9 }}>
+                    {resumeResult.strengths?.map((item, i) => (
+                      <li key={i} style={{ marginBottom: "6px" }}>{item}</li>
+                    ))}
+                  </ul>
+
+                  {/* Gaps */}
+                  <h4 className="bebas-font" style={{ color: "var(--brand-red)", fontSize: "1.1rem", marginBottom: "10px" }}>Gaps / Areas to improve</h4>
+                  <ul style={{ paddingLeft: "15px", listStyle: "circle", fontSize: "13px", marginBottom: "25px", opacity: 0.9 }}>
+                    {resumeResult.gaps?.map((item, i) => (
+                      <li key={i} style={{ marginBottom: "6px" }}>{item}</li>
+                    ))}
+                  </ul>
+
+                  {/* ATS Flags */}
+                  {resumeResult.ats_flags && resumeResult.ats_flags.length > 0 && (
+                    <>
+                      <h4 className="bebas-font" style={{ color: "#ffd23f", fontSize: "1.1rem", marginBottom: "10px" }}>⚠️ ATS Formatting Alerts</h4>
+                      <ul style={{ paddingLeft: "15px", listStyle: "circle", fontSize: "13px", marginBottom: "25px", opacity: 0.9 }}>
+                        {resumeResult.ats_flags.map((item, i) => (
+                          <li key={i} style={{ marginBottom: "6px", color: "#ffd23f" }}>{item}</li>
+                        ))}
+                      </ul>
+                    </>
+                  )}
+
+                  {/* Bullet Rewrite Suggestions */}
+                  {resumeResult.rewrite_suggestions && resumeResult.rewrite_suggestions.length > 0 && (
+                    <div style={{ marginTop: "30px", borderTop: "1px solid var(--glass-border)", paddingTop: "20px" }}>
+                      <h4 className="bebas-font" style={{ color: "#ffffff", fontSize: "1.2rem", marginBottom: "15px" }}>💡 Bullet Rewrite Suggestions</h4>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
+                        {resumeResult.rewrite_suggestions.map((item, i) => (
+                          <div key={i} style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--glass-border)", borderRadius: "8px", padding: "15px" }}>
+                            <div style={{ fontSize: "12px", color: "var(--text-grey)", textTransform: "uppercase", marginBottom: "6px" }}>Original</div>
+                            <p style={{ fontSize: "13px", color: "var(--brand-red)", margin: "0 0 10px 0", fontStyle: "italic" }}>"{item.original}"</p>
+                            <div style={{ fontSize: "12px", color: "var(--brand-cyan)", textTransform: "uppercase", marginBottom: "6px" }}>ATS-Optimized Option</div>
+                            <p style={{ fontSize: "13px", color: "var(--text-white)", margin: 0, fontWeight: "500" }}>"{item.improved}"</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <button className="button fit sp-btn" onClick={() => setResumeResult(null)} style={{ marginTop: "30px", width: "100%" }}>
+                    Review Another Resume
+                  </button>
+                </div>
+              ) : (
+                <form onSubmit={handleAnalyzeResume} style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+                  <div style={{ background: "rgba(255,255,255,0.02)", border: "2px dashed var(--glass-border)", borderRadius: "10px", padding: "30px 20px", textAlign: "center", cursor: "pointer" }}>
+                    <input 
+                      type="file" 
+                      accept=".pdf,.txt" 
+                      id="resume-file" 
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                          setResumeFile(file);
+                        }
+                      }}
+                      style={{ display: "none" }}
+                    />
+                    <label htmlFor="resume-file" style={{ cursor: "pointer", display: "block" }}>
+                      <span style={{ fontSize: "2rem", display: "block", marginBottom: "10px" }}>📄</span>
+                      <span style={{ fontSize: "14px", fontWeight: "600", color: "#ffffff", display: "block" }}>
+                        {resumeFile ? `Selected: ${resumeFile.name}` : "Upload Resume PDF or Text File"}
+                      </span>
+                      <span style={{ fontSize: "11px", color: "var(--text-grey)", marginTop: "4px", display: "block" }}>Maximum size 5MB</span>
+                    </label>
+                  </div>
+
+                  <div style={{ textAlign: "center", color: "var(--text-grey)", fontSize: "12px" }}>OR PASTE TEXT</div>
+
+                  <div className="input-group">
+                    <textarea 
+                      placeholder="Paste your raw resume text copy here..."
+                      value={resumeText}
+                      onChange={(e) => {
+                        setResumeText(e.target.value);
+                        setResumeFile(null); // Clear file upload if pasting text
+                      }}
+                      style={{ minHeight: "180px", width: "100%", padding: "12px", background: "rgba(0,0,0,0.3)", color: "#ffffff", border: "1px solid var(--glass-border)", borderRadius: "8px" }}
+                    />
+                  </div>
+
+                  <button type="submit" className="button primary fit sp-btn" style={{ width: "100%" }}>
+                    Analyze ATS Score
+                  </button>
+                </form>
+              )}
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* ROADMAP MODAL */}
       <AnimatePresence>
@@ -523,7 +945,7 @@ export default function Dashboard() {
                 ))}
               </div>
 
-              <button className="button primary fit" onClick={() => setShowModal(false)} style={{ marginTop: "20px" }}>
+              <button className="button primary fit sp-btn" onClick={() => setShowModal(false)} style={{ marginTop: "20px" }}>
                 Close Roadmap
               </button>
             </motion.div>
@@ -581,10 +1003,10 @@ export default function Dashboard() {
                 )}
 
                 <div style={{ display: "flex", gap: "12px" }}>
-                  <button className="button primary fit" onClick={() => handleStartAssessment(activeAssessment)} style={{ flex: 2 }}>
+                  <button className="button primary fit sp-btn" onClick={() => handleStartAssessment(activeAssessment)} style={{ flex: 2 }}>
                     ▶ Start Drill
                   </button>
-                  <button className="button fit" onClick={() => setActiveAssessment(null)} style={{ flex: 1 }}>
+                  <button className="button fit sp-btn" onClick={() => setActiveAssessment(null)} style={{ flex: 1 }}>
                     Close
                   </button>
                 </div>
@@ -593,6 +1015,9 @@ export default function Dashboard() {
           </div>
         )}
       </AnimatePresence>
+
+      {/* RENDER TOAST POPUPS */}
+      {ToastUI}
 
     </div>
   );

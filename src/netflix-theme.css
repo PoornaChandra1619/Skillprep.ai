@@ -911,3 +911,81 @@ form textarea {
     text-align: center;
   }
 }
+
+/* ================= ANIMATION SPEC IMPLEMENTATIONS ================= */
+
+/* 0. Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transform: none !important;
+    box-shadow: none !important;
+  }
+}
+
+/* 4. Ken Burns hero background */
+.hero-bg {
+  background-size: cover;
+  background-position: center;
+  animation: kenburns 15s ease-in-out infinite alternate;
+}
+
+@keyframes kenburns {
+  from { transform: scale(1); }
+  to { transform: scale(1.05); }
+}
+
+/* 5. Card hover lift + glow */
+.sp-card {
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+.sp-card:hover {
+  transform: translateY(-4px) scale(1.03);
+  box-shadow: 0 12px 30px -8px rgba(124, 92, 255, 0.35);
+  border-color: #7c5cff !important;
+}
+
+/* 6. Button press feedback */
+.sp-btn {
+  transition: transform 120ms ease, filter 120ms ease;
+}
+.sp-btn:active {
+  transform: scale(0.97);
+  filter: brightness(0.95);
+}
+
+/* 7. Skeleton loaders */
+.skeleton {
+  background: linear-gradient(90deg, #131826 25%, #1c2233 37%, #131826 63%);
+  background-size: 400% 100%;
+  animation: shimmer 1.4s ease infinite;
+  border-radius: 8px;
+}
+@keyframes shimmer {
+  0% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* 8. Toast animations */
+@keyframes toastIn {
+  from { opacity: 0; transform: translate(-50%, 12px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+/* 9. Menu drawer slide and backdrop animations */
+.drawer-panel {
+  animation: slideIn 260ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.drawer-backdrop {
+  animation: fadeIn 300ms ease;
+}
+@keyframes slideIn {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
