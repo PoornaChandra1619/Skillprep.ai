@@ -312,17 +312,35 @@ export default function Interview() {
                     <label htmlFor="role-input">Target Job Role</label>
                     <input
                       id="role-input"
-                      placeholder="e.g. Frontend Developer"
+                      placeholder="e.g. Frontend Developer, Cloud Architect, Quant Analyst..."
                       value={role}
                       onChange={(e) => setRole(e.target.value)}
                       style={{ background: "rgba(0,0,0,0.4)", border: "1px solid rgba(255,255,255,0.15)", color: "white", padding: "12px", borderRadius: "8px", width: "100%", outline: "none" }}
-                      list="roles-list"
                     />
-                    <datalist id="roles-list">
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginTop: "12px" }}>
                       {roles.map((r, i) => (
-                        <option key={i} value={r} />
+                        <span
+                          key={i}
+                          onClick={() => setRole(r)}
+                          style={{
+                            fontSize: "11px",
+                            padding: "4px 10px",
+                            borderRadius: "15px",
+                            background: role === r ? "var(--brand-red)" : "rgba(255,255,255,0.05)",
+                            border: `1px solid ${role === r ? "var(--brand-red)" : "var(--glass-border)"}`,
+                            color: "#ffffff",
+                            cursor: "pointer",
+                            transition: "all 0.15s ease"
+                          }}
+                          className="sp-btn"
+                        >
+                          {r}
+                        </span>
                       ))}
-                    </datalist>
+                    </div>
+                    <span style={{ display: "block", fontSize: "12px", color: "var(--text-grey)", marginTop: "8px", opacity: 0.8 }}>
+                      💡 You can type <strong>any custom role</strong>! The AI dynamically reviews your resume and tailors the mock interview questions directly to whatever role you specify.
+                    </span>
                   </div>
 
                   <div className="field">
