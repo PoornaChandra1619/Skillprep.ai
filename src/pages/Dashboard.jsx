@@ -108,12 +108,11 @@ export default function Dashboard() {
     const track = params.get("track");
     if (track && !loading) {
       setTimeout(() => {
-        const element = document.getElementById(`track-${track}`);
+        const element = document.getElementById(`track-${cat.id}`);
         if (element) {
           element.scrollIntoView({ behavior: "smooth" });
-          // Highlight border briefly
           element.style.borderColor = "var(--brand-cyan)";
-          setTimeout(() => { element.style.borderColor = "var(--glass-border)"; }, 2000);
+          setTimeout(() => { element.style.borderColor = "transparent"; }, 2000);
         }
       }, 500);
     }
@@ -178,7 +177,6 @@ export default function Dashboard() {
     } else if (item.type === "interview") {
       navigate("/interview", { state: { role: item.role || "Full Stack Developer" } });
     } else {
-      // Dynamic quiz prompt generation
       const prompt = `Generate an MCQ quiz covering the following topic: ${item.title}. Subtopics to include: ${item.topics?.join(", ") || "General concepts"}. Difficulty level: ${item.level}.`;
       navigate("/quiz", { state: { notes: prompt } });
     }
@@ -237,14 +235,17 @@ export default function Dashboard() {
               <h3 className="bebas-font">Trending Career Prep Modules</h3>
               <div className="features-slider">
                 {TRENDING_MODULES.map((item) => (
-                  <article key={item.id} onClick={() => setActiveAssessment(item)}>
-                    <div className="image">
-                      <img src={item.cover} alt={item.title} />
+                  <article 
+                    key={item.id} 
+                    onClick={() => setActiveAssessment(item)}
+                    style={{ flex: "0 0 280px", height: "160px", position: "relative", overflow: "hidden", borderRadius: "10px", border: "1px solid var(--glass-border)", cursor: "pointer" }}
+                    className="dashboard-thumbnail-card"
+                  >
+                    <div style={{ width: "100%", height: "100%" }}>
+                      <img src={item.cover} alt={item.title} style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.4s ease" }} className="card-banner-img" />
                     </div>
-                    <div className="content">
-                      <h3>{item.title}</h3>
-                      <p>{item.desc}</p>
-                      <span className="special">Launch Module ➔</span>
+                    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(5,7,12,0.95) 0%, rgba(5,7,12,0.4) 50%, rgba(5,7,12,0) 100%)", display: "flex", alignItems: "flex-end", padding: "15px" }}>
+                      <h3 style={{ fontSize: "1.05rem", color: "var(--text-white)", margin: 0, fontWeight: "600" }}>{item.title}</h3>
                     </div>
                   </article>
                 ))}
@@ -253,18 +254,21 @@ export default function Dashboard() {
 
             {/* SUBJECT-SPECIFIC PRACTICE TRACKS */}
             {CATEGORIES.map((cat) => (
-              <div key={cat.id} id={`track-${cat.id}`} className="features-slider-container" style={{ marginTop: "30px", border: "1px solid transparent", borderRadius: "12px", transition: "border-color 0.5s ease" }}>
+              <div key={cat.id} id={`track-${cat.id}`} className="features-slider-container" style={{ marginTop: "35px", border: "1px solid transparent", borderRadius: "12px", transition: "border-color 0.5s ease" }}>
                 <h3 className="bebas-font">{cat.label}</h3>
                 <div className="features-slider">
                   {cat.items.map((item) => (
-                    <article key={item.id} onClick={() => setActiveAssessment({ ...item, cover: cat.cover, category: cat.label })}>
-                      <div className="image">
-                        <img src={cat.cover} alt={item.title} />
+                    <article 
+                      key={item.id} 
+                      onClick={() => setActiveAssessment({ ...item, cover: cat.cover, category: cat.label })}
+                      style={{ flex: "0 0 280px", height: "160px", position: "relative", overflow: "hidden", borderRadius: "10px", border: "1px solid var(--glass-border)", cursor: "pointer" }}
+                      className="dashboard-thumbnail-card"
+                    >
+                      <div style={{ width: "100%", height: "100%" }}>
+                        <img src={cat.cover} alt={item.title} style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.4s ease" }} className="card-banner-img" />
                       </div>
-                      <div className="content">
-                        <h3>{item.title}</h3>
-                        <p>{item.desc}</p>
-                        <span className="special">Start Drill ➔</span>
+                      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(5,7,12,0.95) 0%, rgba(5,7,12,0.4) 50%, rgba(5,7,12,0) 100%)", display: "flex", alignItems: "flex-end", padding: "15px" }}>
+                        <h3 style={{ fontSize: "1.05rem", color: "var(--text-white)", margin: 0, fontWeight: "600" }}>{item.title}</h3>
                       </div>
                     </article>
                   ))}
@@ -276,36 +280,42 @@ export default function Dashboard() {
             <div className="features-slider-container" style={{ marginTop: "40px" }}>
               <h3 className="bebas-font">Advanced Preparation Features</h3>
               <div className="features-slider">
-                <article onClick={() => navigate("/interview")}>
-                  <div className="image">
-                    <img src="/images/pic05.jpg" alt="Voice speech" />
+                <article 
+                  onClick={() => navigate("/interview")}
+                  style={{ flex: "0 0 280px", height: "160px", position: "relative", overflow: "hidden", borderRadius: "10px", border: "1px solid var(--glass-border)", cursor: "pointer" }}
+                  className="dashboard-thumbnail-card"
+                >
+                  <div style={{ width: "100%", height: "100%" }}>
+                    <img src="/images/pic05.jpg" alt="Voice speech" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.4s ease" }} className="card-banner-img" />
                   </div>
-                  <div className="content">
-                    <h3>Speech-to-Text</h3>
-                    <p>Interpret technical terms using natural voice audio input recognition.</p>
-                    <span className="special">Explore ➔</span>
-                  </div>
-                </article>
-
-                <article onClick={() => navigate("/notes")}>
-                  <div className="image">
-                    <img src="/images/pic06.jpg" alt="MCQ Evaluation" />
-                  </div>
-                  <div className="content">
-                    <h3>Instant Evaluations</h3>
-                    <p>Gain deep knowledge breakdowns and correction milestones.</p>
-                    <span className="special">Explore ➔</span>
+                  <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(5,7,12,0.95) 0%, rgba(5,7,12,0.4) 50%, rgba(5,7,12,0) 100%)", display: "flex", alignItems: "flex-end", padding: "15px" }}>
+                    <h3 style={{ fontSize: "1.05rem", color: "var(--text-white)", margin: 0, fontWeight: "600" }}>Speech-to-Text</h3>
                   </div>
                 </article>
 
-                <article onClick={() => navigate("/profile")}>
-                  <div className="image">
-                    <img src="/images/pic07.jpg" alt="Badge History" />
+                <article 
+                  onClick={() => navigate("/notes")}
+                  style={{ flex: "0 0 280px", height: "160px", position: "relative", overflow: "hidden", borderRadius: "10px", border: "1px solid var(--glass-border)", cursor: "pointer" }}
+                  className="dashboard-thumbnail-card"
+                >
+                  <div style={{ width: "100%", height: "100%" }}>
+                    <img src="/images/pic06.jpg" alt="MCQ Evaluation" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.4s ease" }} className="card-banner-img" />
                   </div>
-                  <div className="content">
-                    <h3>Profile & Badge Milestones</h3>
-                    <p>Manage credentials, check score reports, and review earned awards.</p>
-                    <span className="special">Explore ➔</span>
+                  <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(5,7,12,0.95) 0%, rgba(5,7,12,0.4) 50%, rgba(5,7,12,0) 100%)", display: "flex", alignItems: "flex-end", padding: "15px" }}>
+                    <h3 style={{ fontSize: "1.05rem", color: "var(--text-white)", margin: 0, fontWeight: "600" }}>Instant Evaluations</h3>
+                  </div>
+                </article>
+
+                <article 
+                  onClick={() => navigate("/profile")}
+                  style={{ flex: "0 0 280px", height: "160px", position: "relative", overflow: "hidden", borderRadius: "10px", border: "1px solid var(--glass-border)", cursor: "pointer" }}
+                  className="dashboard-thumbnail-card"
+                >
+                  <div style={{ width: "100%", height: "100%" }}>
+                    <img src="/images/pic07.jpg" alt="Badge History" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.4s ease" }} className="card-banner-img" />
+                  </div>
+                  <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(5,7,12,0.95) 0%, rgba(5,7,12,0.4) 50%, rgba(5,7,12,0) 100%)", display: "flex", alignItems: "flex-end", padding: "15px" }}>
+                    <h3 style={{ fontSize: "1.05rem", color: "var(--text-white)", margin: 0, fontWeight: "600" }}>Profile & Badge Milestones</h3>
                   </div>
                 </article>
               </div>
@@ -534,7 +544,7 @@ export default function Dashboard() {
               style={{ maxWidth: "600px", padding: "0px", overflow: "hidden", borderRadius: "16px" }}
             >
               {/* Cover Image */}
-              <div style={{ height: "200px", position: "relative", backgroundImage: `url(${activeAssessment.cover})`, backgroundSize: "cover", backgroundPosition: "center" }}>
+              <div style={{ height: "220px", position: "relative", backgroundImage: `url(${activeAssessment.cover})`, backgroundSize: "cover", backgroundPosition: "center" }}>
                 <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 40%, var(--bg-deep) 100%)" }} />
                 <button onClick={() => setActiveAssessment(null)} className="close-btn" style={{ top: "15px", right: "15px" }}>✕</button>
               </div>
@@ -572,7 +582,7 @@ export default function Dashboard() {
 
                 <div style={{ display: "flex", gap: "12px" }}>
                   <button className="button primary fit" onClick={() => handleStartAssessment(activeAssessment)} style={{ flex: 2 }}>
-                    ▶ Start Assessment
+                    ▶ Start Drill
                   </button>
                   <button className="button fit" onClick={() => setActiveAssessment(null)} style={{ flex: 1 }}>
                     Close

@@ -818,3 +818,18 @@ form textarea {
   padding-top: 25px;
   list-style: none;
 }
+
+/* 14. Thumbnail Cards Animations */
+.dashboard-thumbnail-card {
+  transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.dashboard-thumbnail-card:hover {
+  transform: translateY(-4px) scale(1.02);
+  border-color: var(--brand-cyan) !important;
+  box-shadow: 0 10px 25px rgba(47, 217, 217, 0.15) !important;
+}
+
+.dashboard-thumbnail-card:hover .card-banner-img {
+  transform: scale(1.06);
+}
