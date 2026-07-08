@@ -163,6 +163,61 @@ export default function Intro() {
           </div>
         </section>
 
+        {/* PRACTICE TRACKS SECTION */}
+        <section id="practice-tracks" className="wrapper spotlight" style={{ paddingBottom: "40px" }}>
+          <div className="inner" style={{ display: "block" }}>
+            <p style={{ textAlign: "center", color: "var(--text-grey)", fontSize: 13, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 25 }}>
+              Practice Tracks
+            </p>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "20px" }}>
+              <motion.div 
+                whileHover={{ scale: 1.03, borderColor: "var(--brand-cyan)" }}
+                onClick={() => handleActionClick("/dashboard?track=dsa")} 
+                style={{
+                  background: "var(--bg-card)", border: "1px solid var(--glass-border)", borderRadius: "12px",
+                  padding: "24px 20px", cursor: "pointer", transition: "all 0.2s ease"
+                }}
+              >
+                <h3 className="bebas-font" style={{ fontSize: "1.45rem", marginBottom: "8px", lineHeight: "1.2", color: "var(--text-white)" }}>Data Structures & Algorithms</h3>
+                <div style={{ color: "var(--text-grey)", fontSize: "13px" }}>4 assessments</div>
+              </motion.div>
+              <motion.div 
+                whileHover={{ scale: 1.03, borderColor: "var(--brand-cyan)" }}
+                onClick={() => handleActionClick("/dashboard?track=ml")} 
+                style={{
+                  background: "var(--bg-card)", border: "1px solid var(--glass-border)", borderRadius: "12px",
+                  padding: "24px 20px", cursor: "pointer", transition: "all 0.2s ease"
+                }}
+              >
+                <h3 className="bebas-font" style={{ fontSize: "1.45rem", marginBottom: "8px", lineHeight: "1.2", color: "var(--text-white)" }}>Machine Learning</h3>
+                <div style={{ color: "var(--text-grey)", fontSize: "13px" }}>4 assessments</div>
+              </motion.div>
+              <motion.div 
+                whileHover={{ scale: 1.03, borderColor: "var(--brand-cyan)" }}
+                onClick={() => handleActionClick("/dashboard?track=web")} 
+                style={{
+                  background: "var(--bg-card)", border: "1px solid var(--glass-border)", borderRadius: "12px",
+                  padding: "24px 20px", cursor: "pointer", transition: "all 0.2s ease"
+                }}
+              >
+                <h3 className="bebas-font" style={{ fontSize: "1.45rem", marginBottom: "8px", lineHeight: "1.2", color: "var(--text-white)" }}>Web Development</h3>
+                <div style={{ color: "var(--text-grey)", fontSize: "13px" }}>3 assessments</div>
+              </motion.div>
+              <motion.div 
+                whileHover={{ scale: 1.03, borderColor: "var(--brand-cyan)" }}
+                onClick={() => handleActionClick("/dashboard?track=apt")} 
+                style={{
+                  background: "var(--bg-card)", border: "1px solid var(--glass-border)", borderRadius: "12px",
+                  padding: "24px 20px", cursor: "pointer", transition: "all 0.2s ease"
+                }}
+              >
+                <h3 className="bebas-font" style={{ fontSize: "1.45rem", marginBottom: "8px", lineHeight: "1.2", color: "var(--text-white)" }}>Aptitude & Reasoning</h3>
+                <div style={{ color: "var(--text-grey)", fontSize: "13px" }}>3 assessments</div>
+              </motion.div>
+            </div>
+          </div>
+        </section>
+
         {/* FEATURE CARD GRID */}
         <section id="features" className="wrapper alt">
           <div className="inner">

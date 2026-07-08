@@ -1,11 +1,18 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Navbar from "../components/Navbar";
 
 export default function Interview() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [role, setRole] = useState("");
+
+  useEffect(() => {
+    if (location.state && location.state.role) {
+      setRole(location.state.role);
+    }
+  }, [location.state]);
   const [started, setStarted] = useState(false);
   const [messages, setMessages] = useState([]);
   const [isListening, setIsListening] = useState(false);
