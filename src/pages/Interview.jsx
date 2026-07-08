@@ -93,30 +93,10 @@ export default function Interview() {
       alert("Please select or type a role first.");
       return;
     }
-    setLoading(true);
     setStarted(true);
-
-    try {
-      const token = localStorage.getItem("token");
-      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/ai/start-interview`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify({ role, resumeText })
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message);
-
-      setMessages([{ sender: "ai", text: data.question }]);
-      speakText(data.question);
-    } catch (err) {
-      alert("Failed to start interview: " + err.message);
-      setStarted(false);
-    } finally {
-      setLoading(false);
-    }
+    const greeting = `Hello! I am your AI interviewer for the ${role} position. ${resumeText ? "I've reviewed your resume and would like to learn more about your experience. " : ""}Let's begin. Tell me about yourself.`;
+    setMessages([{ sender: "ai", text: greeting }]);
+    speakText(greeting);
   };
 
   const speakText = (text) => {
@@ -127,60 +107,106 @@ export default function Interview() {
     window.speechSynthesis.speak(utterance);
   };
 
-  const sendMessage = async () => {
-    if (!inputText.trim()) return;
+  const sendMessage = async (text) => {
+    const messageText = text || inputText;
+    if (!messageText.trim()) return;
 
-    const userMsg = { sender: "user", text: inputText };
-    setMessages(prev => [...prev, userMsg]);
+    const newMessages = [...messages, { sender: "user", text: messageText }];
+    setMessages(newMessages);
     setInputText("");
     setLoading(true);
 
     try {
-      const token = localStorage.getItem("token");
-      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/ai/continue-interview`, {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/ai/interview-chat`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          role,
-          resumeText,
-          history: [...messages, userMsg]
-        })
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ role, history: newMessages, resumeText }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message);
 
-      setMessages(prev => [...prev, { sender: "ai", text: data.question }]);
-      speakText(data.question);
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || "Failed to connect to AI");
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let aiFullText = "";
+
+      // Add empty message for real-time streaming updates
+      setMessages((prev) => [...prev, { sender: "ai", text: "" }]);
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value);
+        const lines = chunk.split("\n");
+
+        for (const line of lines) {
+          if (line.startsWith("data: ")) {
+            const dataStr = line.replace("data: ", "");
+            if (dataStr === "[DONE]") {
+              speakText(aiFullText);
+              break;
+            }
+
+            try {
+              const data = JSON.parse(dataStr);
+              if (data.error) throw new Error(data.error);
+              if (data.text) {
+                aiFullText += data.text;
+                setMessages((prev) => {
+                  const updated = [...prev];
+                  updated[updated.length - 1].text = aiFullText;
+                  return updated;
+                });
+              }
+            } catch (e) {
+              console.error("Error parsing stream chunk", e);
+            }
+          }
+        }
+      }
     } catch (err) {
-      alert("Failed to send message: " + err.message);
+      console.error(err);
+      alert(`Failed to get AI response: ${err.message}`);
     } finally {
       setLoading(false);
     }
   };
 
   const endInterview = async () => {
+    if (messages.length < 2) {
+      navigate("/");
+      return;
+    }
+
     setIsGeneratingReview(true);
     window.speechSynthesis.cancel();
 
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/ai/end-interview`, {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/ai/get-interview-review`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`
         },
-        body: JSON.stringify({
-          role,
-          resumeText,
-          history: messages
-        })
+        body: JSON.stringify({ role, history: messages }),
       });
+
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message);
+
+      if (!res.ok) {
+        if (res.status === 401) {
+          localStorage.clear();
+          alert("Your session has expired. Please login again.");
+          navigate("/");
+          return;
+        }
+        throw new Error(data.message || "Failed to generate review");
+      }
+
       setReview(data);
     } catch (err) {
       alert("Failed to generate review: " + err.message);
