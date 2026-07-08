@@ -532,11 +532,8 @@ export default function Dashboard() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 }}
                 >
-                  <h3 className="bebas-font" style={{ fontSize: "1.8rem", color: "var(--brand-red)", borderBottom: "1px solid rgba(255, 255, 255, 0.15)", paddingBottom: "10px", marginBottom: "20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <span>Performance Pulse</span>
-                    <span style={{ background: "rgba(229, 9, 20, 0.15)", color: "var(--brand-red)", border: "1px solid rgba(229, 9, 20, 0.3)", borderRadius: "20px", padding: "3px 12px", fontSize: "11px", fontWeight: "700", textTransform: "uppercase" }}>
-                      🔥 {streak.currentStreak} Day Streak
-                    </span>
+                  <h3 className="bebas-font" style={{ fontSize: "1.8rem", color: "var(--brand-red)", borderBottom: "1px solid rgba(255, 255, 255, 0.15)", paddingBottom: "10px", marginBottom: "20px" }}>
+                    Performance Pulse
                   </h3>
                   
                   {loading ? (
