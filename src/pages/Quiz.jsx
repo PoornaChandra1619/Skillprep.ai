@@ -21,8 +21,10 @@ export default function Quiz() {
   }, []);
 
   const generateMCQ = async (notes) => {
+    const fetchUrl = `${import.meta.env.VITE_API_BASE_URL}/api/ai/generate-mcqs`;
+    console.log("Fetching MCQs from:", fetchUrl);
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/ai/generate-mcqs`, {
+      const res = await fetch(fetchUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -32,11 +34,14 @@ export default function Quiz() {
 
       const data = await res.json();
 
-      if (!res.ok) throw new Error(data.message);
+      if (!res.ok) {
+        throw new Error(data.message || data.msg || `Server returned status ${res.status}`);
+      }
 
       setMcqs(data);
     } catch (err) {
-      alert("MCQ generation failed");
+      console.error("MCQ Gen error:", err);
+      alert("MCQ generation failed: " + err.message);
       navigate("/notes");
     }
   };
