@@ -1,8 +1,52 @@
 import { useEffect, useState, useRef } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { useToast } from "../hooks/useToast";
+import { useCountUp } from "../hooks/useCountUp";
+
+// Stat number count up animator component
+function StatNumber({ value, suffix = "" }) {
+  const animated = useCountUp(value, 600);
+  return (
+    <span style={{ fontFamily: "Sora, sans-serif", fontWeight: 800 }}>
+      {animated}{suffix}
+    </span>
+  );
+}
+
+// BenchmarkBar progress animator component
+function BenchmarkBar({ percent }) {
+  const [width, setWidth] = useState(0);
+
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setWidth(percent));
+    return () => cancelAnimationFrame(id);
+  }, [percent]);
+
+  return (
+    <div style={{ height: 6, borderRadius: 3, background: "#232838", position: "relative" }}>
+      <div style={{
+        position: "absolute", left: 0, top: 0, bottom: 0,
+        width: `${width}%`, background: "#7c5cff", borderRadius: 3,
+        transition: "width 700ms cubic-bezier(0.22, 1, 0.36, 1)",
+      }} />
+    </div>
+  );
+}
+
+const LEADERBOARD_ENTRIES = [
+  { id: "l-1", name: "Rohan S.", score: 94, rank: 1 },
+  { id: "l-2", name: "Ananya M.", score: 88, rank: 2 },
+  { id: "user-self", name: "You (purnachandra)", score: 82, rank: 3 },
+  { id: "l-4", name: "Vikram K.", score: 79, rank: 4 },
+  { id: "l-5", name: "Learner #482", score: 72, rank: 5 }
+];
+
+const BADGES = [
+  { id: "badge-1", title: "DSA Foundations Completed" },
+  { id: "badge-2", title: "AI Voice Recruiter Cleared" }
+];
 
 export default function Profile() {
   const [user, setUser] = useState(null);
@@ -20,8 +64,10 @@ export default function Profile() {
   // Streak state from dashboard sync
   const [streak, setStreak] = useState({ currentStreak: 1, longestStreak: 1 });
 
-  // Navigation tab state
-  const [activeTab, setActiveTab] = useState("Overview");
+  // AI Roadmap states
+  const [roadmap, setRoadmap] = useState(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     fetchProfile();
@@ -90,6 +136,43 @@ export default function Profile() {
       triggerToast("Profile picture uploaded!");
     };
     reader.readAsDataURL(file);
+  };
+
+  const generateRoadmap = async () => {
+    if (!user?.scores?.length && !user?.interviews?.length) {
+      alert("Take some quizzes or interviews first so I can analyze your level!");
+      return;
+    }
+    setIsGenerating(true);
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/ai/generate-roadmap`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          scores: user.scores,
+          interviews: user.interviews
+        })
+      });
+
+      if (!res.ok) throw new Error("Failed to generate");
+
+      const data = await res.json();
+      setRoadmap(data);
+      triggerToast("Roadmap generated successfully! ✨");
+    } catch (err) {
+      alert("Error generating roadmap: " + err.message);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const buildLinkedInShareUrl = (badge) => {
+    const text = encodeURIComponent(`Just earned the '${badge.title}' badge on SkillPrep.AI! 🎓`);
+    return `https://www.linkedin.com/sharing/share-offsite/?url=https://skillprep.ai/badges/${badge.id || "dsa"}&summary=${text}`;
   };
 
   if (error) {
@@ -290,7 +373,7 @@ export default function Profile() {
 
           </div>
 
-          {/* RIGHT CONTAINER - CONTENT TABS */}
+          {/* RIGHT CONTAINER - CONTENT DETAILS */}
           <div style={{ flex: 1, minWidth: "350px", textAlign: "left" }}>
             
             {/* Header Title */}
@@ -366,63 +449,215 @@ export default function Profile() {
                 </div>
               </div>
 
-              {/* Side-by-side Quiz & Interview History Section */}
-              <div style={{ display: "flex", gap: "25px", flexWrap: "wrap" }}>
+              {/* 5 SYNCED DASHBOARD SECTIONS */}
+              
+              {/* SECTION ROW 1: PERFORMANCE PULSE & SCORE TREND ANALYSIS */}
+              <div style={{ display: "flex", gap: "30px", flexWrap: "wrap", marginBottom: "35px" }}>
                 
-                {/* QUIZ HISTORY CARD */}
-                <div style={{ flex: 1, minWidth: "300px", background: "rgba(30, 30, 35, 0.55)", border: "1px solid var(--glass-border)", borderRadius: "10px", padding: "20px" }}>
-                  <h3 className="bebas-font" style={{ fontSize: "1.4rem", color: "var(--brand-red)", borderBottom: "1px solid rgba(255, 255, 255, 0.1)", paddingBottom: "8px", marginBottom: "15px" }}>
-                    Quiz History
-                  </h3>
-                  {user.scores?.length === 0 ? (
-                    <p style={{ opacity: 0.6, fontSize: "13px" }}>No quiz attempts yet. Start practicing!</p>
-                  ) : (
-                    <div style={{ display: "flex", flexDirection: "column", gap: "10px", maxHeight: "300px", overflowY: "auto" }}>
-                      {[...user.scores].reverse().map((s, i) => (
-                        <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 12px", background: "rgba(0,0,0,0.25)", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.05)" }}>
-                          <div>
-                            <div style={{ fontWeight: "600", fontSize: "13px", color: "white" }}>
-                              {s.score} / {s.total} Correct
-                            </div>
-                            <div style={{ fontSize: "10px", opacity: 0.5, marginTop: "2px" }}>
-                              {new Date(s.date).toLocaleDateString()}
-                            </div>
-                          </div>
-                          <div style={{ color: (s.score / s.total) >= 0.8 ? "var(--brand-red)" : "#fbbf24", fontWeight: 700, fontSize: "14px" }}>
-                            {Math.round((s.score / s.total) * 100)}%
-                          </div>
-                        </div>
-                      ))}
+                {/* 1. PERFORMANCE PULSE & 3. AI ROADMAP PANEL */}
+                <div style={{ flex: 1.1, minWidth: "300px", display: "flex", flexDirection: "column", gap: "25px" }}>
+                  
+                  {/* Performance Pulse Card */}
+                  <motion.div
+                    className="glass-card sp-card"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                  >
+                    <h3 className="bebas-font" style={{ fontSize: "1.8rem", color: "var(--brand-red)", borderBottom: "1px solid rgba(255, 255, 255, 0.15)", paddingBottom: "10px", marginBottom: "20px" }}>
+                      Performance Pulse
+                    </h3>
+                    <div className="stats-grid" style={{ display: "flex", justifyContent: "space-around", marginBottom: "30px" }}>
+                      <div className="stat-item" style={{ textAlign: "center" }}>
+                        <span className="stat-value" style={{ color: "var(--text-white)", fontSize: "2.5em", fontWeight: "700", display: "block" }}>
+                          <StatNumber value={totalQuizzes} />
+                        </span>
+                        <span className="stat-label" style={{ fontSize: "12px", opacity: 0.6, textTransform: "uppercase", letterSpacing: "0.05em" }}>Attempts</span>
+                      </div>
+                      <div className="stat-item" style={{ textAlign: "center" }}>
+                        <span className="stat-value" style={{ color: "var(--brand-red)", fontSize: "2.5em", fontWeight: "700", display: "block" }}>
+                          <StatNumber value={avgScore} suffix="%" />
+                        </span>
+                        <span className="stat-label" style={{ fontSize: "12px", opacity: 0.6, textTransform: "uppercase", letterSpacing: "0.05em" }}>Avg Accuracy</span>
+                      </div>
                     </div>
-                  )}
+                    <div>
+                      <p style={{ fontSize: "14px", opacity: 0.8, marginBottom: "8px" }}>Benchmarking vs. Peers</p>
+                      <BenchmarkBar percent={avgScore} />
+                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", marginTop: "8px", opacity: 0.5 }}>
+                        <span>You ({avgScore}%)</span>
+                        <span>Top 10% (92%)</span>
+                      </div>
+                    </div>
+                  </motion.div>
+
+                  {/* AI Roadmap Card */}
+                  <motion.div
+                    className="glass-card sp-card"
+                    style={{ border: "1px solid rgba(124, 92, 255, 0.3)" }}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                  >
+                    <h3 className="bebas-font" style={{ fontSize: "1.8rem", color: "var(--brand-red)", borderBottom: "1px solid rgba(255, 255, 255, 0.15)", paddingBottom: "10px", marginBottom: "15px" }}>
+                      ✨ AI Study Roadmap
+                    </h3>
+                    <p style={{ fontSize: "14px", opacity: 0.7, marginBottom: "20px" }}>
+                      Let our AI analyze your quiz history to create a custom 7-day plan to bridge your knowledge gaps.
+                    </p>
+                    {!roadmap ? (
+                      <button
+                        className="button primary fit sp-btn"
+                        onClick={generateRoadmap}
+                        disabled={isGenerating}
+                        style={{ width: "100%" }}
+                      >
+                        {isGenerating ? "Analyzing..." : "Generate My Roadmap"}
+                      </button>
+                    ) : (
+                      <div className="roadmap-preview">
+                        <h4 style={{ color: "var(--brand-cyan)", marginBottom: "15px" }}>{roadmap.title}</h4>
+                        <ul style={{ paddingLeft: "15px", fontSize: "13px", color: "rgba(255,255,255,0.8)", listStyle: "circle" }}>
+                          {roadmap.steps.slice(0, 3).map((step, i) => (
+                            <li key={i} style={{ marginBottom: "8px" }}>
+                              <strong>Day {step.day}:</strong> {step.task}
+                            </li>
+                          ))}
+                        </ul>
+                        <button
+                          className="button fit sp-btn"
+                          onClick={() => setShowModal(true)}
+                          style={{ width: "100%", marginTop: "15px" }}
+                        >
+                          View Full Roadmap
+                        </button>
+                      </div>
+                    )}
+                  </motion.div>
+
                 </div>
 
-                {/* INTERVIEW HISTORY CARD */}
-                <div style={{ flex: 1, minWidth: "300px", background: "rgba(30, 30, 35, 0.55)", border: "1px solid var(--glass-border)", borderRadius: "10px", padding: "20px" }}>
-                  <h3 className="bebas-font" style={{ fontSize: "1.4rem", color: "var(--brand-red)", borderBottom: "1px solid rgba(255, 255, 255, 0.1)", paddingBottom: "8px", marginBottom: "15px" }}>
-                    Interview History
-                  </h3>
-                  {user.interviews?.length === 0 ? (
-                    <p style={{ opacity: 0.6, fontSize: "13px" }}>No interviews completed yet. Get started!</p>
-                  ) : (
-                    <div style={{ display: "flex", flexDirection: "column", gap: "10px", maxHeight: "300px", overflowY: "auto" }}>
-                      {[...user.interviews].reverse().map((int, i) => (
-                        <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 12px", background: "rgba(0,0,0,0.25)", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.05)" }}>
-                          <div>
-                            <div style={{ fontWeight: "600", fontSize: "13px", color: "white" }}>
-                              {int.role}
-                            </div>
-                            <div style={{ fontSize: "10px", opacity: 0.5, marginTop: "2px" }}>
-                              {new Date(int.date).toLocaleDateString()}
-                            </div>
+                {/* 2. SCORE TREND ANALYSIS PANEL */}
+                <div style={{ flex: 1.4, minWidth: "350px" }}>
+                  <motion.div
+                    className="glass-card sp-card"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.4 }}
+                    style={{ height: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between" }}
+                  >
+                    <div>
+                      <h3 className="bebas-font" style={{ fontSize: "1.8rem", color: "var(--brand-red)", borderBottom: "1px solid rgba(255, 255, 255, 0.15)", paddingBottom: "10px", marginBottom: "20px" }}>
+                        Score Trend Analysis
+                      </h3>
+                      <div style={{ marginTop: "30px", height: "230px", width: "100%", position: "relative" }}>
+                        {totalQuizzes > 0 ? (
+                          <svg width="100%" height="100%" viewBox="0 0 400 200" preserveAspectRatio="none">
+                            <path
+                              d={`M ${user.scores.map((s, i) => `${(i / (totalQuizzes - 1 || 1)) * 400},${200 - (s.score / s.total) * 180}`).join(" L ")}`}
+                              fill="none"
+                              stroke="var(--brand-red)"
+                              strokeWidth="3"
+                              strokeLinecap="round"
+                            />
+                            {user.scores.map((s, i) => (
+                              <circle
+                                key={i}
+                                cx={(i / (totalQuizzes - 1 || 1)) * 400}
+                                cy={200 - (s.score / s.total) * 180}
+                                r="5"
+                                fill="#ffffff"
+                              />
+                            ))}
+                          </svg>
+                        ) : (
+                          <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", opacity: 0.4 }}>
+                            Take more quizzes to see your trend!
                           </div>
-                          <div style={{ color: (int.score / 100) >= 0.8 ? "var(--brand-red)" : "#fbbf24", fontWeight: 700, fontSize: "14px" }}>
-                            {int.score}%
-                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <div style={{ display: "flex", gap: "15px", marginTop: "30px" }}>
+                      <button className="button primary fit sp-btn" style={{ flex: 1 }} onClick={() => navigate("/notes")}>Launch New Quiz</button>
+                      <button className="button fit sp-btn" style={{ flex: 1 }} onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>Back To Top</button>
+                    </div>
+                  </motion.div>
+                </div>
+
+              </div>
+
+              {/* SECTION ROW 2: LEADERBOARD & BADGES */}
+              <div style={{ display: "flex", gap: "30px", flexWrap: "wrap" }}>
+                
+                {/* 4. PEER LEADERBOARD */}
+                <div style={{ flex: 1, minWidth: "300px" }}>
+                  <div className="glass-card sp-card">
+                    <h3 className="bebas-font" style={{ fontSize: "1.8rem", color: "var(--brand-red)", borderBottom: "1px solid rgba(255, 255, 255, 0.15)", paddingBottom: "10px", marginBottom: "20px" }}>
+                      🔥 Peer Leaderboard
+                    </h3>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                      {LEADERBOARD_ENTRIES.map((entry) => (
+                        <div 
+                          key={entry.id} 
+                          style={{
+                            display: "flex", justifyContent: "space-between", alignItems: "center",
+                            padding: "12px 16px", borderRadius: "8px",
+                            background: entry.id === "user-self" ? "rgba(124, 92, 255, 0.15)" : "rgba(255,255,255,0.02)",
+                            border: entry.id === "user-self" ? "1px solid #7c5cff" : "1px solid var(--glass-border)",
+                          }}
+                        >
+                          <span style={{ fontWeight: "600", color: entry.id === "user-self" ? "var(--text-white)" : "rgba(255,255,255,0.8)" }}>
+                            #{entry.rank} {entry.name}
+                          </span>
+                          <span style={{ color: "var(--brand-cyan)", fontWeight: "bold" }}>{entry.score}%</span>
                         </div>
                       ))}
                     </div>
-                  )}
+                  </div>
+                </div>
+
+                {/* 5. EARNED BADGES */}
+                <div style={{ flex: 1, minWidth: "300px" }}>
+                  <div className="glass-card sp-card" style={{ height: "100%" }}>
+                    <h3 className="bebas-font" style={{ fontSize: "1.8rem", color: "var(--brand-red)", borderBottom: "1px solid rgba(255, 255, 255, 0.15)", paddingBottom: "10px", marginBottom: "20px" }}>
+                      🎓 Earned Badges
+                    </h3>
+                    <div style={{ display: "flex", gap: "15px", flexWrap: "wrap" }}>
+                      {BADGES.map((badge) => (
+                        <div 
+                          key={badge.id} 
+                          style={{ 
+                            flex: "1 1 200px", 
+                            background: "rgba(255,255,255,0.02)", 
+                            border: "1px solid var(--glass-border)", 
+                            borderRadius: "8px", 
+                            padding: "16px", 
+                            textAlign: "center",
+                            display: "flex",
+                            flexDirection: "column",
+                            justifyContent: "space-between",
+                            minHeight: "130px"
+                          }}
+                        >
+                          <div>
+                            <span style={{ fontSize: "24px", display: "block", marginBottom: "6px" }}>🏅</span>
+                            <span style={{ fontSize: "12px", fontWeight: "600", color: "var(--text-white)", display: "block", lineHeight: "1.3" }}>
+                              {badge.title}
+                            </span>
+                          </div>
+                          <a 
+                            href={buildLinkedInShareUrl(badge)} 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            className="button primary fit sp-btn" 
+                            style={{ height: "28px", lineHeight: "28px", fontSize: "10px", marginTop: "12px", textTransform: "none" }}
+                          >
+                            Share on LinkedIn
+                          </a>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
 
               </div>
@@ -434,6 +669,78 @@ export default function Profile() {
         </div>
 
       </section>
+
+      {/* ROADMAP MODAL */}
+      <AnimatePresence>
+        {showModal && roadmap && (
+          <div className="auth-overlay" onClick={() => setShowModal(false)}>
+            <motion.div
+              className="auth-card"
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              onClick={(e) => e.stopPropagation()}
+              style={{ maxWidth: "600px", padding: "40px" }}
+            >
+              <button onClick={() => setShowModal(false)} className="close-btn">✕</button>
+              <h2 className="bebas-font" style={{ color: "var(--brand-red)", marginBottom: "5px" }}>{roadmap.title}</h2>
+              <p className="auth-subtitle">Your personalized 7-day preparation strategy.</p>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: "10px", maxHeight: "350px", overflowY: "auto", paddingRight: "10px", textAlign: "left" }}>
+                {roadmap.steps.map((step, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.05 }}
+                    style={{
+                      padding: "15px",
+                      background: "rgba(255,255,255,0.03)",
+                      borderRadius: "8px",
+                      border: "1px solid var(--glass-border)",
+                      display: "flex",
+                      gap: "15px",
+                      alignItems: "flex-start"
+                    }}
+                  >
+                    <div style={{
+                      background: "var(--brand-red)",
+                      color: "var(--text-white)",
+                      borderRadius: "50%",
+                      width: "24px",
+                      height: "24px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      flexShrink: 0,
+                      fontWeight: "bold",
+                      fontSize: "12px"
+                    }}>
+                      {step.day}
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <span style={{ fontSize: "14px", fontWeight: "600", display: "block", marginBottom: "4px", color: "var(--text-white)" }}>{step.task}</span>
+                      {step.sources && step.sources.length > 0 && (
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginTop: "6px" }}>
+                          {step.sources.map((source, si) => (
+                            <span key={si} style={{ fontSize: "11px", background: "rgba(124, 92, 255, 0.15)", color: "#ff6b72", padding: "2px 8px", borderRadius: "10px", border: "1px solid rgba(124, 92, 255, 0.2)" }}>
+                              🔗 {source}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+
+              <button className="button primary fit sp-btn" onClick={() => setShowModal(false)} style={{ marginTop: "20px" }}>
+                Close Roadmap
+              </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* RENDER TOAST NOTIFICATIONS */}
       {ToastUI}
