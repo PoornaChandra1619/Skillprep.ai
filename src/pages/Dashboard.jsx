@@ -342,8 +342,8 @@ export default function Dashboard() {
   };
 
   const buildLinkedInShareUrl = (badge) => {
-    const text = encodeURIComponent(`Just earned the '${badge.title}' badge on SkillPrep.AI! 🎓`);
-    return `https://www.linkedin.com/sharing/share-offsite/?url=https://skillprep.ai/badges/${badge.id || "dsa"}&summary=${text}`;
+    const text = encodeURIComponent(`Just earned the '${badge.title}' badge on SkillPrep.live! 🎓`);
+    return `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(`${window.location.origin}/badges/${badge.id || "dsa"}`)}&summary=${text}`;
   };
 
   if (loading) return (
