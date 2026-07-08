@@ -371,11 +371,6 @@ export default function Dashboard() {
       {/* NETFLIX BILLBOARD HERO BANNER */}
       <section className="billboard-container" style={{ backgroundImage: `url('/images/pic02.jpg')` }}>
         <div className="billboard-content">
-          <div style={{ display: "flex", gap: "10px", alignItems: "center", marginBottom: "15px" }}>
-            <span style={{ background: "rgba(229, 9, 20, 0.2)", color: "var(--brand-red)", border: "1px solid rgba(229, 9, 20, 0.4)", borderRadius: "20px", padding: "4px 12px", fontSize: "12px", fontWeight: "700" }}>
-              🔥 {streak.currentStreak} DAY STREAK
-            </span>
-          </div>
           <h2 className="bebas-font">AI VOICE INTERVIEWER</h2>
           <p>
             Experience realistic, mock interviews with our conversational AI recruiter. Select an interview prep pack focus area below to adjust interviewer tone.
@@ -537,8 +532,11 @@ export default function Dashboard() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 }}
                 >
-                  <h3 className="bebas-font" style={{ fontSize: "1.8rem", color: "var(--brand-red)", borderBottom: "1px solid rgba(255, 255, 255, 0.15)", paddingBottom: "10px", marginBottom: "20px" }}>
-                    Performance Pulse
+                  <h3 className="bebas-font" style={{ fontSize: "1.8rem", color: "var(--brand-red)", borderBottom: "1px solid rgba(255, 255, 255, 0.15)", paddingBottom: "10px", marginBottom: "20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span>Performance Pulse</span>
+                    <span style={{ background: "rgba(229, 9, 20, 0.15)", color: "var(--brand-red)", border: "1px solid rgba(229, 9, 20, 0.3)", borderRadius: "20px", padding: "3px 12px", fontSize: "11px", fontWeight: "700", textTransform: "uppercase" }}>
+                      🔥 {streak.currentStreak} Day Streak
+                    </span>
                   </h3>
                   
                   {loading ? (
