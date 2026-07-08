@@ -342,7 +342,7 @@ export default function Dashboard() {
   };
 
   const buildLinkedInShareUrl = (badge) => {
-    const text = encodeURIComponent(`Just earned the '${badge.title}' badge on SkillPrep.live! 🎓`);
+    const text = encodeURIComponent(`Just earned the '${badge.title}' badge on SkillPrep.app! 🎓`);
     return `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(`${window.location.origin}/badges/${badge.id || "dsa"}`)}&summary=${text}`;
   };
 
