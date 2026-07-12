@@ -11,7 +11,13 @@ export default function Navbar({ onLoginClick }) {
 
     useEffect(() => {
         const storedUser = localStorage.getItem("user");
-        if (storedUser) setUser(JSON.parse(storedUser));
+        if (storedUser && storedUser !== "undefined") {
+            try {
+                setUser(JSON.parse(storedUser));
+            } catch (err) {
+                console.error("Navbar storedUser parse error:", err);
+            }
+        }
 
         const handleScroll = () => {
             if (window.scrollY > 50) {
@@ -97,7 +103,6 @@ export default function Navbar({ onLoginClick }) {
                         </>
                     ) : (
                         <>
-                            <Link to="/questions" style={{ fontWeight: '600', marginRight: '15px' }}>Questions</Link>
                             <a href="#" className="menu-btn" onClick={handleLoginClick}>Sign In</a>
                         </>
                     )}
@@ -113,15 +118,15 @@ export default function Navbar({ onLoginClick }) {
                             <li><Link to="/" onClick={(e) => handleNavClick("top", e)}>Home</Link></li>
                             <li><a href="#features" onClick={(e) => handleNavClick("features", e)}>Features</a></li>
                             <li><a href="#faq" onClick={(e) => handleNavClick("faq", e)}>FAQs</a></li>
-                            <li><Link to="/questions" onClick={() => setShowMenu(false)}>Interview Questions</Link></li>
                             
                             {user ? (
                                 <>
+                                    <li><Link to="/questions" onClick={() => setShowMenu(false)}>Interview Questions</Link></li>
                                     <li><Link to="/dashboard" onClick={() => setShowMenu(false)}>Dashboard</Link></li>
                                     <li><Link to="/profile" onClick={() => setShowMenu(false)}>Profile</Link></li>
                                     <li>
                                         <a href="#" onClick={(e) => { e.preventDefault(); logout(); }}>
-                                            Logout (👤 {user.name.split(" ")[0]})
+                                            Logout (👤 {(user.name || user.email || "User").split(" ")[0]})
                                         </a>
                                     </li>
                                 </>

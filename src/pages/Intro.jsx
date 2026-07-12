@@ -4,6 +4,23 @@ import { motion, AnimatePresence } from "framer-motion";
 import Navbar from "../components/Navbar";
 import AuthModal from "../components/AuthModal";
 import { useScrollReveal } from "../hooks/useScrollReveal";
+import BlurText from "../components/BlurText";
+import Lightfall from "../components/Lightfall";
+import LogoLoop from "../components/LogoLoop";
+import { Code, Brain, Globe, Lightbulb } from "lucide-react";
+import { FaGoogle, FaAmazon, FaMicrosoft, FaApple, FaFacebook, FaSpotify, FaPaypal, FaGithub } from "react-icons/fa";
+import SkillPrepMark from "../components/SkillPrepMark";
+
+const techLogos = [
+  { node: <FaGoogle />, title: "Google" },
+  { node: <FaAmazon />, title: "Amazon" },
+  { node: <FaMicrosoft />, title: "Microsoft" },
+  { node: <FaApple />, title: "Apple" },
+  { node: <FaFacebook />, title: "Facebook" },
+  { node: <FaSpotify />, title: "Spotify" },
+  { node: <FaPaypal />, title: "PayPal" },
+  { node: <FaGithub />, title: "GitHub" }
+];
 
 function RevealSection({ children }) {
   const [ref, visible] = useScrollReveal();
@@ -97,43 +114,260 @@ export default function Intro() {
       {/* NAVBAR */}
       <Navbar onLoginClick={openAuth} />
 
-      {/* BANNER / HERO WITH KEN BURNS EFFECT */}
+      {/* BANNER / HERO WITH LIGHTFALL BACKDROP */}
       <section id="banner" style={{ position: "relative", overflow: "hidden" }}>
-        <div className="hero-bg" style={{
+        <div style={{ position: "absolute", inset: 0, zIndex: 1 }}>
+          <Lightfall
+            colors={['#A6C8FF', '#5227FF', '#FF9FFC']}
+            backgroundColor="#0B091B"
+            speed={0.8}
+            streakCount={8}
+            streakWidth={1.5}
+            streakLength={1.5}
+            glow={1.2}
+            density={0.8}
+            twinkle={0.8}
+            zoom={2.5}
+            backgroundGlow={0.6}
+            opacity={1}
+            mouseInteraction={true}
+            mouseStrength={0.8}
+            mouseRadius={0.7}
+          />
+        </div>
+        {/* Large Logo Watermark */}
+        <div style={{
           position: "absolute",
-          inset: 0,
-          backgroundImage: "url('/images/bg.jpg')",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          opacity: 0.25,
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          opacity: 0.05,
+          pointerEvents: "none",
           zIndex: 1
-        }} />
-        <div className="inner" style={{ position: "relative", zIndex: 2 }}>
-          <h2>Skills, evaluated.<br />Feedback, instant<span>.</span></h2>
-          <p>AI-graded assessments across DSA, Machine Learning, Web Dev, and placement aptitude — with feedback that tells you exactly what to fix, not just a score.</p>
-          
-          {!user ? (
-            <form onSubmit={handleGetStarted} style={{ marginTop: "2.5em" }}>
-              <div className="email-signup-row">
-                <input 
-                  type="email" 
-                  placeholder="Email Address" 
-                  value={emailInput}
-                  onChange={(e) => setEmailInput(e.target.value)}
-                  required
-                />
-                <button type="submit" className="sp-btn">
-                  Get Started <span style={{ fontSize: "1.1rem" }}>➔</span>
-                </button>
-              </div>
-            </form>
-          ) : (
-            <div style={{ marginTop: "2.5em" }}>
-              <button className="button primary sp-btn" onClick={() => navigate("/dashboard")} style={{ minWidth: "220px", fontSize: "1.1rem" }}>
-                📊 Go to Dashboard
-              </button>
+        }}>
+          <SkillPrepMark size={420} />
+        </div>
+        <div className="inner" style={{
+          position: "relative",
+          zIndex: 2,
+          background: "radial-gradient(circle, rgba(10, 7, 29, 0.85) 0%, rgba(10, 7, 29, 0.3) 70%, rgba(10, 7, 29, 0) 100%)",
+          padding: "40px 20px",
+          maxWidth: "900px",
+          margin: "0 auto"
+        }}>
+          <div className="pill-badge-container" style={{ display: "flex", justifyContent: "center", marginBottom: "20px" }}>
+            <span className="pill-badge" style={{
+              background: "rgba(255, 255, 255, 0.07)",
+              border: "1px solid rgba(255, 255, 255, 0.12)",
+              borderRadius: "999px",
+              padding: "8px 16px",
+              fontSize: "13px",
+              color: "rgba(255, 255, 255, 0.8)",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "8px",
+              backdropFilter: "blur(8px)",
+              fontWeight: "500",
+              boxShadow: "0 4px 30px rgba(0, 0, 0, 0.15)"
+            }}>
+              <span style={{
+                background: "#fff",
+                color: "#0a071d",
+                padding: "2px 8px",
+                borderRadius: "12px",
+                fontSize: "11px",
+                fontWeight: "700",
+                textTransform: "uppercase"
+              }}>NEW</span>
+              <span>AI Voice Recruiter v2.0</span>
+            </span>
+          </div>
+
+          <h2 style={{
+            fontSize: "clamp(36px, 5vw, 68px)",
+            fontWeight: "800",
+            textAlign: "center",
+            marginBottom: "20px",
+            color: "#fff",
+            lineHeight: "1.15",
+            letterSpacing: "-0.02em"
+          }}>
+            <BlurText
+              text="Skills, evaluated. Feedback, instant."
+              delay={60}
+              animateBy="words"
+              direction="top"
+              as="span"
+              style={{ justifyContent: "center", width: "100%" }}
+            />
+          </h2>
+
+          <RevealSection>
+            <p style={{
+              maxWidth: "700px",
+              margin: "0 auto 35px",
+              textAlign: "center",
+              color: "rgba(255, 255, 255, 0.7)",
+              fontSize: "clamp(15px, 2vw, 19px)",
+              lineHeight: "1.6"
+            }}>
+              AI-graded assessments across DSA, Machine Learning, Web Dev, and placement aptitude — with feedback that tells you exactly what to fix, not just a score.
+            </p>
+
+            <div style={{ display: "flex", gap: "16px", justifyContent: "center", flexWrap: "wrap", marginTop: "30px" }}>
+              {!user ? (
+                <>
+                  <button
+                    onClick={openAuth}
+                    style={{
+                      background: "#ffffff",
+                      color: "#0a071d",
+                      border: "none",
+                      padding: "14px 28px",
+                      borderRadius: "999px",
+                      fontWeight: "600",
+                      cursor: "pointer",
+                      fontSize: "15px",
+                      transition: "all 0.3s ease",
+                      boxShadow: "0 4px 15px rgba(255,255,255,0.15)"
+                    }}
+                    className="hero-btn-primary"
+                  >
+                    Get started
+                  </button>
+                  <button
+                    onClick={(e) => { e.preventDefault(); const el = document.getElementById("one"); if (el) el.scrollIntoView({ behavior: "smooth" }); }}
+                    style={{
+                      background: "rgba(82, 39, 255, 0.25)",
+                      color: "#ffffff",
+                      border: "1px solid rgba(139, 92, 246, 0.3)",
+                      padding: "14px 28px",
+                      borderRadius: "999px",
+                      fontWeight: "600",
+                      cursor: "pointer",
+                      fontSize: "15px",
+                      transition: "all 0.3s ease",
+                      backdropFilter: "blur(10px)"
+                    }}
+                    className="hero-btn-secondary"
+                  >
+                    Learn more
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={() => navigate("/dashboard")}
+                    style={{
+                      background: "#ffffff",
+                      color: "#0a071d",
+                      border: "none",
+                      padding: "14px 28px",
+                      borderRadius: "999px",
+                      fontWeight: "600",
+                      cursor: "pointer",
+                      fontSize: "15px",
+                      transition: "all 0.3s ease",
+                      boxShadow: "0 4px 15px rgba(255,255,255,0.15)"
+                    }}
+                    className="hero-btn-primary"
+                  >
+                    📊 Go to Dashboard
+                  </button>
+                  <button
+                    onClick={(e) => { e.preventDefault(); const el = document.getElementById("one"); if (el) el.scrollIntoView({ behavior: "smooth" }); }}
+                    style={{
+                      background: "rgba(82, 39, 255, 0.25)",
+                      color: "#ffffff",
+                      border: "1px solid rgba(139, 92, 246, 0.3)",
+                      padding: "14px 28px",
+                      borderRadius: "999px",
+                      fontWeight: "600",
+                      cursor: "pointer",
+                      fontSize: "15px",
+                      transition: "all 0.3s ease",
+                      backdropFilter: "blur(10px)"
+                    }}
+                    className="hero-btn-secondary"
+                  >
+                    Learn more
+                  </button>
+                </>
+              )}
             </div>
-          )}
+          </RevealSection>
+        </div>
+      </section>
+
+      {/* PROOF & LOGOLOOP */}
+      <section style={{
+        padding: "40px 0 30px",
+        background: "#08041c",
+        borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
+        position: "relative",
+        zIndex: 5
+      }}>
+        <div className="inner" style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 20px" }}>
+          <p style={{
+            textAlign: "center",
+            color: "rgba(255, 255, 255, 0.4)",
+            fontSize: "12px",
+            letterSpacing: "0.15em",
+            textTransform: "uppercase",
+            marginBottom: "24px",
+            fontWeight: "600"
+          }}>
+            Prep for interviews at
+          </p>
+          <div style={{ opacity: 0.55 }}>
+            <LogoLoop
+              logos={techLogos}
+              speed={60}
+              direction="left"
+              logoHeight={32}
+              gap={64}
+              hoverSpeed={10}
+              scaleOnHover={true}
+              fadeOut={true}
+              fadeOutColor="#08041c"
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* STATS BAR */}
+      <section style={{
+        background: "linear-gradient(135deg, rgba(82, 39, 255, 0.1) 0%, rgba(239, 68, 68, 0.03) 100%)",
+        padding: "24px 0",
+        borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
+        position: "relative",
+        zIndex: 5,
+        backdropFilter: "blur(5px)"
+      }}>
+        <div className="inner" style={{ maxWidth: "1000px", margin: "0 auto", padding: "0 20px" }}>
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+            gap: "30px",
+            textAlign: "center"
+          }}>
+            <div>
+              <h3 style={{ fontSize: "2.2rem", fontWeight: "800", color: "#fff", marginBottom: "4px", background: "linear-gradient(to right, #ffffff, #a6c8ff)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>500+</h3>
+              <p style={{ fontSize: "13px", color: "var(--text-grey)", textTransform: "uppercase", letterSpacing: "0.08em", margin: 0 }}>Practice Questions</p>
+            </div>
+            <div>
+              <h3 style={{ fontSize: "2.2rem", fontWeight: "800", color: "#fff", marginBottom: "4px", background: "linear-gradient(to right, #ffffff, #ff9ffc)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>4 Tracks</h3>
+              <p style={{ fontSize: "13px", color: "var(--text-grey)", textTransform: "uppercase", letterSpacing: "0.08em", margin: 0 }}>DSA, ML, Web & Aptitude</p>
+            </div>
+            <div>
+              <h3 style={{ fontSize: "2.2rem", fontWeight: "800", color: "#fff", marginBottom: "4px", background: "linear-gradient(to right, #ffffff, #a6c8ff)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Real-time</h3>
+              <p style={{ fontSize: "13px", color: "var(--text-grey)", textTransform: "uppercase", letterSpacing: "0.08em", margin: 0 }}>AI Voice Grading</p>
+            </div>
+            <div>
+              <h3 style={{ fontSize: "2.2rem", fontWeight: "800", color: "#fff", marginBottom: "4px", background: "linear-gradient(to right, #ffffff, #ff9ffc)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Instant</h3>
+              <p style={{ fontSize: "13px", color: "var(--text-grey)", textTransform: "uppercase", letterSpacing: "0.08em", margin: 0 }}>Mistake Diagnosis</p>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -141,147 +375,198 @@ export default function Intro() {
       <section id="wrapper">
         
         {/* ROW 1 - NOTES TO MCQ */}
-        <RevealSection>
-          <section id="one" className="wrapper spotlight">
-            <div className="inner">
+        <section id="one" className="wrapper spotlight">
+          <div className="inner">
+            <RevealSection>
               <a href="#" className="image" onClick={(e) => { e.preventDefault(); handleActionClick("/notes"); }}>
                 <img src="/images/pic01.jpg" alt="Notes to Quiz" />
               </a>
-              <div className="content">
-                <h2 className="major">Notes → Quiz (MCQs)</h2>
+            </RevealSection>
+            <div className="content">
+              <BlurText as="h2" className="major" text="Notes → Quiz (MCQs)" delay={80} animateBy="words" direction="top" />
+              <RevealSection>
                 <p>
                   Transform your study notes, textbook chapters, or reference PDF documents into interactive, custom multiple-choice quizzes in seconds. Our advanced AI automatically parses key concepts, generates high-quality questions, and tracks your scores to help reinforce your knowledge.
                 </p>
                 <button className="button sp-btn" onClick={() => handleActionClick("/notes")}>
                   Generate a Quiz
                 </button>
-              </div>
+              </RevealSection>
             </div>
-          </section>
-        </RevealSection>
+          </div>
+        </section>
 
         {/* ROW 2 - AI VOICE INTERVIEWER */}
-        <RevealSection>
-          <section id="two" className="wrapper alt spotlight">
-            <div className="inner">
+        <section id="two" className="wrapper alt spotlight">
+          <div className="inner">
+            <RevealSection>
               <a href="#" className="image" onClick={(e) => { e.preventDefault(); handleActionClick("/interview"); }}>
                 <img src="/images/pic02.jpg" alt="AI Interview Prep" />
               </a>
-              <div className="content">
-                <h2 className="major">AI Voice Interviewer</h2>
+            </RevealSection>
+            <div className="content">
+              <BlurText as="h2" className="major" text="AI Voice Interviewer" delay={80} animateBy="words" direction="top" />
+              <RevealSection>
                 <p>
                   Experience realistic, real-time mock interviews with our conversational AI recruiter. Select your target engineering role, upload your resume, and practice answering custom technical and behavioral questions via interactive voice recognition.
                 </p>
                 <button className="button sp-btn" onClick={() => handleActionClick("/interview")}>
                   Start Mock Interview
                 </button>
-              </div>
+              </RevealSection>
             </div>
-          </section>
-        </RevealSection>
+          </div>
+        </section>
 
         {/* ROW 3 - PERFORMANCE ANALYTICS */}
-        <RevealSection>
-          <section id="three" className="wrapper spotlight">
-            <div className="inner">
+        <section id="three" className="wrapper spotlight">
+          <div className="inner">
+            <RevealSection>
               <a href="#" className="image" onClick={(e) => { e.preventDefault(); handleActionClick("/dashboard"); }}>
                 <img src="/images/pic03.jpg" alt="Performance Tracking" />
               </a>
-              <div className="content">
-                <h2 className="major">Performance Tracking</h2>
+            </RevealSection>
+            <div className="content">
+              <BlurText as="h2" className="major" text="Performance Tracking" delay={80} animateBy="words" direction="top" />
+              <RevealSection>
                 <p>
                   Monitor your learning velocity over time. Review historical quiz scores, review comprehensive feedback reports from previous interview sessions, and track your metrics comparison vs. top-performing peer benchmarks.
                 </p>
                 <button className="button sp-btn" onClick={() => handleActionClick("/dashboard")}>
                   View Your Analytics
                 </button>
-              </div>
+              </RevealSection>
             </div>
-          </section>
-        </RevealSection>
+          </div>
+        </section>
 
         {/* ROW 4 - INTERVIEW QUESTIONS BY COMPANY */}
-        <RevealSection>
+        {user && (
           <section id="questions-teaser" className="wrapper alt spotlight">
             <div className="inner">
-              <a href="#" className="image" onClick={(e) => { e.preventDefault(); navigate("/questions"); }}>
-                <img src="/images/pic04.jpg" alt="Company Interview Questions" />
-              </a>
+              <RevealSection>
+                <a href="#" className="image" onClick={(e) => { e.preventDefault(); navigate("/questions"); }}>
+                  <img src="/images/pic04.jpg" alt="Company Interview Questions" />
+                </a>
+              </RevealSection>
               <div className="content">
-                <h2 className="major">Interview Questions by Company</h2>
-                <p>
-                  Browse commonly reported patterns for Google, Amazon, Microsoft, service-company, and startup interview sessions. Questions are organized by round (Technical, Behavioral, HR) with professional coaching notes on how to answer each one.
-                </p>
-                <button className="button sp-btn" onClick={() => navigate("/questions")}>
-                  Explore Company Questions
-                </button>
+                <BlurText as="h2" className="major" text="Interview Questions by Company" delay={80} animateBy="words" direction="top" />
+                <RevealSection>
+                  <p>
+                    Browse commonly reported patterns for Google, Amazon, Microsoft, service-company, and startup interview sessions. Questions are organized by round (Technical, Behavioral, HR) with professional coaching notes on how to answer each one.
+                  </p>
+                  <button className="button sp-btn" onClick={() => navigate("/questions")}>
+                    Explore Company Questions
+                  </button>
+                </RevealSection>
               </div>
             </div>
           </section>
-        </RevealSection>
+        )}
 
         {/* PRACTICE TRACKS SECTION */}
-        <RevealSection>
-          <section id="practice-tracks" className="wrapper spotlight" style={{ paddingBottom: "40px" }}>
-            <div className="inner" style={{ display: "block" }}>
-              <p style={{ textAlign: "center", color: "var(--text-grey)", fontSize: 13, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: 25 }}>
-                Practice Tracks
-              </p>
+        <section id="practice-tracks" className="wrapper spotlight" style={{ paddingBottom: "40px" }}>
+          <div className="inner" style={{ display: "block" }}>
+            <BlurText
+              as="p"
+              text="Practice Tracks"
+              delay={50}
+              animateBy="letters"
+              direction="top"
+              style={{
+                justifyContent: "center",
+                textAlign: "center",
+                color: "var(--text-grey)",
+                fontSize: 13,
+                letterSpacing: "0.06em",
+                textTransform: "uppercase",
+                marginBottom: 25
+              }}
+            />
+            <RevealSection>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "20px" }}>
                 <div 
                   onClick={() => handleActionClick("/dashboard?track=dsa")} 
                   style={{
                     background: "var(--bg-card)", border: "1px solid var(--glass-border)", borderRadius: "12px",
-                    padding: "24px 20px", cursor: "pointer"
+                    padding: "24px 20px", cursor: "pointer", display: "flex", flexDirection: "column", gap: "16px"
                   }}
                   className="sp-card"
                 >
-                  <h3 className="bebas-font" style={{ fontSize: "1.45rem", marginBottom: "8px", lineHeight: "1.2", color: "var(--text-white)" }}>Data Structures & Algorithms</h3>
-                  <div style={{ color: "var(--text-grey)", fontSize: "13px" }}>4 assessments</div>
+                  <div style={{ color: "var(--brand-red, #ef4444)", display: "flex", alignItems: "center" }}>
+                    <Code size={28} />
+                  </div>
+                  <div>
+                    <BlurText as="h3" className="bebas-font" text="Data Structures & Algorithms" delay={60} animateBy="words" direction="top" style={{ fontSize: "1.45rem", marginBottom: "8px", lineHeight: "1.2", color: "var(--text-white)" }} />
+                    <div style={{ color: "var(--text-grey)", fontSize: "13px" }}>4 assessments</div>
+                  </div>
                 </div>
                 <div 
                   onClick={() => handleActionClick("/dashboard?track=ml")} 
                   style={{
                     background: "var(--bg-card)", border: "1px solid var(--glass-border)", borderRadius: "12px",
-                    padding: "24px 20px", cursor: "pointer"
+                    padding: "24px 20px", cursor: "pointer", display: "flex", flexDirection: "column", gap: "16px"
                   }}
                   className="sp-card"
                 >
-                  <h3 className="bebas-font" style={{ fontSize: "1.45rem", marginBottom: "8px", lineHeight: "1.2", color: "var(--text-white)" }}>Machine Learning</h3>
-                  <div style={{ color: "var(--text-grey)", fontSize: "13px" }}>4 assessments</div>
+                  <div style={{ color: "#a6c8ff", display: "flex", alignItems: "center" }}>
+                    <Brain size={28} />
+                  </div>
+                  <div>
+                    <BlurText as="h3" className="bebas-font" text="Machine Learning" delay={60} animateBy="words" direction="top" style={{ fontSize: "1.45rem", marginBottom: "8px", lineHeight: "1.2", color: "var(--text-white)" }} />
+                    <div style={{ color: "var(--text-grey)", fontSize: "13px" }}>4 assessments</div>
+                  </div>
                 </div>
                 <div 
                   onClick={() => handleActionClick("/dashboard?track=web")} 
                   style={{
                     background: "var(--bg-card)", border: "1px solid var(--glass-border)", borderRadius: "12px",
-                    padding: "24px 20px", cursor: "pointer"
+                    padding: "24px 20px", cursor: "pointer", display: "flex", flexDirection: "column", gap: "16px"
                   }}
                   className="sp-card"
                 >
-                  <h3 className="bebas-font" style={{ fontSize: "1.45rem", marginBottom: "8px", lineHeight: "1.2", color: "var(--text-white)" }}>Web Development</h3>
-                  <div style={{ color: "var(--text-grey)", fontSize: "13px" }}>3 assessments</div>
+                  <div style={{ color: "#ff9ffc", display: "flex", alignItems: "center" }}>
+                    <Globe size={28} />
+                  </div>
+                  <div>
+                    <BlurText as="h3" className="bebas-font" text="Web Development" delay={60} animateBy="words" direction="top" style={{ fontSize: "1.45rem", marginBottom: "8px", lineHeight: "1.2", color: "var(--text-white)" }} />
+                    <div style={{ color: "var(--text-grey)", fontSize: "13px" }}>3 assessments</div>
+                  </div>
                 </div>
                 <div 
                   onClick={() => handleActionClick("/dashboard?track=apt")} 
                   style={{
                     background: "var(--bg-card)", border: "1px solid var(--glass-border)", borderRadius: "12px",
-                    padding: "24px 20px", cursor: "pointer"
+                    padding: "24px 20px", cursor: "pointer", display: "flex", flexDirection: "column", gap: "16px"
                   }}
                   className="sp-card"
                 >
-                  <h3 className="bebas-font" style={{ fontSize: "1.45rem", marginBottom: "8px", lineHeight: "1.2", color: "var(--text-white)" }}>Aptitude & Reasoning</h3>
-                  <div style={{ color: "var(--text-grey)", fontSize: "13px" }}>3 assessments</div>
+                  <div style={{ color: "#ffd56b", display: "flex", alignItems: "center" }}>
+                    <Lightbulb size={28} />
+                  </div>
+                  <div>
+                    <BlurText as="h3" className="bebas-font" text="Aptitude & Reasoning" delay={60} animateBy="words" direction="top" style={{ fontSize: "1.45rem", marginBottom: "8px", lineHeight: "1.2", color: "var(--text-white)" }} />
+                    <div style={{ color: "var(--text-grey)", fontSize: "13px" }}>3 assessments</div>
+                  </div>
                 </div>
               </div>
-            </div>
-          </section>
-        </RevealSection>
+            </RevealSection>
+          </div>
+        </section>
 
         {/* FEATURE CARD GRID */}
-        <RevealSection>
-          <section id="features" className="wrapper alt">
-            <div className="inner">
-              <h2 className="major" style={{ borderBottom: "2px solid var(--brand-red)", paddingBottom: "10px", marginBottom: "20px" }}>Advanced Prep Tools</h2>
+        <section id="features" className="wrapper alt">
+          <div className="inner">
+            <BlurText
+              as="h2"
+              className="major"
+              text="Advanced Prep Tools"
+              delay={80}
+              animateBy="words"
+              direction="top"
+              style={{ borderBottom: "2px solid var(--brand-red)", paddingBottom: "10px", marginBottom: "20px" }}
+            />
+            <RevealSection>
               <p style={{ color: "var(--text-grey)", marginBottom: "40px" }}>
                 SkillPrep AI provides you with all the necessary tools to fast-track your career preparation. Whether you are review-studying key concepts or practicing full simulated voice interviews, we have you covered.
               </p>
@@ -291,7 +576,7 @@ export default function Intro() {
                     <img src="/images/pic04.jpg" alt="AI Roadmaps" />
                   </a>
                   <div className="content">
-                    <h3 className="major">Custom Study Roadmaps</h3>
+                    <BlurText as="h3" className="major" text="Custom Study Roadmaps" delay={60} animateBy="words" direction="top" />
                     <p>Let our AI analyze your quiz history and score trends to generate a custom 7-day master study roadmap tailored to bridge your exact knowledge gaps.</p>
                     <a href="#" className="special" onClick={(e) => { e.preventDefault(); handleActionClick("/dashboard"); }}>Learn more ➔</a>
                   </div>
@@ -301,7 +586,7 @@ export default function Intro() {
                     <img src="/images/pic05.jpg" alt="Voice Recognition" />
                   </a>
                   <div className="content">
-                    <h3 className="major">Voice Speech-to-Text</h3>
+                    <BlurText as="h3" className="major" text="Voice Speech-to-Text" delay={60} animateBy="words" direction="top" />
                     <p>Respond to technical questions naturally with your voice. Our integrated Web Speech API interprets your audio inputs for a fluid, hands-free prep experience.</p>
                     <a href="#" className="special" onClick={(e) => { e.preventDefault(); handleActionClick("/interview"); }}>Learn more ➔</a>
                   </div>
@@ -311,7 +596,7 @@ export default function Intro() {
                     <img src="/images/pic06.jpg" alt="Instant MCQ Feedback" />
                   </a>
                   <div className="content">
-                    <h3 className="major">Instant MCQ Evaluations</h3>
+                    <BlurText as="h3" className="major" text="Instant MCQ Evaluations" delay={60} animateBy="words" direction="top" />
                     <p>Receive immediate grading, answer breakdowns, and detailed explanation metrics after every quiz attempt to ensure you understand correct methodologies.</p>
                     <a href="#" className="special" onClick={(e) => { e.preventDefault(); handleActionClick("/notes"); }}>Learn more ➔</a>
                   </div>
@@ -321,20 +606,27 @@ export default function Intro() {
                     <img src="/images/pic07.jpg" alt="User Profile Details" />
                   </a>
                   <div className="content">
-                    <h3 className="major">History & User Profiles</h3>
+                    <BlurText as="h3" className="major" text="History & User Profiles" delay={60} animateBy="words" direction="top" />
                     <p>Access your centralized profile directory. Manage personal credentials, review saved attempts, check earned preparation badges, and track your study progression.</p>
                     <a href="#" className="special" onClick={(e) => { e.preventDefault(); handleActionClick("/profile"); }}>Learn more ➔</a>
                   </div>
                 </article>
               </div>
-            </div>
-          </section>
-        </RevealSection>
+            </RevealSection>
+          </div>
+        </section>
 
         {/* FAQs SECTION (Netflix Style Accordion) */}
-        <RevealSection>
-          <section id="faq" className="faq-section">
-            <h2>Frequently Asked Questions</h2>
+        <section id="faq" className="faq-section">
+          <BlurText
+            as="h2"
+            text="Frequently Asked Questions"
+            delay={80}
+            animateBy="words"
+            direction="top"
+            style={{ justifyContent: "center" }}
+          />
+          <RevealSection>
             <div className="faq-list">
               {faqs.map((faq, i) => (
                 <div key={i} className={`faq-item ${activeFaq === i ? "open" : ""}`}>
@@ -348,16 +640,23 @@ export default function Intro() {
                 </div>
               ))}
             </div>
-          </section>
-        </RevealSection>
+          </RevealSection>
+        </section>
 
       </section>
 
       {/* FOOTER */}
-      <RevealSection>
-        <section id="footer">
-          <div className="inner">
-            <h2 className="major">Get in touch</h2>
+      <section id="footer">
+        <div className="inner">
+          <BlurText
+            as="h2"
+            className="major"
+            text="Get in touch"
+            delay={80}
+            animateBy="words"
+            direction="top"
+          />
+          <RevealSection>
             <p style={{ color: "var(--text-grey)", marginBottom: "30px" }}>Have questions, ideas, or feedback about SkillPrep AI? Write to us or reach out via our contact details. We'd love to help support your learning and career preparation journey.</p>
             
             <form onSubmit={handleContactSubmit}>
@@ -393,19 +692,36 @@ export default function Intro() {
                   />
                 </div>
               </div>
-              <ul className="actions">
-                <li>
-                  <button type="submit" className="button primary sp-btn">Send Message</button>
-                </li>
-              </ul>
+              <div className="actions" style={{ marginTop: "20px" }}>
+                <button type="submit" className="button primary sp-btn">Send Message</button>
+              </div>
             </form>
             
+            <div style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: "12px",
+              marginBottom: "35px",
+              marginTop: "40px",
+              borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
+              paddingBottom: "30px"
+            }}>
+              <SkillPrepMark size={48} />
+              <h3 style={{ fontFamily: "Sora, sans-serif", fontWeight: 700, fontSize: "1.2rem", margin: 0, color: "#fff" }}>
+                SkillPrep<span style={{ color: "#7c5cff" }}>.AI</span>
+              </h3>
+              <p style={{ fontSize: "12.5px", color: "var(--text-grey)", margin: 0, fontStyle: "italic" }}>
+                Skills, evaluated. Feedback, instant.
+              </p>
+            </div>
+
             <ul className="copyright">
               <li>&copy; {new Date().getFullYear()} SkillPrep.AI. All rights reserved.</li>
             </ul>
-          </div>
-        </section>
-      </RevealSection>
+          </RevealSection>
+        </div>
+      </section>
 
       {/* AUTH MODAL */}
       <AnimatePresence>

@@ -4,6 +4,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import Navbar from "../components/Navbar";
 import { useCountUp } from "../hooks/useCountUp";
 import { useToast } from "../hooks/useToast";
+import SkillPrepMark from "../components/SkillPrepMark";
+import {
+  Layers, GitFork, Workflow, ListOrdered, BarChart3, Brain,
+  GitCompare, Database, Atom, Server, BrainCircuit, Binary, BookOpen, AlertCircle,
+  FileText, Network, Mic, CheckSquare, Award, Building, MessageSquare, ShieldCheck, Zap, Terminal, Cpu, Code
+} from "lucide-react";
 
 // Stat number count up animator component
 function StatNumber({ value, suffix = "" }) {
@@ -71,6 +77,150 @@ function GraphSkeleton() {
   );
 }
 
+const getCardVisualConfig = (itemId) => {
+  switch (itemId) {
+    case "dsa-1":
+      return { icon: Layers, gradient: "linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%)" };
+    case "dsa-2":
+      return { icon: GitFork, gradient: "linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%)" };
+    case "dsa-3":
+      return { icon: Workflow, gradient: "linear-gradient(135deg, #ef4444 0%, #f59e0b 100%)" };
+    case "dsa-4":
+      return { icon: ListOrdered, gradient: "linear-gradient(135deg, #059669 0%, #10b981 100%)" };
+    case "ml-1":
+      return { icon: BarChart3, gradient: "linear-gradient(135deg, #2563eb 0%, #38bdf8 100%)" };
+    case "ml-2":
+      return { icon: Brain, gradient: "linear-gradient(135deg, #7c3aed 0%, #db2777 100%)" };
+    case "ml-3":
+      return { icon: GitCompare, gradient: "linear-gradient(135deg, #0284c7 0%, #0d9488 100%)" };
+    case "ml-4":
+      return { icon: Database, gradient: "linear-gradient(135deg, #b91c1c 0%, #ea580c 100%)" };
+    case "web-1":
+      return { icon: Atom, gradient: "linear-gradient(135deg, #0891b2 0%, #06b6d4 100%)" };
+    case "web-2":
+      return { icon: Server, gradient: "linear-gradient(135deg, #4f46e5 0%, #6366f1 100%)" };
+    case "web-3":
+      return { icon: Database, gradient: "linear-gradient(135deg, #0d9488 0%, #14b8a6 100%)" };
+    case "apt-1":
+      return { icon: BrainCircuit, gradient: "linear-gradient(135deg, #d97706 0%, #f59e0b 100%)" };
+    case "apt-2":
+      return { icon: Binary, gradient: "linear-gradient(135deg, #059669 0%, #10b981 100%)" };
+    case "apt-3":
+      return { icon: BookOpen, gradient: "linear-gradient(135deg, #4f46e5 0%, #a855f7 100%)" };
+    case "trend-1":
+      return { icon: FileText, gradient: "linear-gradient(135deg, #db2777 0%, #f43f5e 100%)" };
+    case "trend-2":
+      return { icon: Network, gradient: "linear-gradient(135deg, #6366f1 0%, #a855f7 100%)" };
+    case "trend-3":
+      return { icon: Mic, gradient: "linear-gradient(135deg, #059669 0%, #06b6d4 100%)" };
+    case "nav-speech":
+      return { icon: Mic, gradient: "linear-gradient(135deg, #059669 0%, #06b6d4 100%)" };
+    case "nav-evals":
+      return { icon: CheckSquare, gradient: "linear-gradient(135deg, #3b82f6 0%, #6366f1 100%)" };
+    case "nav-profile":
+      return { icon: Award, gradient: "linear-gradient(135deg, #d97706 0%, #f59e0b 100%)" };
+    case "nav-company":
+      return { icon: Building, gradient: "linear-gradient(135deg, #7c3aed 0%, #ec4899 100%)" };
+    
+    // New Course Tracks visual config
+    case "sys-1":
+      return { icon: Server, gradient: "linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)" };
+    case "sys-2":
+      return { icon: Network, gradient: "linear-gradient(135deg, #581c87 0%, #a855f7 100%)" };
+    case "sys-3":
+      return { icon: Cpu, gradient: "linear-gradient(135deg, #0f172a 0%, #475569 100%)" };
+    case "beh-1":
+      return { icon: MessageSquare, gradient: "linear-gradient(135deg, #7c2d12 0%, #ea580c 100%)" };
+    case "beh-2":
+      return { icon: ShieldCheck, gradient: "linear-gradient(135deg, #064e3b 0%, #10b981 100%)" };
+    case "beh-3":
+      return { icon: Mic, gradient: "linear-gradient(135deg, #1e1b4b 0%, #6366f1 100%)" };
+    case "llm-1":
+      return { icon: Code, gradient: "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)" };
+    case "llm-2":
+      return { icon: Zap, gradient: "linear-gradient(135deg, #854d0e 0%, #eab308 100%)" };
+    case "llm-3":
+      return { icon: Terminal, gradient: "linear-gradient(135deg, #0f766e 0%, #0d9488 100%)" };
+    default:
+      return { icon: AlertCircle, gradient: "linear-gradient(135deg, #6b7280 0%, #4b5563 100%)" };
+  }
+};
+
+const CATEGORIES = [
+  {
+    id: "dsa",
+    label: "Data Structures & Algorithms",
+    cover: "/images/pic01.jpg",
+    items: [
+      { id: "dsa-1", title: "Arrays & Two Pointers", level: "Beginner", mins: 25, tag: "Foundations", desc: "Sharpen pattern recognition across sliding windows, prefix sums, and two-pointer techniques with AI-graded practice sets.", topics: ["Arrays", "Two Pointers", "Sliding Window", "Prefix Sums"], type: "quiz" },
+      { id: "dsa-2", title: "Trees & Graph Traversal", level: "Intermediate", mins: 40, tag: "Core", desc: "Work through BFS, DFS, and tree recursion problems, with instant feedback on time complexity reasoning.", topics: ["Binary Trees", "Graphs", "BFS/DFS", "Recursion"], type: "quiz" },
+      { id: "dsa-3", title: "Dynamic Programming Drills", level: "Advanced", mins: 45, tag: "Interview-Ready", desc: "Tackle classic DP formulations and get personalized hints when your recurrence relation goes off track.", topics: ["Memoization", "Tabulation", "Knapsack", "LIS"], type: "quiz" },
+      { id: "dsa-4", title: "Heaps & Priority Queues", level: "Intermediate", mins: 30, tag: "Core", desc: "Practice problems that rely on heap-based scheduling and top-k selection patterns.", topics: ["Heaps", "Priority Queues", "Top-K"], type: "quiz" },
+    ],
+  },
+  {
+    id: "ml",
+    label: "Machine Learning",
+    cover: "/images/pic03.jpg",
+    items: [
+      { id: "ml-1", title: "Model Evaluation Metrics", level: "Beginner", mins: 20, tag: "Foundations", desc: "Precision, recall, F1, and ROC-AUC explained through interactive scenario questions.", topics: ["Precision/Recall", "F1 Score", "ROC-AUC", "Confusion Matrix"], type: "quiz" },
+      { id: "ml-2", title: "Neural Network Fundamentals", level: "Intermediate", mins: 50, tag: "Core", desc: "Backpropagation, activation functions, and optimizer behavior — quizzed and explained by the assessment engine.", topics: ["Backprop", "Activations", "Optimizers", "Loss Functions"], type: "quiz" },
+      { id: "ml-3", title: "Transfer Learning in Practice", level: "Intermediate", mins: 35, tag: "Applied", desc: "Based on real transfer-learning workflows, like fine-tuning MobileNet for image classification tasks.", topics: ["Fine-tuning", "MobileNet", "Feature Extraction"], type: "quiz" },
+      { id: "ml-4", title: "RAG & LLM Pipelines", level: "Advanced", mins: 55, tag: "Interview-Ready", desc: "Design questions on retrieval-augmented generation, chunking strategy, and vector search trade-offs.", topics: ["RAG", "Embeddings", "Vector DBs", "LangChain"], type: "quiz" },
+    ],
+  },
+  {
+    id: "sys",
+    label: "System Design & ML Architecture",
+    cover: "/images/pic04.jpg",
+    items: [
+      { id: "sys-1", title: "Scale-Out Architectures", level: "Beginner", mins: 30, tag: "Architecture", desc: "Interactive scenarios mapping cache hits, load balancer algorithms, and relational database sharding techniques.", topics: ["Caching", "Load Balancers", "Database Sharding", "CDN"], type: "quiz" },
+      { id: "sys-2", title: "RAG Pipeline Engineering", level: "Intermediate", mins: 45, tag: "Modern Systems", desc: "Build simulated semantic search systems comparing chunk overlap methods, vector database indexes, and hybrid keyword search.", topics: ["Vector Search", "Chunking Strategy", "HNSW Index", "Reciprocal Rank Fusion"], type: "quiz" },
+      { id: "sys-3", title: "ML Serving & Feature Stores", level: "Advanced", mins: 50, tag: "Production ML", desc: "Design pipelines that handle drift, serving latency constraints, online feature generation, and offline-online storage sync.", topics: ["Feature Stores", "Model Registry", "Streaming Features", "Batch Prediction"], type: "quiz" },
+    ],
+  },
+  {
+    id: "beh",
+    label: "STAR Behavioral Method",
+    cover: "/images/pic02.jpg",
+    items: [
+      { id: "beh-1", title: "Conflict Resolution & Alignment", level: "Intermediate", mins: 25, tag: "STAR Method", desc: "Practice structuring disagree-and-commit situations and cross-functional alignment conversations in the STAR format.", topics: ["STAR Format", "Conflict Resolution", "Disagreement", "Influence"], type: "quiz" },
+      { id: "beh-2", title: "Ownership & Bias for Action", level: "Beginner", mins: 20, tag: "Core Principles", desc: "Draft scenarios showing self-direction, accepting calculated technical risk, and driving a project beyond standard roles.", topics: ["Bias for Action", "Ownership", "Calculated Risk", "Proactivity"], type: "quiz" },
+      { id: "beh-3", title: "STAR Builder Simulator", level: "Advanced", mins: 40, tag: "Recruiter Prep", desc: "Review guidelines and build structured STAR templates targeted directly at behavioral interviews for FAANG recruiters.", topics: ["STAR Format", "Recruiter Expectations", "FAANG Prep", "Behavioral Mock"], type: "quiz" },
+    ],
+  },
+  {
+    id: "llm",
+    label: "Prompt Engineering & LLM Ops",
+    cover: "/images/pic07.jpg",
+    items: [
+      { id: "llm-1", title: "Structured JSON Output Prompting", level: "Beginner", mins: 25, tag: "Prompt Engineering", desc: "Master system prompts, few-shot conditioning, and instruction structures to force LLMs into producing reliable JSON schemas.", topics: ["JSON Schema", "System Instructions", "Few-Shot Prompting", "Temperature Tuning"], type: "quiz" },
+      { id: "llm-2", title: "LLM Evaluation & Red Teaming", level: "Intermediate", mins: 35, tag: "LLM Ops", desc: "Assess pipelines for safety checks, toxicity filtering, semantic similarity scoring, and mitigation against prompt injection.", topics: ["LLM Eval", "Red Teaming", "Hallucination Rating", "Prompt Injection"], type: "quiz" },
+      { id: "llm-3", title: "Agentic Workflows & Tool Call", level: "Advanced", mins: 45, tag: "Agentic AI", desc: "Design ReAct loop agents that autonomously plan, select and invoke external APIs, parse outputs, and self-correct errors.", topics: ["ReAct Framework", "Tool Calling", "Loop Logic", "Error Recovery"], type: "quiz" },
+    ],
+  },
+  {
+    id: "web",
+    label: "Web Development",
+    cover: "/images/pic04.jpg",
+    items: [
+      { id: "web-1", title: "React Component Patterns", level: "Beginner", mins: 25, tag: "Foundations", desc: "Hooks, prop drilling, and component composition, assessed through short applied challenges.", topics: ["Hooks", "State", "Props", "Composition"], type: "quiz" },
+      { id: "web-2", title: "REST API Design", level: "Intermediate", mins: 30, tag: "Core", desc: "Practice designing clean, resource-oriented APIs with feedback on status codes and structure.", topics: ["REST", "Status Codes", "Auth", "Versioning"], type: "quiz" },
+      { id: "web-3", title: "SQL & Database Modeling", level: "Intermediate", mins: 35, tag: "Core", desc: "Schema design and query-writing drills graded for correctness and efficiency.", topics: ["Joins", "Normalization", "Indexing"], type: "quiz" },
+    ],
+  },
+  {
+    id: "apt",
+    label: "Aptitude & Reasoning",
+    cover: "/images/pic06.jpg",
+    items: [
+      { id: "apt-1", title: "Logical Reasoning Sprint", level: "Beginner", mins: 20, tag: "Placement Prep", desc: "Timed reasoning sets modeled on common placement-exam formats.", topics: ["Puzzles", "Series", "Syllogisms"], type: "quiz" },
+      { id: "apt-2", title: "Quantitative Aptitude", level: "Intermediate", mins: 30, tag: "Placement Prep", desc: "Speed and accuracy drills across arithmetic, percentages, and probability.", topics: ["Arithmetic", "Percentages", "Probability"], type: "quiz" },
+      { id: "apt-3", title: "Verbal & Comprehension", level: "Beginner", mins: 20, tag: "Placement Prep", desc: "Reading comprehension and grammar sets with explanation-on-demand.", topics: ["Grammar", "Comprehension", "Vocabulary"], type: "quiz" },
+    ],
+  },
+];
+
 export default function Dashboard() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -95,50 +245,7 @@ export default function Dashboard() {
   // Selected Company Pack for Interview
   const [selectedPack, setSelectedPack] = useState("faang");
 
-  const CATEGORIES = [
-    {
-      id: "dsa",
-      label: "Data Structures & Algorithms",
-      cover: "/images/pic01.jpg",
-      items: [
-        { id: "dsa-1", title: "Arrays & Two Pointers", level: "Beginner", mins: 25, tag: "Foundations", desc: "Sharpen pattern recognition across sliding windows, prefix sums, and two-pointer techniques with AI-graded practice sets.", topics: ["Arrays", "Two Pointers", "Sliding Window", "Prefix Sums"], type: "quiz" },
-        { id: "dsa-2", title: "Trees & Graph Traversal", level: "Intermediate", mins: 40, tag: "Core", desc: "Work through BFS, DFS, and tree recursion problems, with instant feedback on time complexity reasoning.", topics: ["Binary Trees", "Graphs", "BFS/DFS", "Recursion"], type: "quiz" },
-        { id: "dsa-3", title: "Dynamic Programming Drills", level: "Advanced", mins: 45, tag: "Interview-Ready", desc: "Tackle classic DP formulations and get personalized hints when your recurrence relation goes off track.", topics: ["Memoization", "Tabulation", "Knapsack", "LIS"], type: "quiz" },
-        { id: "dsa-4", title: "Heaps & Priority Queues", level: "Intermediate", mins: 30, tag: "Core", desc: "Practice problems that rely on heap-based scheduling and top-k selection patterns.", topics: ["Heaps", "Priority Queues", "Top-K"], type: "quiz" },
-      ],
-    },
-    {
-      id: "ml",
-      label: "Machine Learning",
-      cover: "/images/pic03.jpg",
-      items: [
-        { id: "ml-1", title: "Model Evaluation Metrics", level: "Beginner", mins: 20, tag: "Foundations", desc: "Precision, recall, F1, and ROC-AUC explained through interactive scenario questions.", topics: ["Precision/Recall", "F1 Score", "ROC-AUC", "Confusion Matrix"], type: "quiz" },
-        { id: "ml-2", title: "Neural Network Fundamentals", level: "Intermediate", mins: 50, tag: "Core", desc: "Backpropagation, activation functions, and optimizer behavior — quizzed and explained by the assessment engine.", topics: ["Backprop", "Activations", "Optimizers", "Loss Functions"], type: "quiz" },
-        { id: "ml-3", title: "Transfer Learning in Practice", level: "Intermediate", mins: 35, tag: "Applied", desc: "Based on real transfer-learning workflows, like fine-tuning MobileNet for image classification tasks.", topics: ["Fine-tuning", "MobileNet", "Feature Extraction"], type: "quiz" },
-        { id: "ml-4", title: "RAG & LLM Pipelines", level: "Advanced", mins: 55, tag: "Interview-Ready", desc: "Design questions on retrieval-augmented generation, chunking strategy, and vector search trade-offs.", topics: ["RAG", "Embeddings", "Vector DBs", "LangChain"], type: "quiz" },
-      ],
-    },
-    {
-      id: "web",
-      label: "Web Development",
-      cover: "/images/pic04.jpg",
-      items: [
-        { id: "web-1", title: "React Component Patterns", level: "Beginner", mins: 25, tag: "Foundations", desc: "Hooks, prop drilling, and component composition, assessed through short applied challenges.", topics: ["Hooks", "State", "Props", "Composition"], type: "quiz" },
-        { id: "web-2", title: "REST API Design", level: "Intermediate", mins: 30, tag: "Core", desc: "Practice designing clean, resource-oriented APIs with feedback on status codes and structure.", topics: ["REST", "Status Codes", "Auth", "Versioning"], type: "quiz" },
-        { id: "web-3", title: "SQL & Database Modeling", level: "Intermediate", mins: 35, tag: "Core", desc: "Schema design and query-writing drills graded for correctness and efficiency.", topics: ["Joins", "Normalization", "Indexing"], type: "quiz" },
-      ],
-    },
-    {
-      id: "apt",
-      label: "Aptitude & Reasoning",
-      cover: "/images/pic06.jpg",
-      items: [
-        { id: "apt-1", title: "Logical Reasoning Sprint", level: "Beginner", mins: 20, tag: "Placement Prep", desc: "Timed reasoning sets modeled on common placement-exam formats.", topics: ["Puzzles", "Series", "Syllogisms"], type: "quiz" },
-        { id: "apt-2", title: "Quantitative Aptitude", level: "Intermediate", mins: 30, tag: "Placement Prep", desc: "Speed and accuracy drills across arithmetic, percentages, and probability.", topics: ["Arithmetic", "Percentages", "Probability"], type: "quiz" },
-        { id: "apt-3", title: "Verbal & Comprehension", level: "Beginner", mins: 20, tag: "Placement Prep", desc: "Reading comprehension and grammar sets with explanation-on-demand.", topics: ["Grammar", "Comprehension", "Vocabulary"], type: "quiz" },
-      ],
-    },
-  ];
+
 
   const TRENDING_MODULES = [
     {
@@ -185,20 +292,7 @@ export default function Dashboard() {
     { id: "service", label: "Service-Company Pack", focus: "Tech Fundamentals, Aptitude, Client Communication", tone: "Structured & friendly" }
   ];
 
-  // Leaderboard mock stats
-  const LEADERBOARD_ENTRIES = [
-    { id: "l-1", name: "Rohan S.", score: 94, rank: 1 },
-    { id: "l-2", name: "Ananya M.", score: 88, rank: 2 },
-    { id: "user-self", name: "You (purnachandra)", score: 82, rank: 3 },
-    { id: "l-4", name: "Vikram K.", score: 79, rank: 4 },
-    { id: "l-5", name: "Learner #482", score: 72, rank: 5 }
-  ];
 
-  // Badges mock stats
-  const BADGES = [
-    { id: "badge-1", title: "DSA Foundations Completed" },
-    { id: "badge-2", title: "AI Voice Recruiter Cleared" }
-  ];
 
   useEffect(() => {
     fetchUserData();
@@ -240,6 +334,12 @@ export default function Dashboard() {
   };
 
   const fetchUserData = async () => {
+    // 1. First load from localStorage to prevent screen flash/stuck on slow connections
+    const cachedUser = localStorage.getItem("user");
+    if (cachedUser) {
+      setUser(JSON.parse(cachedUser));
+    }
+
     try {
       const token = localStorage.getItem("token");
       if (!token) {
@@ -252,6 +352,13 @@ export default function Dashboard() {
       if (res.ok) {
         const data = await res.json();
         setUser(data);
+        localStorage.setItem("user", JSON.stringify(data)); // update cache
+      } else if (res.status === 401) {
+        // Token is invalid or expired: clear credentials and redirect to login
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        navigate("/");
+        return;
       }
     } catch (err) {
       console.error("Dashboard Load Error:", err);
@@ -275,8 +382,8 @@ export default function Dashboard() {
           "Authorization": `Bearer ${token}`
         },
         body: JSON.stringify({
-          scores: user.scores,
-          interviews: user.interviews
+          scores: user?.scores || [],
+          interviews: user?.interviews || []
         })
       });
 
@@ -341,10 +448,7 @@ export default function Dashboard() {
     }
   };
 
-  const buildLinkedInShareUrl = (badge) => {
-    const text = encodeURIComponent(`Just earned the '${badge.title}' badge on SkillPrep.app! 🎓`);
-    return `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(`${window.location.origin}/badges/${badge.id || "dsa"}`)}&summary=${text}`;
-  };
+
 
   if (loading) return (
     <div id="page-wrapper">
@@ -361,7 +465,7 @@ export default function Dashboard() {
 
   const totalQuizzes = user?.scores?.length || 0;
   const avgScore = totalQuizzes
-    ? Math.round((user.scores.reduce((acc, s) => acc + (s.score / s.total), 0) / totalQuizzes) * 100)
+    ? Math.round(((user?.scores || []).reduce((acc, s) => acc + (s.score / s.total), 0) / totalQuizzes) * 100)
     : 0;
 
   return (
@@ -429,7 +533,30 @@ export default function Dashboard() {
                     className="dashboard-thumbnail-card sp-card"
                   >
                     <div style={{ width: "100%", height: "100%" }}>
-                      <img src={item.cover} alt={item.title} style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.4s ease" }} className="card-banner-img" />
+                      {(() => {
+                        const config = getCardVisualConfig(item.id);
+                        const IconComp = config.icon;
+                        return (
+                          <div style={{
+                            width: "100%",
+                            height: "100%",
+                            background: config.gradient,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            position: "relative"
+                          }} className="card-banner-img">
+                            <div style={{
+                              position: "absolute",
+                              inset: 0,
+                              opacity: 0.1,
+                              backgroundImage: "radial-gradient(#ffffff 2px, transparent 2px)",
+                              backgroundSize: "14px 14px"
+                            }} />
+                            <IconComp size={48} color="#ffffff" style={{ opacity: 0.9, zIndex: 2 }} />
+                          </div>
+                        );
+                      })()}
                     </div>
                     <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(5,7,12,0.95) 0%, rgba(5,7,12,0.4) 50%, rgba(5,7,12,0) 100%)", display: "flex", alignItems: "flex-end", padding: "15px" }}>
                       <h3 style={{ fontSize: "1.05rem", color: "var(--text-white)", margin: 0, fontWeight: "600" }}>{item.title}</h3>
@@ -452,7 +579,30 @@ export default function Dashboard() {
                       className="dashboard-thumbnail-card sp-card"
                     >
                       <div style={{ width: "100%", height: "100%" }}>
-                        <img src={cat.cover} alt={item.title} style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.4s ease" }} className="card-banner-img" />
+                        {(() => {
+                          const config = getCardVisualConfig(item.id);
+                          const IconComp = config.icon;
+                          return (
+                            <div style={{
+                              width: "100%",
+                              height: "100%",
+                              background: config.gradient,
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              position: "relative"
+                            }} className="card-banner-img">
+                              <div style={{
+                                position: "absolute",
+                                inset: 0,
+                                opacity: 0.1,
+                                backgroundImage: "radial-gradient(#ffffff 2px, transparent 2px)",
+                                backgroundSize: "14px 14px"
+                              }} />
+                              <IconComp size={48} color="#ffffff" style={{ opacity: 0.9, zIndex: 2 }} />
+                            </div>
+                          );
+                        })()}
                       </div>
                       <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(5,7,12,0.95) 0%, rgba(5,7,12,0.4) 50%, rgba(5,7,12,0) 100%)", display: "flex", alignItems: "flex-end", padding: "15px" }}>
                         <h3 style={{ fontSize: "1.05rem", color: "var(--text-white)", margin: 0, fontWeight: "600" }}>{item.title}</h3>
@@ -473,7 +623,30 @@ export default function Dashboard() {
                   className="dashboard-thumbnail-card sp-card"
                 >
                   <div style={{ width: "100%", height: "100%" }}>
-                    <img src="/images/pic05.jpg" alt="Voice speech" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.4s ease" }} className="card-banner-img" />
+                    {(() => {
+                      const config = getCardVisualConfig("nav-speech");
+                      const IconComp = config.icon;
+                      return (
+                        <div style={{
+                          width: "100%",
+                          height: "100%",
+                          background: config.gradient,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          position: "relative"
+                        }} className="card-banner-img">
+                          <div style={{
+                            position: "absolute",
+                            inset: 0,
+                            opacity: 0.1,
+                            backgroundImage: "radial-gradient(#ffffff 2px, transparent 2px)",
+                            backgroundSize: "14px 14px"
+                          }} />
+                          <IconComp size={48} color="#ffffff" style={{ opacity: 0.9, zIndex: 2 }} />
+                        </div>
+                      );
+                    })()}
                   </div>
                   <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(5,7,12,0.95) 0%, rgba(5,7,12,0.4) 50%, rgba(5,7,12,0) 100%)", display: "flex", alignItems: "flex-end", padding: "15px" }}>
                     <h3 style={{ fontSize: "1.05rem", color: "var(--text-white)", margin: 0, fontWeight: "600" }}>Speech-to-Text</h3>
@@ -486,7 +659,30 @@ export default function Dashboard() {
                   className="dashboard-thumbnail-card sp-card"
                 >
                   <div style={{ width: "100%", height: "100%" }}>
-                    <img src="/images/pic06.jpg" alt="MCQ Evaluation" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.4s ease" }} className="card-banner-img" />
+                    {(() => {
+                      const config = getCardVisualConfig("nav-evals");
+                      const IconComp = config.icon;
+                      return (
+                        <div style={{
+                          width: "100%",
+                          height: "100%",
+                          background: config.gradient,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          position: "relative"
+                        }} className="card-banner-img">
+                          <div style={{
+                            position: "absolute",
+                            inset: 0,
+                            opacity: 0.1,
+                            backgroundImage: "radial-gradient(#ffffff 2px, transparent 2px)",
+                            backgroundSize: "14px 14px"
+                          }} />
+                          <IconComp size={48} color="#ffffff" style={{ opacity: 0.9, zIndex: 2 }} />
+                        </div>
+                      );
+                    })()}
                   </div>
                   <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(5,7,12,0.95) 0%, rgba(5,7,12,0.4) 50%, rgba(5,7,12,0) 100%)", display: "flex", alignItems: "flex-end", padding: "15px" }}>
                     <h3 style={{ fontSize: "1.05rem", color: "var(--text-white)", margin: 0, fontWeight: "600" }}>Instant Evaluations</h3>
@@ -499,7 +695,30 @@ export default function Dashboard() {
                   className="dashboard-thumbnail-card sp-card"
                 >
                   <div style={{ width: "100%", height: "100%" }}>
-                    <img src="/images/pic07.jpg" alt="Badge History" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.4s ease" }} className="card-banner-img" />
+                    {(() => {
+                      const config = getCardVisualConfig("nav-profile");
+                      const IconComp = config.icon;
+                      return (
+                        <div style={{
+                          width: "100%",
+                          height: "100%",
+                          background: config.gradient,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          position: "relative"
+                        }} className="card-banner-img">
+                          <div style={{
+                            position: "absolute",
+                            inset: 0,
+                            opacity: 0.1,
+                            backgroundImage: "radial-gradient(#ffffff 2px, transparent 2px)",
+                            backgroundSize: "14px 14px"
+                          }} />
+                          <IconComp size={48} color="#ffffff" style={{ opacity: 0.9, zIndex: 2 }} />
+                        </div>
+                      );
+                    })()}
                   </div>
                   <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(5,7,12,0.95) 0%, rgba(5,7,12,0.4) 50%, rgba(5,7,12,0) 100%)", display: "flex", alignItems: "flex-end", padding: "15px" }}>
                     <h3 style={{ fontSize: "1.05rem", color: "var(--text-white)", margin: 0, fontWeight: "600" }}>Profile & Badge Milestones</h3>
@@ -512,7 +731,30 @@ export default function Dashboard() {
                   className="dashboard-thumbnail-card sp-card"
                 >
                   <div style={{ width: "100%", height: "100%" }}>
-                    <img src="/images/pic02.jpg" alt="Company Questions" style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.4s ease" }} className="card-banner-img" />
+                    {(() => {
+                      const config = getCardVisualConfig("nav-company");
+                      const IconComp = config.icon;
+                      return (
+                        <div style={{
+                          width: "100%",
+                          height: "100%",
+                          background: config.gradient,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          position: "relative"
+                        }} className="card-banner-img">
+                          <div style={{
+                            position: "absolute",
+                            inset: 0,
+                            opacity: 0.1,
+                            backgroundImage: "radial-gradient(#ffffff 2px, transparent 2px)",
+                            backgroundSize: "14px 14px"
+                          }} />
+                          <IconComp size={48} color="#ffffff" style={{ opacity: 0.9, zIndex: 2 }} />
+                        </div>
+                      );
+                    })()}
                   </div>
                   <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(5,7,12,0.95) 0%, rgba(5,7,12,0.4) 50%, rgba(5,7,12,0) 100%)", display: "flex", alignItems: "flex-end", padding: "15px" }}>
                     <h3 style={{ fontSize: "1.05rem", color: "var(--text-white)", margin: 0, fontWeight: "600" }}>Company Interview Packs</h3>
@@ -563,6 +805,21 @@ export default function Dashboard() {
                           <span>Top 10% (92%)</span>
                         </div>
                       </div>
+
+                      {totalQuizzes === 0 && (
+                        <div style={{
+                          background: "rgba(124, 92, 255, 0.08)",
+                          border: "1px solid rgba(124, 92, 255, 0.15)",
+                          borderRadius: "8px",
+                          padding: "12px",
+                          marginTop: "20px",
+                          textAlign: "center"
+                        }}>
+                          <p style={{ fontSize: "12.5px", color: "#a6c8ff", margin: 0, lineHeight: "1.4" }}>
+                            🚀 <strong>Ready to start?</strong> Take a quick practice quiz to set your baseline score and start tracking your ranking trend!
+                          </p>
+                        </div>
+                      )}
                     </>
                   )}
                 </motion.div>
@@ -632,13 +889,13 @@ export default function Dashboard() {
                         {totalQuizzes > 0 ? (
                           <svg width="100%" height="100%" viewBox="0 0 400 200" preserveAspectRatio="none">
                             <path
-                              d={`M ${user.scores.map((s, i) => `${(i / (totalQuizzes - 1 || 1)) * 400},${200 - (s.score / s.total) * 180}`).join(" L ")}`}
+                              d={`M ${(user?.scores || []).map((s, i) => `${(i / (totalQuizzes - 1 || 1)) * 400},${200 - (s.score / s.total) * 180}`).join(" L ")}`}
                               fill="none"
                               stroke="var(--brand-red)"
                               strokeWidth="3"
                               strokeLinecap="round"
                             />
-                            {user.scores.map((s, i) => (
+                            {(user?.scores || []).map((s, i) => (
                               <circle
                                  key={i}
                                  cx={(i / (totalQuizzes - 1 || 1)) * 400}
@@ -649,8 +906,55 @@ export default function Dashboard() {
                             ))}
                           </svg>
                         ) : (
-                          <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", opacity: 0.4 }}>
-                            Take more quizzes to see your trend!
+                          <div style={{
+                            height: "100%",
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            textAlign: "center",
+                            padding: "20px"
+                          }}>
+                            <div style={{
+                              width: 60,
+                              height: 60,
+                              borderRadius: "50%",
+                              background: "rgba(124, 92, 255, 0.1)",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              marginBottom: "16px"
+                            }}>
+                              <span style={{ fontSize: "28px" }}>📈</span>
+                            </div>
+                            <p style={{ color: "rgba(255, 255, 255, 0.8)", fontWeight: "600", fontSize: "16px", marginBottom: "8px", margin: 0 }}>No quiz attempts yet</p>
+                            <p style={{ color: "var(--text-grey)", fontSize: "13.5px", maxWidth: "280px", marginTop: "4px", marginBottom: "16px", lineHeight: "1.5" }}>
+                              Your learning progress chart is currently empty. Take a quiz to map your proficiency!
+                            </p>
+                            <button
+                              onClick={() => {
+                                const el = document.getElementById("wrapper");
+                                if (el) {
+                                  el.scrollIntoView({ behavior: "smooth" });
+                                } else {
+                                  window.scrollTo({ top: 500, behavior: "smooth" });
+                                }
+                              }}
+                              style={{
+                                background: "rgba(124, 92, 255, 0.15)",
+                                border: "1px solid rgba(124, 92, 255, 0.3)",
+                                color: "#a6c8ff",
+                                padding: "8px 18px",
+                                borderRadius: "20px",
+                                fontSize: "13px",
+                                fontWeight: "600",
+                                cursor: "pointer",
+                                transition: "all 0.3s ease"
+                              }}
+                              className="sp-btn"
+                            >
+                              Take your first quiz to unlock your trend →
+                            </button>
                           </div>
                         )}
                       </div>
@@ -665,73 +969,7 @@ export default function Dashboard() {
 
             </div>
 
-            {/* LEADERBOARD & BADGES ROW */}
-            <div style={{ display: "flex", gap: "30px", flexWrap: "wrap", marginTop: "40px" }}>
-              {/* Leaderboard panel */}
-              <div style={{ flex: 1, minWidth: "300px" }}>
-                <div className="glass-card sp-card">
-                  <h3 className="bebas-font" style={{ fontSize: "1.8rem", color: "var(--brand-red)", borderBottom: "1px solid rgba(255, 255, 255, 0.15)", paddingBottom: "10px", marginBottom: "20px" }}>
-                    🔥 Peer Leaderboard
-                  </h3>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                    {LEADERBOARD_ENTRIES.map((entry) => (
-                      <div 
-                        key={entry.id} 
-                        style={{
-                          display: "flex", justifyContent: "space-between", alignItems: "center",
-                          padding: "12px 16px", borderRadius: "8px",
-                          background: entry.id === "user-self" ? "rgba(124, 92, 255, 0.15)" : "rgba(255,255,255,0.02)",
-                          border: entry.id === "user-self" ? "1px solid #7c5cff" : "1px solid var(--glass-border)",
-                        }}
-                      >
-                        <span style={{ fontWeight: "600", color: entry.id === "user-self" ? "var(--text-white)" : "rgba(255,255,255,0.8)" }}>
-                          #{entry.rank} {entry.name}
-                        </span>
-                        <span style={{ color: "var(--brand-cyan)", fontWeight: "bold" }}>{entry.score}%</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
 
-              {/* Badges panel */}
-              <div style={{ flex: 1, minWidth: "300px" }}>
-                <div className="glass-card sp-card" style={{ height: "100%" }}>
-                  <h3 className="bebas-font" style={{ fontSize: "1.8rem", color: "var(--brand-red)", borderBottom: "1px solid rgba(255, 255, 255, 0.15)", paddingBottom: "10px", marginBottom: "20px" }}>
-                    🎓 Earned Badges
-                  </h3>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
-                    {BADGES.map((badge) => (
-                      <div 
-                        key={badge.id} 
-                        style={{
-                          background: "rgba(255,255,255,0.03)",
-                          border: "1px solid var(--glass-border)",
-                          borderRadius: "10px",
-                          padding: "15px",
-                          display: "flex",
-                          flexDirection: "column",
-                          justifyContent: "space-between",
-                          minHeight: "130px"
-                        }}
-                      >
-                        <span style={{ fontSize: "1.5rem", display: "block", marginBottom: "8px" }}>🏅</span>
-                        <h4 style={{ fontSize: "13px", fontWeight: "600", color: "#ffffff", margin: "0 0 10px 0" }}>{badge.title}</h4>
-                        <a 
-                          href={buildLinkedInShareUrl(badge)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="button primary sp-btn"
-                          style={{ fontSize: "10px", height: "26px", lineHeight: "26px", padding: "0 8px", width: "100%", textAlign: "center" }}
-                        >
-                          Share on LinkedIn
-                        </a>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
 
           </div>
         </div>
@@ -974,10 +1212,38 @@ export default function Dashboard() {
               style={{ maxWidth: "600px", padding: "0px", overflow: "hidden", borderRadius: "16px" }}
             >
               {/* Cover Image */}
-              <div style={{ height: "220px", position: "relative", backgroundImage: `url(${activeAssessment.cover})`, backgroundSize: "cover", backgroundPosition: "center" }}>
-                <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 40%, var(--bg-deep) 100%)" }} />
-                <button onClick={() => setActiveAssessment(null)} className="close-btn" style={{ top: "15px", right: "15px" }}>✕</button>
-              </div>
+              {(() => {
+                const config = getCardVisualConfig(activeAssessment.id);
+                if (config.icon !== AlertCircle) {
+                  const IconComp = config.icon;
+                  return (
+                    <div style={{
+                      height: "220px",
+                      position: "relative",
+                      background: config.gradient,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center"
+                    }}>
+                      <div style={{
+                        position: "absolute",
+                        inset: 0,
+                        opacity: 0.1,
+                        backgroundImage: "radial-gradient(#ffffff 2px, transparent 2px)",
+                        backgroundSize: "16px 16px"
+                      }} />
+                      <IconComp size={64} color="#ffffff" style={{ opacity: 0.9 }} />
+                      <button onClick={() => setActiveAssessment(null)} className="close-btn" style={{ top: "15px", right: "15px" }}>✕</button>
+                    </div>
+                  );
+                }
+                return (
+                  <div style={{ height: "220px", position: "relative", backgroundImage: `url(${activeAssessment.cover})`, backgroundSize: "cover", backgroundPosition: "center" }}>
+                    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 40%, var(--bg-deep) 100%)" }} />
+                    <button onClick={() => setActiveAssessment(null)} className="close-btn" style={{ top: "15px", right: "15px" }}>✕</button>
+                  </div>
+                );
+              })()}
 
               {/* Content */}
               <div style={{ padding: "30px", textAlign: "left" }}>

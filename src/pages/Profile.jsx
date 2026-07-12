@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { useToast } from "../hooks/useToast";
 import { useCountUp } from "../hooks/useCountUp";
+import { Trophy, Award, TrendingUp, Activity, Brain } from "lucide-react";
 
 // Stat number count up animator component
 function StatNumber({ value, suffix = "" }) {
@@ -35,18 +36,7 @@ function BenchmarkBar({ percent }) {
   );
 }
 
-const LEADERBOARD_ENTRIES = [
-  { id: "l-1", name: "Rohan S.", score: 94, rank: 1 },
-  { id: "l-2", name: "Ananya M.", score: 88, rank: 2 },
-  { id: "user-self", name: "You (purnachandra)", score: 82, rank: 3 },
-  { id: "l-4", name: "Vikram K.", score: 79, rank: 4 },
-  { id: "l-5", name: "Learner #482", score: 72, rank: 5 }
-];
 
-const BADGES = [
-  { id: "badge-1", title: "DSA Foundations Completed" },
-  { id: "badge-2", title: "AI Voice Recruiter Cleared" }
-];
 
 export default function Profile() {
   const [user, setUser] = useState(null);
@@ -78,6 +68,18 @@ export default function Profile() {
   }, []);
 
   const fetchProfile = async () => {
+    // 1. Immediate local storage fallback
+    const cachedUser = localStorage.getItem("user");
+    if (cachedUser) {
+      const data = JSON.parse(cachedUser);
+      setUser(data);
+      setEditName(data.name || "");
+      const storedPronouns = localStorage.getItem(`pronouns_${data._email || data.email}`);
+      if (storedPronouns) setEditPronouns(storedPronouns);
+      const storedAvatar = localStorage.getItem(`avatar_${data._email || data.email}`);
+      setEditAvatar(storedAvatar || "/images/pic07.jpg");
+    }
+
     try {
       const token = localStorage.getItem("token");
       if (!token) {
@@ -91,21 +93,32 @@ export default function Profile() {
         },
       });
 
-      if (!res.ok) throw new Error("Failed to fetch profile");
+      if (!res.ok) {
+        if (res.status === 401) {
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          navigate("/");
+          return;
+        }
+        throw new Error("Failed to fetch profile");
+      }
 
       const data = await res.json();
       setUser(data);
+      localStorage.setItem("user", JSON.stringify(data)); // update cache
 
-      // Initialize edit form
       setEditName(data.name || "");
-      const storedPronouns = localStorage.getItem(`pronouns_${data._email}`);
+      const storedPronouns = localStorage.getItem(`pronouns_${data._email || data.email}`);
       if (storedPronouns) setEditPronouns(storedPronouns);
       
-      const storedAvatar = localStorage.getItem(`avatar_${data._email}`);
+      const storedAvatar = localStorage.getItem(`avatar_${data._email || data.email}`);
       setEditAvatar(storedAvatar || "/images/pic07.jpg");
+      setError(""); // clear error
     } catch (err) {
       console.error(err);
-      setError("Error loading profile");
+      if (!cachedUser) {
+        setError("Error loading profile");
+      }
     }
   };
 
@@ -207,18 +220,18 @@ export default function Profile() {
   }
 
   // Calculate stats
-  const totalQuizzes = user.scores?.length || 0;
+  const totalQuizzes = user?.scores?.length || 0;
   const avgScore = totalQuizzes
-    ? Math.round((user.scores.reduce((acc, s) => acc + (s.score / s.total), 0) / totalQuizzes) * 100)
+    ? Math.round(((user?.scores || []).reduce((acc, s) => acc + (s.score / s.total), 0) / totalQuizzes) * 100)
     : 0;
 
   // Generate GitHub contribution grid dates (past 53 weeks)
   const getContributionLevel = (dateStr) => {
     let count = 0;
-    user.scores?.forEach(s => {
+    user?.scores?.forEach(s => {
       if (new Date(s.date).toISOString().slice(0, 10) === dateStr) count++;
     });
-    user.interviews?.forEach(i => {
+    user?.interviews?.forEach(i => {
       if (new Date(i.date).toISOString().slice(0, 10) === dateStr) count++;
     });
 
@@ -265,12 +278,45 @@ export default function Profile() {
   // Months labels positioning
   const monthsLabels = ["Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar", "Apr", "May", "Jun"];
 
+  // Dynamic user-level earned badges
+  const earnedBadges = [];
+  if (user?.scores?.length > 0) {
+    earnedBadges.push({ id: "badge-1", title: "DSA Foundations Completed" });
+  }
+  if (user?.interviews?.length > 0) {
+    earnedBadges.push({ id: "badge-2", title: "AI Voice Recruiter Cleared" });
+  }
+
+  const getLeaderboardUserName = () => {
+    if (!user) return "You";
+    const displayName = user.name || user.email?.split("@")[0] || "User";
+    return `You (${displayName})`;
+  };
+
+  const getSortedLeaderboard = () => {
+    const userScore = totalQuizzes > 0 ? avgScore : 0;
+    const entries = [
+      { id: "l-1", name: "Learner #103", score: 94 },
+      { id: "l-2", name: "Learner #254", score: 88 },
+      { id: "user-self", name: "user-self", score: userScore },
+      { id: "l-4", name: "Learner #482", score: 79 },
+      { id: "l-5", name: "Learner #691", score: 72 }
+    ];
+    const sorted = [...entries].sort((a, b) => b.score - a.score);
+    return sorted.map((entry, idx) => ({
+      ...entry,
+      rank: idx + 1
+    }));
+  };
+
+  const leaderboardEntries = getSortedLeaderboard();
+
   return (
     <div id="page-wrapper" style={{ background: "var(--bg-deep)" }}>
       <Navbar />
 
       {/* GitHub-style Profile Page Layout */}
-      <section style={{ padding: "40px 4%", color: "var(--text-white)", fontFamily: "Inter, sans-serif" }}>
+      <section style={{ padding: "120px 4% 40px", color: "var(--text-white)", fontFamily: "Inter, sans-serif" }}>
         
         <div style={{ display: "flex", gap: "40px", flexDirection: "row", flexWrap: "wrap", alignItems: "flex-start" }}>
           
@@ -362,12 +408,31 @@ export default function Profile() {
             <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: "20px" }}>
               <h4 style={{ fontSize: "14px", fontWeight: "600", color: "var(--text-white)", marginBottom: "12px" }}>Highlights</h4>
               <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-                <span style={{ background: "rgba(124, 92, 255, 0.15)", border: "1px solid rgba(124, 92, 255, 0.3)", color: "#ff6b72", padding: "4px 10px", borderRadius: "12px", fontSize: "11px", fontWeight: "700" }}>
-                  PRO MEMBER
+                <span 
+                  title="Pro Member: Unlimited AI Voice Interviews & custom study roadmap access enabled"
+                  style={{
+                    background: "rgba(124, 92, 255, 0.15)",
+                    border: "1px solid rgba(124, 92, 255, 0.3)",
+                    color: "#ff6b72",
+                    padding: "4px 10px",
+                    borderRadius: "12px",
+                    fontSize: "11px",
+                    fontWeight: "700",
+                    cursor: "help"
+                  }}
+                >
+                  PRO MEMBER ⓘ
                 </span>
-                <span style={{ background: "rgba(47, 217, 217, 0.15)", border: "1px solid rgba(47, 217, 217, 0.3)", color: "var(--brand-cyan)", padding: "4px 10px", borderRadius: "12px", fontSize: "11px", fontWeight: "700" }}>
-                  🔥 {streak.currentStreak} DAY STREAK
-                </span>
+                {totalContributions > 0 && (
+                  <span style={{ background: "rgba(47, 217, 217, 0.15)", border: "1px solid rgba(47, 217, 217, 0.3)", color: "var(--brand-cyan)", padding: "4px 10px", borderRadius: "12px", fontSize: "11px", fontWeight: "700" }}>
+                    🔥 {streak.currentStreak} DAY STREAK
+                  </span>
+                )}
+                {earnedBadges.map(badge => (
+                  <span key={badge.id} style={{ background: "rgba(124, 92, 255, 0.15)", border: "1px solid rgba(124, 92, 255, 0.3)", color: "#22d3ee", padding: "4px 10px", borderRadius: "12px", fontSize: "11px", fontWeight: "700" }}>
+                    🏆 {badge.title}
+                  </span>
+                ))}
               </div>
             </div>
 
@@ -383,71 +448,93 @@ export default function Profile() {
 
             <div>
               {/* GitHub Contribution Calendar Widget */}
-              <div style={{ background: "rgba(30,30,35,0.55)", border: "1px solid var(--glass-border)", borderRadius: "8px", padding: "20px", marginBottom: "35px" }}>
-                <div style={{ fontSize: "14px", color: "var(--text-white)", marginBottom: "15px", fontWeight: "500" }}>
-                  {totalContributions} contributions in the last 12 months
-                </div>
+              {totalContributions > 0 ? (
+                <div style={{ background: "rgba(30,30,35,0.55)", border: "1px solid var(--glass-border)", borderRadius: "8px", padding: "20px", marginBottom: "35px" }}>
+                  <div style={{ fontSize: "14px", color: "var(--text-white)", marginBottom: "15px", fontWeight: "500" }}>
+                    {totalContributions} contributions in the last 12 months
+                  </div>
 
-                {/* Calendar Grid Container (Horizontal scrollable) */}
-                <div style={{ overflowX: "auto" }}>
-                  <div style={{ display: "flex", flexDirection: "column", minWidth: "750px" }}>
-                    
-                    {/* Months headers row */}
-                    <div style={{ display: "flex", paddingLeft: "30px", marginBottom: "5px", fontSize: "10px", color: "var(--text-grey)" }}>
-                      {monthsLabels.map((m, idx) => (
-                        <div key={idx} style={{ flex: 1, textAlign: "left" }}>{m}</div>
-                      ))}
-                    </div>
-
-                    {/* Days grid block */}
-                    <div style={{ display: "flex", gap: "3px" }}>
+                  {/* Calendar Grid Container (Horizontal scrollable) */}
+                  <div style={{ overflowX: "auto" }}>
+                    <div style={{ display: "flex", flexDirection: "column", minWidth: "750px" }}>
                       
-                      {/* Day labels column */}
-                      <div style={{ display: "flex", flexDirection: "column", gap: "3px", width: "25px", fontSize: "9px", color: "var(--text-grey)", justifyContent: "center" }}>
-                        <div>Mon</div>
-                        <div style={{ height: "10px" }} />
-                        <div>Wed</div>
-                        <div style={{ height: "10px" }} />
-                        <div>Fri</div>
-                      </div>
-
-                      {/* Weeks grid */}
-                      <div style={{ display: "flex", gap: "3px", flex: 1 }}>
-                        {weeks.map((week, wIdx) => (
-                          <div key={wIdx} style={{ display: "flex", flexDirection: "column", gap: "3px" }}>
-                            {week.map((day, dIdx) => (
-                              <div 
-                                key={dIdx}
-                                title={`${day.date}: ${day.level > 0 ? "Activity logged" : "No activity"}`}
-                                style={{
-                                  width: "10px",
-                                  height: "10px",
-                                  borderRadius: "2px",
-                                  background: getContributionColor(day.level),
-                                  transition: "background 0.2s ease"
-                                }}
-                              />
-                            ))}
-                          </div>
+                      {/* Months headers row */}
+                      <div style={{ display: "flex", paddingLeft: "30px", marginBottom: "5px", fontSize: "10px", color: "var(--text-grey)" }}>
+                        {monthsLabels.map((m, idx) => (
+                          <div key={idx} style={{ flex: 1, textAlign: "left" }}>{m}</div>
                         ))}
                       </div>
 
-                    </div>
+                      {/* Days grid block */}
+                      <div style={{ display: "flex", gap: "3px" }}>
+                        
+                        {/* Day labels column */}
+                        <div style={{ display: "flex", flexDirection: "column", gap: "3px", width: "25px", fontSize: "9px", color: "var(--text-grey)", justifyContent: "center" }}>
+                          <div>Mon</div>
+                          <div style={{ height: "10px" }} />
+                          <div>Wed</div>
+                          <div style={{ height: "10px" }} />
+                          <div>Fri</div>
+                        </div>
 
+                        {/* Weeks grid */}
+                        <div style={{ display: "flex", gap: "3px", flex: 1 }}>
+                          {weeks.map((week, wIdx) => (
+                            <div key={wIdx} style={{ display: "flex", flexDirection: "column", gap: "3px" }}>
+                              {week.map((day, dIdx) => (
+                                <div 
+                                  key={dIdx}
+                                  title={`${day.date}: ${day.level > 0 ? "Activity logged" : "No activity"}`}
+                                  style={{
+                                    width: "10px",
+                                    height: "10px",
+                                    borderRadius: "2px",
+                                    background: getContributionColor(day.level),
+                                    transition: "background 0.2s ease"
+                                  }}
+                                />
+                              ))}
+                            </div>
+                          ))}
+                        </div>
+
+                      </div>
+
+                    </div>
+                  </div>
+
+                  {/* Calendar Legends */}
+                  <div style={{ display: "flex", justifyContent: "flex-end", gap: "5px", fontSize: "11px", color: "var(--text-grey)", marginTop: "12px", alignItems: "center" }}>
+                    <span>Less</span>
+                    <div style={{ width: "10px", height: "10px", borderRadius: "2px", background: "#161b22" }} />
+                    <div style={{ width: "10px", height: "10px", borderRadius: "2px", background: "#0e4429" }} />
+                    <div style={{ width: "10px", height: "10px", borderRadius: "2px", background: "#006d32" }} />
+                    <div style={{ width: "10px", height: "10px", borderRadius: "2px", background: "#26a641" }} />
+                    <div style={{ width: "10px", height: "10px", borderRadius: "2px", background: "#39d353" }} />
+                    <span>More</span>
                   </div>
                 </div>
-
-                {/* Calendar Legends */}
-                <div style={{ display: "flex", justifyContent: "flex-end", gap: "5px", fontSize: "11px", color: "var(--text-grey)", marginTop: "12px", alignItems: "center" }}>
-                  <span>Less</span>
-                  <div style={{ width: "10px", height: "10px", borderRadius: "2px", background: "#161b22" }} />
-                  <div style={{ width: "10px", height: "10px", borderRadius: "2px", background: "#0e4429" }} />
-                  <div style={{ width: "10px", height: "10px", borderRadius: "2px", background: "#006d32" }} />
-                  <div style={{ width: "10px", height: "10px", borderRadius: "2px", background: "#26a641" }} />
-                  <div style={{ width: "10px", height: "10px", borderRadius: "2px", background: "#39d353" }} />
-                  <span>More</span>
+              ) : (
+                <div style={{
+                  background: "rgba(30,30,35,0.25)",
+                  border: "1px dashed var(--glass-border)",
+                  borderRadius: "8px",
+                  padding: "30px 20px",
+                  marginBottom: "35px",
+                  textAlign: "center"
+                }}>
+                  <p style={{ fontSize: "14px", color: "var(--text-grey)", margin: "0 0 12px 0" }}>
+                    📅 Your 12-month learning activity calendar will appear here once you log your first contribution.
+                  </p>
+                  <button 
+                    className="button primary fit sp-btn" 
+                    onClick={() => navigate("/dashboard")}
+                    style={{ fontSize: "12px", padding: "0 16px", height: "30px", lineHeight: "30px" }}
+                  >
+                    Take a Quiz to Start Tracking
+                  </button>
                 </div>
-              </div>
+              )}
 
               {/* 5 SYNCED DASHBOARD SECTIONS */}
               
@@ -464,8 +551,8 @@ export default function Profile() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2 }}
                   >
-                    <h3 className="bebas-font" style={{ fontSize: "1.8rem", color: "var(--brand-red)", borderBottom: "1px solid rgba(255, 255, 255, 0.15)", paddingBottom: "10px", marginBottom: "20px" }}>
-                      Performance Pulse
+                    <h3 className="bebas-font" style={{ fontSize: "1.8rem", color: "var(--brand-red)", borderBottom: "1px solid rgba(255, 255, 255, 0.15)", paddingBottom: "10px", marginBottom: "20px", display: "flex", alignItems: "center", gap: "10px" }}>
+                      <Activity size={24} style={{ color: "var(--brand-red)" }} /> Performance Pulse
                     </h3>
                     <div className="stats-grid" style={{ display: "flex", justifyContent: "space-around", marginBottom: "30px" }}>
                       <div className="stat-item" style={{ textAlign: "center" }}>
@@ -499,8 +586,8 @@ export default function Profile() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3 }}
                   >
-                    <h3 className="bebas-font" style={{ fontSize: "1.8rem", color: "var(--brand-red)", borderBottom: "1px solid rgba(255, 255, 255, 0.15)", paddingBottom: "10px", marginBottom: "15px" }}>
-                      ✨ AI Study Roadmap
+                    <h3 className="bebas-font" style={{ fontSize: "1.8rem", color: "var(--brand-red)", borderBottom: "1px solid rgba(255, 255, 255, 0.15)", paddingBottom: "10px", marginBottom: "15px", display: "flex", alignItems: "center", gap: "10px" }}>
+                      <Brain size={24} style={{ color: "var(--brand-red)" }} /> AI Study Roadmap
                     </h3>
                     <p style={{ fontSize: "14px", opacity: 0.7, marginBottom: "20px" }}>
                       Let our AI analyze your quiz history to create a custom 7-day plan to bridge your knowledge gaps.
@@ -547,20 +634,20 @@ export default function Profile() {
                     style={{ height: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between" }}
                   >
                     <div>
-                      <h3 className="bebas-font" style={{ fontSize: "1.8rem", color: "var(--brand-red)", borderBottom: "1px solid rgba(255, 255, 255, 0.15)", paddingBottom: "10px", marginBottom: "20px" }}>
-                        Score Trend Analysis
+                      <h3 className="bebas-font" style={{ fontSize: "1.8rem", color: "var(--brand-red)", borderBottom: "1px solid rgba(255, 255, 255, 0.15)", paddingBottom: "10px", marginBottom: "20px", display: "flex", alignItems: "center", gap: "10px" }}>
+                        <TrendingUp size={24} style={{ color: "var(--brand-red)" }} /> Score Trend Analysis
                       </h3>
                       <div style={{ marginTop: "30px", height: "230px", width: "100%", position: "relative" }}>
                         {totalQuizzes > 0 ? (
                           <svg width="100%" height="100%" viewBox="0 0 400 200" preserveAspectRatio="none">
                             <path
-                              d={`M ${user.scores.map((s, i) => `${(i / (totalQuizzes - 1 || 1)) * 400},${200 - (s.score / s.total) * 180}`).join(" L ")}`}
+                              d={`M ${(user?.scores || []).map((s, i) => `${(i / (totalQuizzes - 1 || 1)) * 400},${200 - (s.score / s.total) * 180}`).join(" L ")}`}
                               fill="none"
                               stroke="var(--brand-red)"
                               strokeWidth="3"
                               strokeLinecap="round"
                             />
-                            {user.scores.map((s, i) => (
+                            {(user?.scores || []).map((s, i) => (
                               <circle
                                 key={i}
                                 cx={(i / (totalQuizzes - 1 || 1)) * 400}
@@ -571,8 +658,50 @@ export default function Profile() {
                             ))}
                           </svg>
                         ) : (
-                          <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", opacity: 0.4 }}>
-                            Take more quizzes to see your trend!
+                          <div style={{
+                            height: "100%",
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            textAlign: "center",
+                            padding: "20px"
+                          }}>
+                            <div style={{
+                              width: 60,
+                              height: 60,
+                              borderRadius: "50%",
+                              background: "rgba(124, 92, 255, 0.1)",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              marginBottom: "16px"
+                            }}>
+                              <span style={{ fontSize: "28px" }}>📈</span>
+                            </div>
+                            <p style={{ color: "rgba(255, 255, 255, 0.8)", fontWeight: "600", fontSize: "16px", marginBottom: "8px", margin: 0 }}>No quiz attempts yet</p>
+                            <p style={{ color: "var(--text-grey)", fontSize: "13.5px", maxWidth: "280px", marginTop: "4px", marginBottom: "16px", lineHeight: "1.5" }}>
+                              Your learning progress chart is currently empty. Take a quiz to map your proficiency!
+                            </p>
+                            <button
+                              onClick={() => {
+                                window.scrollTo({ top: 0, behavior: "smooth" });
+                              }}
+                              style={{
+                                background: "rgba(124, 92, 255, 0.15)",
+                                border: "1px solid rgba(124, 92, 255, 0.3)",
+                                color: "#a6c8ff",
+                                padding: "8px 18px",
+                                borderRadius: "20px",
+                                fontSize: "13px",
+                                fontWeight: "600",
+                                cursor: "pointer",
+                                transition: "all 0.3s ease"
+                              }}
+                              className="sp-btn"
+                            >
+                              Take your first quiz to unlock your trend →
+                            </button>
                           </div>
                         )}
                       </div>
@@ -592,11 +721,11 @@ export default function Profile() {
                 {/* 4. PEER LEADERBOARD */}
                 <div style={{ flex: 1, minWidth: "300px" }}>
                   <div className="glass-card sp-card">
-                    <h3 className="bebas-font" style={{ fontSize: "1.8rem", color: "var(--brand-red)", borderBottom: "1px solid rgba(255, 255, 255, 0.15)", paddingBottom: "10px", marginBottom: "20px" }}>
-                      🔥 Peer Leaderboard
+                    <h3 className="bebas-font" style={{ fontSize: "1.8rem", color: "var(--brand-red)", borderBottom: "1px solid rgba(255, 255, 255, 0.15)", paddingBottom: "10px", marginBottom: "20px", display: "flex", alignItems: "center", gap: "10px" }}>
+                      <Trophy size={24} style={{ color: "var(--brand-red)" }} /> Peer Leaderboard
                     </h3>
                     <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                      {LEADERBOARD_ENTRIES.map((entry) => (
+                      {leaderboardEntries.map((entry) => (
                         <div 
                           key={entry.id} 
                           style={{
@@ -619,43 +748,57 @@ export default function Profile() {
                 {/* 5. EARNED BADGES */}
                 <div style={{ flex: 1, minWidth: "300px" }}>
                   <div className="glass-card sp-card" style={{ height: "100%" }}>
-                    <h3 className="bebas-font" style={{ fontSize: "1.8rem", color: "var(--brand-red)", borderBottom: "1px solid rgba(255, 255, 255, 0.15)", paddingBottom: "10px", marginBottom: "20px" }}>
-                      🎓 Earned Badges
+                    <h3 className="bebas-font" style={{ fontSize: "1.8rem", color: "var(--brand-red)", borderBottom: "1px solid rgba(255, 255, 255, 0.15)", paddingBottom: "10px", marginBottom: "20px", display: "flex", alignItems: "center", gap: "10px" }}>
+                      <Award size={24} style={{ color: "var(--brand-red)" }} /> Earned Badges
                     </h3>
                     <div style={{ display: "flex", gap: "15px", flexWrap: "wrap" }}>
-                      {BADGES.map((badge) => (
-                        <div 
-                          key={badge.id} 
-                          style={{ 
-                            flex: "1 1 200px", 
-                            background: "rgba(255,255,255,0.02)", 
-                            border: "1px solid var(--glass-border)", 
-                            borderRadius: "8px", 
-                            padding: "16px", 
-                            textAlign: "center",
-                            display: "flex",
-                            flexDirection: "column",
-                            justifyContent: "space-between",
-                            minHeight: "130px"
-                          }}
-                        >
-                          <div>
-                            <span style={{ fontSize: "24px", display: "block", marginBottom: "6px" }}>🏅</span>
-                            <span style={{ fontSize: "12px", fontWeight: "600", color: "var(--text-white)", display: "block", lineHeight: "1.3" }}>
-                              {badge.title}
-                            </span>
-                          </div>
-                          <a 
-                            href={buildLinkedInShareUrl(badge)} 
-                            target="_blank" 
-                            rel="noopener noreferrer" 
-                            className="button primary fit sp-btn" 
-                            style={{ height: "28px", lineHeight: "28px", fontSize: "10px", marginTop: "12px", textTransform: "none" }}
+                      {earnedBadges.length > 0 ? (
+                        earnedBadges.map((badge) => (
+                          <div 
+                            key={badge.id} 
+                            style={{ 
+                              flex: "1 1 200px", 
+                              background: "rgba(255,255,255,0.02)", 
+                              border: "1px solid var(--glass-border)", 
+                              borderRadius: "8px", 
+                              padding: "16px", 
+                              textAlign: "center",
+                              display: "flex",
+                              flexDirection: "column",
+                              justifyContent: "space-between",
+                              minHeight: "130px"
+                            }}
                           >
-                            Share on LinkedIn
-                          </a>
+                            <div>
+                              <span style={{ fontSize: "24px", display: "block", marginBottom: "6px" }}>🏅</span>
+                              <span style={{ fontSize: "12px", fontWeight: "600", color: "var(--text-white)", display: "block", lineHeight: "1.3" }}>
+                                {badge.title}
+                              </span>
+                            </div>
+                            <a 
+                              href={buildLinkedInShareUrl(badge)} 
+                              target="_blank" 
+                              rel="noopener noreferrer" 
+                              className="button primary fit sp-btn" 
+                              style={{ height: "28px", lineHeight: "28px", fontSize: "10px", marginTop: "12px", textTransform: "none" }}
+                            >
+                              Share on LinkedIn
+                            </a>
+                          </div>
+                        ))
+                      ) : (
+                        <div style={{
+                          width: "100%",
+                          padding: "30px",
+                          textAlign: "center",
+                          color: "var(--text-grey)",
+                          border: "1px dashed var(--glass-border)",
+                          borderRadius: "8px",
+                          fontSize: "13.5px"
+                        }}>
+                          🏆 Complete your first practice track to earn badges!
                         </div>
-                      ))}
+                      )}
                     </div>
                   </div>
                 </div>

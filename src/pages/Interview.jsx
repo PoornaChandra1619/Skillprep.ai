@@ -255,7 +255,7 @@ export default function Interview() {
         <Navbar />
 
         <section id="wrapper">
-          <header style={{ backgroundImage: `url('/images/pic02.jpg')` }}>
+          <header style={{ backgroundImage: `url('/images/pic02.jpg')`, paddingTop: "140px", paddingBottom: "60px" }}>
             <div className="inner">
               <h2 className="bebas-font">Interview Review</h2>
               <p>Review comprehensive feedback on your performance.</p>
@@ -313,7 +313,7 @@ export default function Interview() {
       <Navbar />
 
       <section id="wrapper">
-        <header style={{ backgroundImage: `url('/images/pic02.jpg')` }}>
+        <header style={{ backgroundImage: `url('/images/pic02.jpg')`, paddingTop: "140px", paddingBottom: "60px" }}>
           <div className="inner">
             <h2 className="bebas-font">AI Voice Interviewer</h2>
             <p>Practice simulated technical and behavioral interviews with real-time feedback.</p>
